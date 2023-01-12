@@ -1,0 +1,703 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="OpenSuse,13.1,Linux">
+   <meta name="Author" content="hlubenow2 {at-symbol} gmx.net">
+   <title>Installation-Notes on OpenSuSE 13.1 (Bottle)</title>
+</head>
+<body>
+<H2>
+<img SRC="tux.png" height=36 width=30>&nbsp;
+Installation-Notes on OpenSuSE 13.1 (Bottle)
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.
+I can not be held responsible, if you damage your system by using any of the information provided her.
+</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<UL>
+<LI><A HREF="#1">1. Introduction</A>
+<LI><A HREF="#2">2. Installation of Nvidia-Driver for Graphics-Chip 7025</A>
+<LI><A HREF="#3">3. USB Keyboard and Mouse Sometimes Aren't Recognized at Startup</A>
+<LI><A HREF="#4">4. Booting in Text-Mode</A>
+<LI><A HREF="#5">5. Disabling ipv6</A>
+<LI><A HREF="#6">6. Audio-Setup</A>
+<LI><A HREF="#7">7. "Checkinstall" Needs a Patch</A>
+<LI><A HREF="#8">8. Devices mount below "/var/run/media/user"</A>
+<LI><A HREF="#9">9. Ordinary users can't umount devices below "/var/run/media/user"</A>
+<LI><A HREF="#10">10. Getting "at" started</A>
+<LI><A HREF="#11">11. mpg123 needed for shufflemp3.pl</A>
+<LI><A HREF="#12">12. Prevent Devices or Partitions from being mounted automatically</A>
+<LI><A HREF="#13">13. Make Midnight Commander remember its Last Directory on Exit</A>
+<LI><A HREF="#14">14. Slow start of Midnight Commander and Firefox when offline</A>
+<LI><A HREF="#15">15. Update and fix LXDM</A>
+<LI><A HREF="#16">16. Set the Screen-Resolution Automatically at LXDE-Startup</A>
+<LI><A HREF="#17">17. Font-Size-Adjustment throughout the System</A>
+<LI><A HREF="#18">18. Defining Keyboard-Shortcuts for Opening Applications and  Maximizing Windows in LXDE</A>
+<LI><A HREF="#19">19. Defining Keyboard-Shortcut for Deleting the Following Word in bash</A>
+<LI><A HREF="#20">20. Disabling Weird Variable-Expansion on Commandline of bash</A>
+<LI><A HREF="#21">21. Execute Commands Automatically at LXDE-Startup</A>
+<LI><A HREF="#22">22. Switching JavaScript on and off quickly in Firefox</A>
+<LI><A HREF="#23">23. Make Firefox Respect the System's Menu-Colors</A>
+<LI><A HREF="#24">24. Keep Firefox From Displaying Annoying Update Messages</A>
+<LI><A HREF="#25">25. Install Flash-Player-Plugin into Firefox</A>
+<LI><A HREF="#26">26. Disabling pdf.JS in Firefox</A>
+<LI><A HREF="#27">27. Configuring a Few Things in Thunderbird</A>
+<LI><A HREF="#28">28. Setting the Size of the Menu-Font in LibreOffice </A>
+<LI><A HREF="#29">29. Speeding up LibreOffice</A>
+<LI><A HREF="#30">30. Setting the Font Sizes of KDE3-Programs</A>
+<LI><A HREF="#31">31. Using Encrypted Containers</A>
+<LI><A HREF="#32">32. m - Play Multimedia-Files</A>
+<LI><A HREF="#33">33. Contents of Certain Configuration Files After Modification</A>
+<LI><A HREF="#34">34. Patching the db9-Kernel-Module for the Second Parallel-Port-Joystick</A>
+<LI><A HREF="#35">35. Emulator Configurations</A>
+<LI><A HREF="#36">36. Used Software-Repositories</A>
+</UL>
+<P>
+<HR>
+<h3><A NAME="1">1. Introduction</A></h3>
+<p>OpenSuSE 13.1 (nickname "Bottle") is one of SuSE's last Linux distributions for 32bit systems (probably 13.2 could have been the last).
+It was first released in November 2013.
+<p>I wrote these notes, when I first installed it. Recently my hard disk drive stopped working, so I had to install the distribution again (on a new hard disk drive).
+<br>I found my old text really useful. Without it, reinstallation would have taken much longer.
+<HR>
+<h3><A NAME="2">2. Installation of Nvidia-Driver for Graphics-Chip 7025</A></h3>
+<p>If you don't have a Nvidia-card, skip this part, as it will be boring for you.
+<p>Installation of the Nvidia-driver was necessary, because with the default driver 'nouveau', I couldn't get nice graphic-modes when playing videos with mplayer (Xvid-Extension).
+<br>The one-click-install on SuSE's page installed the wrong driver!
+<br>For this chip (GeForce 7025 / nForce 630a, 03d6, as shown by the "lspci"-command) the driver G02 from <a href="http://http.download.nvidia.com/opensuse/">this repository</a> is required. Actually, these files had do be downloaded:
+<pre>nvidia-computeG02-304.131-39.1.i586.rpm
+nvidia-gfxG02-kmp-desktop-304.131_k3.11.6_4-38.1.i586.rpm
+x11-video-nvidiaG02-304.131-39.1.i586.rpm
+x11-video-nvidiaG02-appdata.xml</pre>
+<p>Installation was then done as follows:
+<ol>
+<li>Install the rpms as root with "rpm -i ...rpm". If it complains about dependencies, use the "--nodeps"-option.
+<br>&nbsp;
+<li>KMS (Kernel Mode Setting) has to be disabled:
+<ol type="a">
+<li>The option "NO_KMS_IN_INITRD" in "/etc/sysconfig/kernel" has to be set to "yes".
+<li>After making a backup of "/etc/default/grub", edit this file. Add to the options in "GRUB_CMDLINE_LINUX_DEFAULT=" the words " nomodeset nouveau.modeset=0".
+<li>Run "grub2-mkconfig -o /boot/grub2/grub.cfg". This writes the options to the boot-files.
+</ol>
+<br>
+<li>Then, the "nouveau"-driver has to be disabled:
+<ol type="a">
+<li>Edit "/etc/modprobe.d/50-blacklist.conf" and add the line "blacklist nouveau".
+<li>Run "mkinitrd". This is also necessary to disable KMS (see above).
+</ol>
+</ol>
+<p>Then reboot. It shouldn't be necessary to mess with "/etc/X11/xorg.conf". When ready, run "nvidia-settings".
+<P>
+<HR>
+<h3><A NAME="3">3. USB Keyboard and Mouse Sometimes Aren't Recognized at Startup</A></h3>
+<p>Sometimes, the attached USB keyboard and the USB mouse aren't recognized at boot-time. One way to deal with that, is to manually plug the USB devices out and then back in again. But this is annoying and in the long run harmful to the USB ports.
+<p>The reason for the misbehaviour may be, that the USB ports don't get enough power at startup, because a feature called "autosuspend" is enabled.
+If the result of the command
+<pre>cat /sys/module/usbcore/parameters/autosuspend</pre>
+<p>is "2", it means, "autosuspend" is enabled. To disable it, make a backup of "/etc/default/grub", then edit this file.
+<br>Add to the line with the boot-options "GRUB_CMDLINE_LINUX_DEFAULT=" the words:
+<pre> usbcore.autosuspend=-1</pre>
+<p>Then run "grub2-mkconfig -o /boot/grub2/grub.cfg" to write the options to the boot-files.
+<br>After reboot, the result of the "cat"-command above should be "-1", which means, that "autosuspend" is disabled.
+<p>Actually, that still didn't solve the problem. Now I use a USB-hub with keyboard and mouse connected. I just connect the hub at runlevel 5, when the display manager's login screen is shown. That may work.
+<P>
+<HR>
+<h3><A NAME="4">4. Booting in Text-Mode</A></h3>
+<p>When booting Linux, I like to see old-fashioned boot messages in a simple text-mode. To achieve that in OpenSuSE 13.1, I make a backup of "/etc/default/grub". Then I edit this file as root.
+<ul>
+<li>From the line "GRUB_CMDLINE_LINUX_DEFAULT", I remove "splash=silent" and "quiet",
+<li>I comment out a line to "# GRUB_TERMINAL=gfxterm".
+<li>I set "GRUB_GFXMODE=text".
+<li>I set "GRUB_THEME=" and "GRUB_BACKGROUND=" to nothing.
+</ul>
+<p>After that, I run "grub2-mkconfig -o /boot/grub2/grub.cfg" to recreate the boot-loader.
+<p>The grub2-menu to select the operating system to boot is then still shown and functional, but it's displayed in text-mode.
+<p>
+<HR>
+<h3><A NAME="5">5. Disabling ipv6</A></h3>
+<p>ipv6 is some internet-feature, that may work someday, but today, it just slows down your system.
+<br>It's not even that easy to disable, unless you know, where to do it: Make a backup of
+<pre>/etc/default/grub</pre>
+<p>and then edit it (as root). Look for the line of your system-boot, for example:
+<pre>GRUB_CMDLINE_LINUX_DEFAULT="..."</pre>
+<p>Add the option "ipv6.disable=1" to that line, so that it looks something like this:
+<pre>GRUB_CMDLINE_LINUX_DEFAULT="... ipv6.disable=1"</pre>
+<p>Of course, there are lots of other options before that in that line (symbolized here by the three points).
+<p>If you're ready, do
+<pre>grub2-mkconfig -o /boot/grub2/grub.cfg</pre>
+<p>That writes the options to the bootloader (GRUB2). After a reboot, ipv6 should be disabled.
+<P>
+<HR>
+<h3><A NAME="6">6. Audio-Setup</A></h3>
+<p>Although the sound-chip was set-up with yast2, many audio-applications (as mplayer) post errors like
+<pre>Can't open audio device /dev/dsp: No such file</pre>
+<p>Solution: Put the line "modprobe snd_pcm_oss" (as root) into "/etc/rc.d/boot.local".
+<p>If you want to use Youtube on Firefox (version 52 and above), you also have to install "pulseaudio".
+<p>As a system beeping noise, I often use "KDE_Beep_Beep.wav", which was part of "KDE 3". It can be found in "kde3base...rpm" of SuSE 10.0. Use Midnight Commander to browse that rpm. The file is down there at "/opt/kde3/share/sounds".
+<p>Use the command "<tt>/usr/sbin/alsactl store -f normal.state</tt>" to save the current mixer settings to a file "<tt>normal.state</tt>". And "<tt>/usr/sbin/alsactl restore -f normal.state</tt>" to reload them back from the file.
+<HR>
+<h3><A NAME="7">7. "Checkinstall" Needs a Patch</A></h3>
+<p>The version of "checkinstall", that comes with OpenSuSE 13.1, has a bug. It can't create rpms (it says something about not being able to create a directory down in /var/run/.... or so). Fortunately, I found a patch for the bash-script "/usr/sbin/checkinstall", that fixes the problem. It says:
+<pre>With this patch for checkinstall-1.6.2-0.4.src.rpm;
+
+--- checkinstall.in.orig        2015-05-02 12:34:24.894240253 +0900
++++ checkinstall.in     2015-05-02 12:36:52.561583541 +0900
+@@ -2423,7 +2423,7 @@
+ # Prepare directories to be included in the .spec file
+ mv ${TMP_DIR}/newfiles ${TMP_DIR}/newfiles.tmp
+ cat ${TMP_DIR}/newfiles.tmp | while read line; do
+-   [ -d "${BUILD_DIR}/${line}" -o -L "${BUILD_DIR}/${line}" ] &amp;&amp; echo -n "%dir " &gt;&gt; ${TMP_DIR}/newfiles
++   [ -d "${BUILD_DIR}/${line}" ] &amp;&amp; echo -n "%dir " &gt;&gt; ${TMP_DIR}/newfiles
+    echo "\"/${line}\"" &gt;&gt; ${TMP_DIR}/newfiles
+ done
+
+checkinstall works fine.</pre>
+<HR>
+<h3><A NAME="8">8. Devices mount below "/var/run/media/user"</A></h3>
+<p>I have no idea why, but devices now mount below "/var/run/media/user" instead of in "/media". That's stupid.
+<br>Put a symlink "media" on the deep directory into "/home/user", so you don't have to dig that deep:
+<pre>ln -s /var/run/media/user /home/user/media</pre>
+<p>Or even better: Make an alias "cdmedia" by putting this line into "/etc/bash.bashrc.local":
+<pre>alias cdmedia="cd /var/run/media/user;ls"</pre>
+<HR>
+<h3><A NAME="9">9. Ordinary users can't umount devices below "/var/run/media/user"</A></h3>
+<p>That's stupid too. On a Linux-forum, someone suggested the command "udisksctl". Here's a bash-script "/usr/local/bin/umountmedia", that umounts exactly one device below "/var/run/media/user". The command expects a "block-device". As far as I can see, CD/DVDs and USB-sticks are such block-devices.
+<pre>#!/bin/bash
+
+nr=$(ls -1 /var/run/media/user | wc -l)
+if test "$nr" -ne "1"; then
+    echo "Not exactly on device below /var/run/media/user. Aborting."
+    exit 1;
+fi
+
+a=$(mount | grep /var/run/media/user)
+mydev=$(echo "$a" | awk -F " " '{print $1}')
+udisksctl unmount --block-device "$mydev"</pre>
+<p>And also "/usr/local/bin/eject" to eject CDs/DVDs as an ordinary user:
+<pre>#!/bin/bash
+
+if [ $EUID != 0 ]; then
+    /usr/local/bin/umountmedia
+fi
+
+/usr/bin/eject</pre>
+<p>
+<HR>
+<h3><A NAME="10">10. Getting "at" started</A></h3>
+<p>The "at"-command works like an alarm-clock. You can schedule commands to be executed lateron. Besides the "at"-command, there's also the system-wide "cron"-daemon.
+<br>In OpenSuSE 13.1, "at" is not activated by default. To do so, go to the runlevel-editor in yast2 (as root) and click on "at" to enable the "at"-daemon at startup.
+<br>Make sure, the ordinary user is in the group "at". Use the user-administration of yast2 for that.
+<br>Set the rights for the directories "/var/spool/atjobs" and "/var/spool/atspool", so that the users of the group "at" have write-permission there.
+<br>Maybe you need to reboot. After that, "at" should work.
+<pre>at now +5 min</pre>
+<p>should execute the command, specified on the following command-line, in 5 minutes.
+<HR>
+<h3><A NAME="11">11. mpg123 needed for shufflemp3.pl</A></h3>
+<p>To use my script "shufflemp3.pl", I compiled mpg321. But it didn't cooperate well with my Perl-script. mpg123 from Packman, worked better (well, actually).
+<P>
+<HR>
+<h3><A NAME="12">12. Prevent Devices or Partitions from being mounted automatically</A></h3>
+<p>Set the option "noauto" in lines in "/etc/fstab" to prevent devices or partitions (like "/windows/C" for example) from being mounted automatically.
+<br>Set the option "users" to enable members of group "users" (i.e. you) to mount and umount certain devices.
+<P>
+<HR>
+<h3><A NAME="13">13. Make Midnight Commander remember its Last Directory on Exit</A></h3>
+<p>I wanted Midnight Commander (mc) to remember its last directory on exit. So I put the line
+<pre>alias n=". /usr/share/mc/mc-wrapper.sh"</pre>
+<p>into "/etc/bash.bashrc.local". I want to use mc's option "-b" (black and white, not blue) too, I put that directly into the "mc-wrapper.sh"-file.
+<HR>
+<h3><A NAME="14">14. Slow start of Midnight Commander and Firefox when offline</A></h3>
+<p>When offline, it takes maybe 30 seconds until Midnight Commander (mc) or Firefox start, and there isn't any error-message.
+<br>Go to yast2 as root and set the hostname (a host-alias besides "localhost") to the computer's name, shown in "yast2/network/network-settings" (or by the "hostname"-command).
+<br>The host-name is then written to the file "/etc/hosts". This seems to fix the problem.
+<p>Another command to set the would be "hostnamectl set-hostname [NAME]", by the way.
+<HR>
+<h3><A NAME="15">15. Update and fix LXDM</A></h3>
+<p>LXDM is the display manager of LXDE. Among other things, it's responsible for the LXDE-login-screen. Unfortunately, the version, that comes with OpenSuSE 13.1 (lxdm-0.4.1) has a bug: When you log out of the X-server to log in as another user, the screen freezes.
+<br>This also has something to do with the systemd-boot-system.
+<br>An update of LXDM to lxdm-0.5.3 (from an update-repository for the distribution) seems to fix the problem.
+<HR>
+<h3><A NAME="16">16. Set the Screen-Resolution Automatically at LXDE-Startup</A></h3>
+<p>The screen-resolution of the X-server can be set automatically when running LXDM at startup.
+<br>Adding the line 
+<pre>Option         "metamodes" "1280x720+0+0"</pre>
+<p>to "/etc/X11/xorg.conf" in the section "Screen" (respectively to "/etc/X11/xorg.conf.d/50-screen.conf") did the trick.
+<p>Other approaches, that weren't that successful:
+Editing "/etc/lxdm/lxdm.conf" as root, and addding the line "display-setup-script=xrandr --output default --mode 1280x720".
+Creating a file "/home/user/.config/autostart/lxrandr-autostart.desktop" with the content:
+<pre>[Desktop Entry]
+Type=Application
+Name=LXRandR autostart
+Comment=Start xrandr with settings done in LXRandR
+Exec=xrandr --output default --mode 1280x720
+OnlyShowIn=LXDE</pre>
+<p>To get the blue LXDM-default wallpaper, open "System/LXDE Control Center" from the start menu, go to "LXDM Settings" (becoming root) and set "background" to "Standard".
+<HR>
+<h3><A NAME="17">17. Font-Size-Adjustment throughout the System</A></h3>
+<b><p>a. Main-Font, Fonts of Title-Bars in LXDE</b>
+<p>Using LXDE, the application to set the main font-size of applications is (or should be)
+<center><pre>lxappearance</pre></center>
+<p>You can also set the size of the fonts of title-bars of applications there. Somehow, the settings in lxappearance are overwritten by the settings in
+<pre>/etc/xdg/lxsession/LXDE/desktop.conf</pre>
+<p>though (which is probably a bug).
+<p>For gtk-3-applications, also check
+<pre>/home/user/.config/gtk-3.0/settings.ini</pre>
+<b><p>b. Fonts inside a Panel</b>
+<p>To set the size of fonts in the panel, edit
+<pre>/home/user/.config/lxpanel/LXDE/panels/panel</pre>
+<p>To set the dimensions of the panel itself, right-click on it.
+<b><p>c. Fonts of Desktop-Icons</b>
+<p>To set the size of fonts referring to the desktop-icons, right-click on the desktop.
+<b><p>d. Firefox</b>
+<p>Firefox should get its main font-size for the menues from lxappearance.
+<br>If that's not sufficient, you can edit the file:
+<pre>/home/user/.mozilla/firefox/[usercode].default/chrome/userChrome.css</pre>
+<p>and put this code inside it:
+<pre>@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+* {
+  font-size: 14pt !important;
+  font-family: DejaVu Sans !important;
+}</pre>
+<p>The font-size of firefox' contents can be edited inside firefox in:
+<pre>Edit/Preferences/Content/Fonts</pre>
+<p>Notice the "adavanced"-button.
+<p>Firefox also has a general zoom-function (which wasn't that useful for me though). If you want to try it, point firefox to "about:config", and search for "pix" there. Now you should see the option "layout.css.devPixelsPerPx", which should be "-1.0" (no idea, why it's negative). Setting it to "1.5" will zoom firefox.
+<br>Of course, you can zoom content with "Ctrl++" and "Ctrl+-" in firefox.
+<b><p>e. Fonts in xterm</b>
+<p>In the terminal, I use the very good font "Terminus", found in "terminus-bitmap-fonts...noarch.rpm". To open the terminal quickly, I defined a keyboard-shortcut "Alt+d" in the file
+<pre>/home/user/.config/openbox/lxde-rc.xml</prE>
+<p>The code inside the XML is:
+<pre>....
+    &lt;keybind key="A-d"&gt;
+      &lt;action name="Execute"&gt;
+        &lt;command&gt;xterm +sb -font '-*-terminus-*-*-*-*-28-*-*-*-*-*-*-*' -fg white -bg black&lt;/command&gt;
+      &lt;/action&gt;
+    &lt;/keybind&gt;
+....</pre>
+<p>Check possible sizes with "xfontsel". 32 seems to be the maximum-size of the Terminus-font at the moment. If that's still too small, you'll have to reduce the screen-resolution in general.
+<b><p>f. Fonts of KDE-applications</b>
+<p>Most of the fonts, KDE-applications (like dolphin) use, can be configured with "systemsettings" (part of the package "kdebase4-workspace").
+<p>For unknown reason, it seems, the main font of KDE can't be configured there though. Use the program
+<pre>qtconfig</pre>
+<p>instead (which is part of the package "libqt4-x11"). There isn't an "Ok"- or "Apply"-button. Use "File/Save" from the menu instead. The program doesn't even tell, where it saves the settings. The file probably is "/home/user/.config/Trolltech.conf".
+<HR>
+<h3><A NAME="18">18. Defining Keyboard-Shortcuts for Opening Applications and  Maximizing Windows in LXDE</A></h3>
+<p>The file to edit for defining keyboard-shortcuts in LXDE is
+<pre>/home/user/.config/openbox/lxde-rc.xml</pre>
+<p>Before you start editing it, make a backup of the original file, as it's in XML, and even if only a single letter in it isn't correct, the whole data is rejected.
+<p>Ok, now for the editing: Inside the file, look for a section called
+<pre>&lt;keyboard&gt;</pre>
+<p>Notice there are several subsections beginning with "&lt;keybind&gt;" and ending with "&lt;/keybind&gt;".
+<p>I wanted the following:
+<ul>
+<li>Alt+x : Maximize Window,
+<li>Alt+e : Open Firefox,
+<li>Alt+d : Open xterm with certain settings,
+<li>Alt+m : Open Thunderbird.
+</ul>
+<p>So I edited the "&lt;keyboard&gt;"-section, so that it looked like this:
+<pre>  &lt;keyboard&gt;
+    &lt;keybind key="A-x"&gt;
+      &lt;action name="ToggleMaximizeFull"/&gt;
+    &lt;/keybind&gt;
+    &lt;keybind key="A-e"&gt;
+      &lt;action name="Execute"&gt;
+        &lt;command&gt;/usr/bin/firefox&lt;/command&gt;
+      &lt;/action&gt;
+    &lt;/keybind&gt;
+    &lt;keybind key="A-d"&gt;
+      &lt;action name="Execute"&gt;
+        &lt;command&gt;xterm +sb -font '-*-terminus-*-*-*-*-24-*-*-*-*-*-*-*' -fg white -bg black&lt;/command&gt;
+      &lt;/action&gt;
+    &lt;/keybind&gt;
+    &lt;keybind key="A-m"&gt;
+      &lt;action name="Execute"&gt;
+        &lt;command&gt;thunderbird&lt;/command&gt;
+      &lt;/action&gt;
+    &lt;/keybind&gt;
+  ....
+  &lt;/keyboard&gt;</pre>
+<p><u>Note:</u> "Mod5-" instead of "A-" seems to bind the "AltGr" key instead of the "Alt" key.
+<HR>
+<h3><A NAME="19">19. Defining Keyboard-Shortcut for Deleting the Following Word in bash</A></h3>
+<p>bash itself comes with some useful keyboard-shortcuts in the terminal, for example:
+<ul>
+<li>Ctrl+u : Delete whole line backwards,
+<li>Ctrl+k : Delete whole line forward,
+<li>Ctrl+w : Delete last word backwards.
+<li>Ctrl+d : Close terminal.
+</ul>
+<p>I always want "Alt+w" for "Delete next word forward", but it seems, that's missing.
+<br>But you can define it yourself. I got what I wanted by adding the following lines to "/etc/bash.bashrc.local":
+<pre>bind -r '\ew'
+bind '"\ew": kill-word'</pre>
+<p>The first command unbinds whatever was bound to "Alt+w". The next one sets the binding I wanted.
+<br>"bind -l" shows, what commands would be possible. With "read" and typing something, you get the keycode you need for the "bind"-command. If ^[ is shown in "read", it has to be translated to \e for the "bind"-command.
+<HR>
+<h3><A NAME="20">20. Disabling Weird Variable-Expansion on Commandline of bash</A></h3>
+<p>This next one's a bit difficult to explain, if you never encountered it:
+Let's say, you want to copy something to "$HOME/mydir". So you start typing
+<pre>cp $HOME/</pre>
+<p>then you press "TAB" and want bash to expand $HOME to "/home/user" automatically, so that you can add "mydir" afterwards. But bash now shows something like this:
+<pre>cp \$HOME/</pre>
+<p>and you can't go on. This was the default-behaviour in OpenSuSE 12.1 (not in 10.0 and below though). Fortunately it got corrected again. To get useful behaviour of bash in OpenSuSE 13.1, you have to add the line
+<pre>shopt -s direxpand</pre>
+<p>to "/etc/bash.bashrc.local".
+<P>
+<HR>
+<h3><A NAME="21">21. Execute Commands Automatically at LXDE-Startup</A></h3>
+<p>To execute commands automatically at LXDE-startup, a socalled ".desktop"-file can be put into the directory:
+<pre>/home/user/.config/autostart</pre>
+<p>Its content could look for example like this:
+<pre>[Desktop Entry]
+Type=Application
+Name=Some name here
+Comment=Doing this and that at LXDE-startup
+Exec=yourcommand -option1 -option2
+OnlyShowIn=LXDE</pre>
+<p>Shorter and simpler commands can be put into the file:
+<pre>/home/def/.config/lxsession/LXDE/autostart</pre>
+<P>
+<HR>
+<h3><A NAME="22">22. Switching JavaScript on and off quickly in Firefox</A></h3>
+<p>Firefox 65.0.2 (32 bit) is a rather good version for OpenSuSE 13.1.
+<p>The Firefox-AddOn "JavaScript Switcher (by Suraj Jain)" places a small icon on the right side of the navigation bar, with which JavaScript can be switched on and off with a single click.
+<br>A similar AddOn was formerly called "QuickJS 1.1".
+<P>
+<HR>
+<h3><A NAME="23">23. Make Firefox Respect the System's Menu-Colors</A></h3>
+<p>Some versions of Firefox seem to neglect the system's menu-colors.
+That is, when the menu-font is black, and you select an item, there's no background-color to the selected item, and the foreground-color is white, so you can't see anything.
+<p>Somehow, Firefox overwrites the system's color-settings with its own ones.
+<br>To make it respect the system-colors, edit the file:
+<pre>/home/user/.mozilla/firefox/[usercode].default/chrome/userChrome.css</pre>
+<p>and append to it:
+<pre>@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+menu, menuitem { 
+  -moz-appearance: none !important;
+}</pre>
+<p>(The "@namespace"-line needs to be inside the file only once.)
+<br>After you restart Firefox, the menu and its items are very tight, but at least the problem with the colors is solved.
+<P>
+<HR>
+<h3><A NAME="24">24. Keep Firefox From Displaying Annoying Update Messages</A></h3>
+<p>Recent versions of Firefox keep on displaying annoying messages about newer Firefox versions being available, while there even isn't an option any more to prevent Firefox from searching for updates at all.
+<p>To switch off updates still (in for example Firefox 92.0), become '<tt>root</tt>' and go to "<tt>/usr/lib/firefox</tt>" (where Firefox is installed).
+<br>Create a directory called "<tt>distribution</tt>" there.
+<br>Enter it and create a file "<tt>policies.json</tt>" with the following content:
+<pre>{ 
+    "policies": {
+        "DisableAppUpdate": true
+    } 
+}</pre>
+<p>Restart Firefox. That finally disables automatic updates. Notice, that in "<tt>about:preferences</tt>", you get messages
+<pre>The browser is managed by your organisation.</pre>
+<p>and
+<pre>Updates have been deactivated by your system-administrator.</pre>
+<p>(or something similar) now.
+<p>Another method, to just stop the messages, was: Go to
+"<tt>about:config</tt>" and set "<tt>app.update.doorhanger</tt>" to "<tt>false</tt>".
+But that may be deprecated.
+<P>
+<HR>
+<h3><A NAME="25">25. Install Flash-Player-Plugin into Firefox</A></h3>
+<p> Get "libflashplayer.so" from Adobe. It needs to be copied into the directory "/home/user/.mozilla/plugins", which has to be created first. Then, firefox recognizes it without further installation. Otherwise, it doesn't recognise it at all.
+<HR>
+<h3><A NAME="26">26. Disabling pdf.JS in Firefox</A></h3>
+<p>I don't like pdfs (of maybe unknown size) opening inside a browser. I want to download them and view them with kpdf and such.
+<br>So,in Firefox 44, I needed to disable the "pdf.JS"-stuff. I just had to go to
+<pre>about:config</pre>
+<p>and set the option "pdfjs.disabled" to "true".
+<HR>
+<h3><A NAME="27">27. Configuring a Few Things in Thunderbird</A></h3>
+<p>In KDE3, there was the great email-program "kmail". Unfortunately, it got totally messed up in KDE4. Shame on the developers. So, today Mozilla Thunderbird's the better alternative.
+<br>Some useful options for configuration are a bit hidden though:
+<ul>
+<li>By default, Thunderbird sends emails, you are writing, with the shortcut "Ctrl + Enter". This can be really, really dangerous.
+To disable it, install the add-on "Dorando keyconfig" with Thunderbird's install-feature under "Extras/Add-Ons". Then you get an option "Edit keyboard-shortcuts" in the "Extras"-menu. Disable the shortcut there.
+<p>
+<li>If you have several email-accounts and want to receive all of them together in "local folder", you have to go to "Account Settings/Server Settings/Extended" and check the option "Inbox of another account". Select "local folders" there.
+<br>There's also "Use this account for receiving mails" (or something like this, I use the German version). Select this check-box too. Otherwise you won't get mails from this account, when you click "fetch mail".
+<p>
+<li>To get rid of the annoying "welcome-message", go to the global settings and uncheck "Show this page on startup" on the "general" page.
+<br>Also check there, if you want to see pictures or hear sound, when you fetch your mail. I don't.
+<p>
+<li>If in doubt, don't use the "junk-filter". It doesn't work that well.
+</ul>
+<p>Recently, I couldn't zoom text in or out with "Ctrl++"/"Ctrl+-" inside the "compose message"-window. It worked again, when I disabled the option "zoom only text" in "View/Zoom" in the compose-window's menus.
+<br>It seems, this option toggles, if images are zoomed too.
+<HR>
+<h3><A NAME="28">28. Setting the Size of the Menu-Font in LibreOffice </A></h3>
+<p>In LibreOffice, in "Extras/Options/LibreOffice/View", there's an option "Use system-font for the GUI". That should be checked. Then, the packages
+<pre>libreoffice-kde4...rpm
+libreoffice-gnome...rpm</pre>
+<p>should be installed, especially the second one. Otherwise, LibreOffice can't make use of the Gtk-system-font. The font (type and size) has to be set in "systemsettings", the KDE-config-tool, which is part of
+<pre>kdebase4-workspace</pre>
+<p>Make sure, the package
+<pre>kde-gtk-config</pre>
+<p>is installed. Then, and only then, there's a page for gtk-options in "systemsettings/Appearance of Applications/GTK". That's where you set the menu-font for LibreOffice.
+<p>After that, you can fine-tune the appearance in "LibreOffice/Extras/Options/LibreOffice/View". You can scale the GUI a little there.
+<HR>
+<h3><A NAME="29">29. Speeding up LibreOffice</A></h3>
+<p>To speed up LibreOffice, you can set some options in "Extras/Options/LibreOffice/Memory":
+<ul>
+<li>Set the undo-steps to 20 (if that's ok for you),
+<li>Set the memory for the graphics-cache to 128 MB,
+<li>Set the memory per object to 20 MB,
+<li>Set the number of objects to 20.
+</ul>
+<p>Think about the quickstart-option (if it's on that page too). It loads parts of LibreOffice at system-boot. I'm not sure, if I want that. Maybe not.
+<HR>
+<h3><A NAME="30">30. Setting the Font Sizes of KDE3-Programs</A></h3>
+<p>Although OpenSuSE 13.1 mainly uses KDE4, it is also possible to install and run KDE3-programs with it such as "kpdf".
+<p>To set the font sizes of the KDE3-applications (without using the old "kcontrol"), sections like these can be added to the file "<tt>/home/user/.kde/share/config/kdeglobals</tt>":
+<pre>[General]
+XftAntialias=true
+XftHintStyle=hintmedium
+XftSubPixel=none
+desktopFont=Sans Serif,18,-1,5,50,0,0,0,0,0
+fixed=Monospace,18,-1,5,50,0,0,0,0,0
+font=Sans Serif,18,-1,5,50,0,0,0,0,0
+menuFont=Sans Serif,18,-1,5,50,0,0,0,0,0
+smallestReadableFont=Sans Serif,8,-1,5,50,0,0,0,0,0
+toolBarFont=Sans Serif,18,-1,5,50,0,0,0,0,0
+
+[WM]
+activeFont=Sans Serif,12,-1,5,50,0,0,0,0,0</pre>
+<HR>
+<h3><A NAME="31">31. Using Encrypted Containers</A></h3>
+<p>Similar to older versions of SuSE Linux, it is possible to create a "data safe", a password secured container file for sensible data. To set up such a container on OpenSuSE 13.1, you'd do the following as root. At first, it is a bit difficult to understand how this is done, so I explain each command one by one:
+<ol>
+<li>Load the kernel module "cryptoloop":
+<pre>modprobe cryptoloop</pre>
+<p>
+<li>Create the directory, where you will manage your files later:
+<pre>mkdir -p /home/user/safe</pre>
+<p>
+<li>Create the container file "/home/user/cryptfile" by writing 200MB of useless data to it. (This can take a while):
+<pre>dd if=/dev/urandom of=/home/user/cryptfile bs=1024 count=200000</pre>
+<p>
+<li>Connect a loop device to the container file:
+<pre>losetup /dev/loop0 /home/user/cryptfile</pre>
+<p>
+<li>Create an encryption mapper device file called "/dev/mapper/secret_img" and connect it to the loop device file. (At this point you are asked for the password to use for the data safe. Be careful to enter it without misspelling):
+<pre>cryptsetup --hash sha512 --cipher twofish-cbc-plain --key-size 256 create secret_img /dev/loop0</pre>
+<p>
+<li>Create a standard Linux ext3-filesystem on the container file, by writing the filesystem to the device files, that are connected to the container file. That is, the mapper file and the loop file:
+<pre>mke2fs -j /dev/mapper/secret_img</pre>
+<p>
+<li>When the filesystem is written, mount the container file (again through the connected device files) to the safe directory:
+<pre>mount /dev/mapper/secret_img /home/user/safe</pre>
+</ol>
+<p>If you want to use such a volume later, you have to take some of the steps above again. But you can just put them into a script this time. To mount the data safe:
+<pre>#!/bin/bash
+modprobe cryptoloop
+losetup /dev/loop0 /home/user/cryptfile
+cryptsetup --hash sha512 --cipher twofish-cbc-plain --key-size 256 create secret_img /dev/loop0
+mount /dev/mapper/secret_img /home/user/safe</pre>
+<p>And to umount it again:
+<pre>#!/bin/bash
+umount /home/user/safe
+cryptsetup close /dev/mapper/secret_img
+losetup -d /dev/loop0</pre>
+<p>As this can only be done as root, you'd have to setup sudo for ordinary users accordingly.
+<P>
+<HR>
+<h3><A NAME="32">32. m - Play Multimedia-Files</A></h3>
+<p>When I want to play a multimedia-file in a directory from the terminal, I don't want to have to think about which player to use and which command to enter for that specific file. That's why I wrote the small script "m", which I copied to "/usr/local/bin".
+<br>I can throw the names of lots of files at it, and there's a good chance, it plays them for me, if they're media-files.
+<br>First, it tries to identify the file by its suffix (like ".flv" for example), then by comparing the result of a check with the <tt>file</tt>-command.
+<br>Here's my Perl-version of the script:
+<pre>#!/usr/bin/perl
+use warnings;
+use strict;
+# m - Play multimedia-file(s)
+sub play {
+    print "Playing '$_[1]'.\n";
+    system("$_[0] \"$_[1]\"");
+}
+if (! @ARGV) {
+    print "\nNope.\n\n";
+    exit 1;
+}
+my $mpl   = "mplayer -af volnorm";
+my $mplfs = "mplayer -fs -af volnorm";
+my $m321  = "mpg321 -q";
+my %sufs = ("flv"      =&gt; "ffplay -x 1024 -y 768",
+            "flv.part" =&gt; "ffplay -x 1024 -y 768",
+            "ogg"      =&gt; "ogg123");
+my %checks = ("WAVE"    =&gt; "aplay -q",
+              "MP3"     =&gt; $m321, 
+              "layer"   =&gt; $m321,
+              "AVI"     =&gt; $mplfs,
+              "Microsoft ASF"         =&gt; $mplfs,
+              "Apple QuickTime movie" =&gt; $mplfs,
+              "tracker" =&gt; "modplugplay",
+              "SID"     =&gt; "sidplay2",
+              "MIDI"    =&gt; "timidity 1&gt;/dev/null");
+foreach my $i (@ARGV) {
+    if (! -f $i) {
+        print "'$i' not suitable (non-existent or directory).\n";
+        next;
+    }
+    my $nextfile = 0;
+    foreach my $u (keys(%sufs)) {
+        if ($i =~ /\Q$u\E$/) {
+            play($sufs{$u}, $i);
+            $nextfile = 1;
+            last;
+        }
+    }
+    if ($nextfile) { next; }
+    my $fstr = `file $i`;
+    foreach my $u (keys(%checks)) {
+        if ($fstr =~ /\Q$u\E/) {
+            play($checks{$u}, $i);
+            $nextfile = 1;
+            last;
+        }
+    }
+    if ($nextfile) { next; }
+    # Special cases:
+    if($fstr =~ /MPEG/) {
+        play($mplfs, $i);
+        next;
+    }
+    if($fstr =~ /data/ &amp;&amp; $i =~ /sid$/) {
+        play("sidplay2", $i);
+        next;
+    }
+    print "Format of '$i' not recognized.\n";
+}</pre>
+<p>I got some results with "<tt>m *</tt>" in a directory for example.
+<P>
+<HR>
+<h3><A NAME="33">33. Contents of Certain Configuration Files After Modification</A></h3>
+<p>"/etc/rc.d/boot.local":
+<pre>modprobe snd_pcm_oss
+modprobe cryptoloop
+modprobe db9_new dev=1,9</pre>
+<p>
+<p>"/etc/bash.bashrc.local":
+<pre>shopt -s direxpand
+bind -r '\ed'
+bind -r '\ew'
+bind '"\ew": kill-word'
+HM="/home/user"
+alias am="alsamixer"
+alias mozilla="/usr/bin/firefox"</pre>
+<p>"/etc/default/grub":
+<pre>GRUB_DISTRIBUTOR="openSUSE 13.1"
+GRUB_DEFAULT=saved
+GRUB_HIDDEN_TIMEOUT=0
+GRUB_HIDDEN_TIMEOUT_QUIET=true
+GRUB_TIMEOUT=8
+GRUB_CMDLINE_LINUX_DEFAULT=" resume=/dev/disk/by-id/ata-....... ipv6.disable=1 showopts nomodeset nouveau.modeset=0"
+GRUB_CMDLINE_LINUX_RECOVERY="showopts apm=off noresume nosmp maxcpus=0 edd=off powersaved=off nohz=off highres=off processor.max_cstate=1 nomodeset x11failsafe"
+GRUB_CMDLINE_LINUX=""
+GRUB_GFXMODE=text
+GRUB_DISABLE_OS_PROBER=false
+GRUB_THEME=
+GRUB_BACKGROUND=</pre>
+<p>The hard disk drive ("<tt> resume=/dev/disk/by-id/...</tt>") has to be defined properly.  When ready, the boot-loader can be recreated with "<tt>grub2-mkconfig -o /boot/grub2/grub.cfg</tt>". But be careful: If there are wrong settings, the system won't boot any more.
+<P>
+<HR>
+<h3><A NAME="34">34. Patching the db9-Kernel-Module for the Second Parallel-Port-Joystick</A></h3>
+<p>The db9-kernel-module is a Linux-driver for a weird joystick-interface for a parallel-port. With it, you can connect a digital joystick, used for ancient homecomputers like Amiga 500, Atari 800 XL or Sinclair ZX Spectrum, to a parallel-port of a PC (although many modern PCs don't even have a parallel-port any more).
+<p>Some of these interfaces enable you to connect two digital joysticks to one parallel-port (like the Amiga, C64 or Atari 800 XL usually had two joystick-ports, so there were games for two players at once). The following text describes how to fix a bug in the db9-kernel-module to make two joysticks work.
+<p>Get db9.c from "/usr/src/linux-3.11.6-4/drivers/input/joystick/db9.c", it's part of "kernel-source...rpm".
+<p>After the line
+<pre>input_sync(dev);</pre>
+<p>add the line
+<pre>input_sync(dev2);</pre>
+<p>Call the new file db9_new.c, copy it somewhere, put a "Makefile" there, which looks like this:
+<pre>obj-m := db9_new.o
+KDIR := /lib/modules/$(shell uname -r)/build
+PWD := $(shell pwd)
+default:
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules</pre>
+<p>Build as root with "make", copy "db9_new.ko" to "/lib/modules/3.11.6-4-desktop/kernel/drivers/input/joystick/". Then execute
+<pre>depmod</pre>
+<p>Insert db9_new instead of db9:
+<pre>modprobe db9_new dev=1,9</pre>
+<p>See the <a href="https://www.kernel.org/doc/Documentation/input/joystick-parport.txt">documentation</a> for details on the values for "dev=".
+<P>
+<HR>
+<h3><A NAME="35">35. Emulator Configurations</A></h3>
+<p>1. fuse (ZX Spectrum): "/home/user/.fuserc":
+<pre>&lt;graphicsfilter&gt;paltv3x&lt;/graphicsfilter&gt;"</pre>
+<p>
+<hr width="50%">
+<p>
+<p>2. fs-uae (Amiga):
+<pre>/home/user/.config/fs-uae
+/home/user/.config/fs-uae-launcher</pre>
+<p>File "<tt>base-dir</tt>", containing the name of the "FS-UAE"-directory.
+<p>There is a protection mechanism, when writing to disk images. If you want to write to disk images, the option
+<pre>writable_floppy_images = 1</pre>
+<p>has to be set in the individual configuration.
+<p>
+<hr width="50%">
+<p>
+<p>3. mame (Arcade): "/etc/mame/mame.ini":
+<pre>video              soft
+keepaspect         1</pre>
+<p>The last one ("keepaspect 1") is rather important.
+<p>In mame, you can set the sound volume using the "^"-key (the key above the tabulator-key).
+<p>
+<hr width="50%">
+<p>
+<p>4. vice (C64): "/home/user/.config/vice/sdl-vicerc":
+<pre>AspectRatio="1,000000"
+JoyPort1Device=1
+JoyPort2Device=1
+JoyDevice1=4
+JoyDevice2=4</pre>
+<p>That's for my Atari-db9-type joysticks (connected to parallel port).
+<p>Use
+<pre>x64 -VICIIfull disk.d64</pre>
+<p>to run in fullscreen-mode. See <a href="https://vice-emu.sourceforge.io/vice_6.html">this page</a> for more options.
+<p>When using vice, there are two key-combinations to be aware of:
+<ol>
+<li><tt>Alt+w</tt>: Changes to "<tt>warp mode</tt>" and back. Essential for reducing C64 virtual floppy loading times.
+<p>
+<li><tt>Alt+j</tt>: Switches the two joystick ports of the virtual C64. Use this, if a game expects your joystick to be on the other port.
+</ol>
+<p>Inside the emulation, there are some C64-specific key-combinations:
+<ul>
+<li><tt>Esc+PageUp</tt>: Emulates "<tt>Runstop/Restore</tt>".
+<li><tt>Ctrl+Shift</tt>: Switches between upper and lower-case text. "<tt>Ctrl</tt>" on the PC emulates the "<tt>Commodore-key</tt>" on the C64.
+<li><tt>Tab+2</tt>: Use white text. The PC's "<tt>Tab</tt>"-key emulates the C64's "<tt>Control</tt>"-key.
+<li><tt>Tab+9</tt>: Enable inverse text.
+<li><tt>Tab+0</tt>: Disables inverse text.
+<li><tt>l,then Shift+i</tt>: Produces "<tt>L&#x256E;</tt>", which is the abbreviation for "<tt>LIST</tt>".
+<li><tt>r,then Shift+u</tt>: Produces "<tt>R&#x256D;</tt>", which is the abbreviation for "<tt>RUN</tt>".
+</ul>
+<P>
+<HR>
+<h3><A NAME="36">36. Used Software-Repositories</A></h3>
+<p>Here are the software-repositories (yast2/Software/Software-Repositories) I used for OpenSuSE 13.1. Some of them may have been closed in the meantime:
+<pre>http://download.opensuse.org/distribution/13.1/repo/oss/
+http://download.opensuse.org/distribution/13.1/repo/non-oss/
+http://download.opensuse.org/source/distribution/13.1/repo/oss/
+http://download.opensuse.org/debug/distribution/13.1/repo/oss/
+http://download.opensuse.org/debug/update/13.1/
+http://download.opensuse.org/debug/update/13.1-non-oss/
+http://download.opensuse.org/update/13.1/
+http://download.opensuse.org/update/13.1-non-oss/
+http://download.opensuse.org/repositories/X11:/lxde/openSUSE_13.1/
+http://download.opensuse.org/repositories/KDE:/KDE3/openSUSE_13.1/
+http://download.nvidia.com/opensuse/13.1/
+http://download.videolan.org/pub/SuSE/13.1/
+http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_13.1/</pre>
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<br><center><a href="index.html">Back</a></center>
+</body>
+</html>

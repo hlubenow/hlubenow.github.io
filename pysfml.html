@@ -1,0 +1,793 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="Pygame, Games, Python, Tutorial">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>PySFML: Creating 2D Video Games in Python</title>
+</head>
+<body>
+<H2>
+PySFML: Creating 2D Video Games in Python</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>
+<p>
+<p>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Introduction</A>
+<LI><A HREF="#2">A First Example / Keyboard Input</A>
+<LI><A HREF="#3">Getting Joystick Input</A>
+<LI><A HREF="#4">Collision Detection</A>
+<LI><A HREF="#5">Putting it Together</A>
+<LI><A HREF="#6">Sprites</A>
+<LI><A HREF="#7">Using Sprite Sheets</A>
+<LI><A HREF="#8">Controlling the Speed</A>
+<LI><A HREF="#9">Scrolling the Background</A>
+<LI><A HREF="#10">Drawing Directly to the Screen Using VertexArrays</A>
+<LI><A HREF="#11">Using VertexArrays To Create Tilemaps</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. Introduction</A></h3>
+<p>While Pygame is a set of Python-bindings for the SDL-library, PySFML provides Python-bindings for the <a href="https://www.sfml-dev.org/">SFML</a>-library ("Simple and Fast Multimedia Library") (which does similar things as SDL). 
+<br>Pygame uses SDL version 1. There is also another project for SDL2, called "Pygame-SDL2", but it seems, it's not complete yet. Pygame with SDL1 uses the computer's CPU for creating graphics. That's not always as fast as it could be.
+<br>SFML on the other hand makes use of the computer's graphics processor, the GPU. Therefore, it's in some cases faster.
+<br>SDL is written in C, while SFML is written in C++. But that doesn't matter much, as both libraries can be used from C++ and Python.
+<p>I remember, it was a bit difficult to setup SFML and PySFML on my system, but i don't remember, what the problem was. In the end it worked. Maybe "<tt>-std=c++11</tt>" had to be set at compile-time (which is always a good idea anyway). I'm using SFML 2.5.1.
+<br>Here's a compile command for a C++ game in a file called "game.cpp" using SFML:
+<pre>g++ game.cpp -o game -std=c++11 -I/usr/local/include/SFML -L/usr/local/lib -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system</pre>
+<P>
+<HR>
+<h3><A NAME="2">2. A First Example / Keyboard Input</A></h3>
+<p>Here, we open a main window, create a rectangle and set its color and position.
+<br>Then we create a main loop, clear the screen (each frame), process a few keyboard events, move the rectangle, draw it and and update the screen:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+from sfml import sf
+
+BLACK = sf.Color(0, 0, 0)
+RED   = sf.Color(255, 0, 0)
+
+screen = sf.RenderWindow(sf.VideoMode(800, 600), unicode("Hello"))
+# screen.framerate_limit = 60
+r = sf.RectangleShape((20, 20))
+r.fill_color = RED
+r.position = (0, 300)
+
+while screen.is_open:
+    screen.clear(BLACK)
+    for event in screen.events:
+        if event.type == sf.Event.CLOSED:
+            screen.close()
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
+            screen.close()
+    if r.position.x &lt; 600:
+        r.move((1, 0))
+    screen.draw(r)
+    screen.display()</pre>
+<p>From the console, the "pydoc" command can be used to get some information about PySFML's objects. For example "<tt>pydoc sfml.sf.RenderWindow</tt>".
+<p>To draw circles, "<tt>sf.CircleShape</tt>" is used. To draw polygons, there is "<tt>sf.ConvexShape</tt>".
+<p>If you want to get continous keyboard input, you leave out the loop "<tt>for event in screen.events:</tt>" and just check for "<tt>if sf.Keyboard.is_key_pressed(sf.Keyboard....):</tt>" (without the loop).
+<P>
+<HR>
+<h3><A NAME="3">3. Getting Joystick Input</A></h3>
+<p>On my system, I use a simple Atari joystick (DB9) connected to a special interface. I can get input in PySFML like this:
+<pre>class Main:
+
+    def __init__(self):
+        ...
+        self.joystick = Joystick(0)
+        while self.screen.is_open:
+            ...
+            if self.processEvents() == "quit":
+                self.screen.close()
+            ...
+
+    def processEvents(self):
+        for event in self.screen.events:
+            self.joystick.check()
+
+
+class Joystick:
+
+    def __init__(self, nr):
+        self.nr = nr
+        self.initStick()
+
+    def initStick(self):
+        self.direction = ""
+        self.fired = False
+
+    def check(self):
+        self.direction = ""
+        if sf.Joystick.get_axis_position(self.nr, 1) == -100:
+            self.direction = "up"
+        if sf.Joystick.get_axis_position(self.nr, 1) == 100:
+            self.direction = "down"
+        if sf.Joystick.get_axis_position(self.nr, 0) == -100:
+            if self.direction != "":
+                self.direction += "_"
+            self.direction += "left"
+        if sf.Joystick.get_axis_position(self.nr, 0) == 100:
+            if self.direction != "":
+                self.direction += "_"
+            self.direction += "right"
+        if sf.Joystick.is_button_pressed(self.nr, 0):
+            self.fired = True
+        else:
+            self.fired = False</pre>
+<p>I use two of these joysticks, so I have to watch out for the joystick number being 0 or 1.
+<P>
+<HR>
+<h3><A NAME="4">4. Collision Detection</A></h3>
+<p>Objects like shapes ("sf.CircleShape" and so on) have an attribute "<tt>position</tt>", that provides the object's topleft coordinate with
+<pre>.position.x, .position.y</pre>
+<p>These kind of objects are also automatically surrounded by a rectangle. This is a "sf.Rect"-object, that can be accessed as "<tt>.global_bounds</tt>". You then get the width and the height of this surrounding rectangle with
+<pre>.global_bounds.width, .global_bounds.height</pre>
+<p><tt>".global_bounds"</tt> is also supposed to have a method "<tt>.intersects()</tt>". This method takes another Rect-object as an argument (usually the "<tt>.global_bounds</tt>"-Rect of another shape or sprite) and checks, if the two rectangles overlap. This provides an easy way of collision detection. Unfortunately, the installed version of ".global_bounds.intersects()" on my system crashes (with a segmentation fault).
+<br>So I wrote a Python function that basically does the same, checking, if the rectangles of two shapes overlap. Of course, this function may be slow.
+<pre>
+...
+    def checkCollisionWith(self, obstacles):
+        self.collided = False
+        for i in obstacles:
+            # "self" is a sf.Shape-object:
+            if self.checkRectanglesCollision(self, i):
+                self.collided = True
+
+    def checkRectanglesCollision(self, rect1, rect2):
+        (rect1_topleftx, rect1_toplefty, rect1_toprightx, rect1_bottomrighty) = self.getRectValues(rect1)
+        (rect2_topleftx, rect2_toplefty, rect2_toprightx, rect2_bottomrighty) = self.getRectValues(rect2)
+
+        if rect1_toprightx &gt;= rect2_topleftx and rect2_toprightx &gt;= rect1_topleftx and rect1_bottomrighty &gt;= rect2_toplefty and rect2_bottomrighty &gt;= rect1_toplefty:
+            return 1
+        else:
+            return 0
+
+    def getRectValues(self, rect):
+        rect_topleftx = int(rect.position.x)
+        rect_toplefty = int(rect.position.y)
+        return (rect_topleftx, rect_toplefty,
+                rect_topleftx + int(rect.global_bounds.width),
+                rect_toplefty + int(rect.global_bounds.height))</pre>
+<p>&nbsp;
+<hr width=50%>
+<p>When checking round objects such as "<tt>sf.CircleShapes</tt>", another method is more precise (described by "Sonar Systems" on Youtube): Mathematically, two circles overlap, if the distance between their center-points is smaller than the radius of the one circle plus the radius of the other circle.
+<br>The distance between the center points can be calculated by using the theorem of Pythagoras. The result is this kind of code:
+<pre>import math
+
+def checkCircleCollision(circle1, circle2):
+    dx = circle1.position.x + circle1.global_bounds.width / 2. - (circle2.position.x + circle2.global_bounds.width / 2.)
+    if dx &lt; 0:
+        dx *= -1
+    dy = circle1.position.y + circle1.global_bounds.height / 2. - (circle2.position.y + circle2.global_bounds.height / 2.)
+    if dy &lt; 0:
+        dy *= -1
+    distance = math.sqrt(dx * dx + dy * dy)
+    if distance &lt; circle1.global_bounds.width / 2. + circle2.global_bounds.width / 2.:
+        # Collision true:
+        return 1
+    else:
+        # Collision false:
+        return 0</pre>
+<P>
+<HR>
+<h3><A NAME="5">5. Putting it Together</A></h3>
+<p>If we put the topics mentioned above together, we get a longer example: On the screen are several round grey blocks (circles). A small red circle can be navigated around the screen using the joystick (joystick 0), but when it runs into a block, it can't go any further (so it has to go around the blocks). Ok, this may not be that exciting, but you get the idea, what could be used in a game:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+from sfml import sf
+
+import math
+
+BLACK = sf.Color(0, 0, 0)
+RED   = sf.Color(255, 0, 0)
+GREY  = sf.Color(127, 127, 127)
+
+WIDTH  = 800
+HEIGHT = 600
+
+DIRECTIONS = {"left"       : (-1, 0),
+              "right"      : (1, 0),
+              "up"         : (0, -1),
+              "down"       : (0, 1),
+              "up_left"    : (-1, -1),
+              "up_right"   : (1, -1),
+              "down_left"  : (-1, 1),
+              "down_right" : (1, 1)}
+
+class Main:
+
+    def __init__(self):
+        self.screen = sf.RenderWindow(sf.VideoMode(WIDTH, HEIGHT), unicode("Blocks"))
+        self.screen.framerate_limit = 150
+        self.joystick = Joystick(0)
+        self.player = Player(self.joystick, 10, 100, 100)
+        self.initObjects()
+
+        while self.screen.is_open:
+            self.screen.clear(BLACK)
+            if self.processEvents() == "quit":
+                self.screen.close()
+
+            self.player.checkCollisionsWith(self.blocks)
+            self.player.movePlayer()
+            self.updateObjects()
+            self.screen.display()
+
+    def processEvents(self):
+        for event in self.screen.events:
+            if event.type == sf.Event.CLOSED:
+                return "quit"
+            if sf.Keyboard.is_key_pressed(sf.Keyboard.Q):
+                return "quit"
+            self.joystick.check()
+
+    def initObjects(self):
+        
+        self.blocks = [Block(20, 600, 100),
+                       Block(20, 500, 300),
+                       Block(20, 30, 30),
+                       Block(20, 50, 400),
+                       Block(20, 200, 100),
+                       Block(20, 500, 500),
+                       Block(50, 280, 325)]
+        self.all_objects   = [self.player]
+        self.all_objects.extend(self.blocks)
+
+    def updateObjects(self):
+        for i in self.all_objects:
+            self.screen.draw(i)
+
+class Player(sf.CircleShape):
+
+    def __init__(self, joystick, size, x, y):
+        sf.CircleShape.__init__(self, size)
+        self.joystick = joystick
+        self.fill_color = RED
+        # Move the shape to position x/y:
+        self.position = (x, y)
+        self.direction = None
+        self.collided = False
+
+    def checkCollisionsWith(self, circles):
+        self.collided = False
+        for i in circles:
+            if self.checkCircleCollision(self, i):
+                self.collided = True
+
+    def checkCircleCollision(self, circle1, circle2):
+        dx = circle1.position.x + circle1.global_bounds.width / 2. - (circle2.position.x + circle2.global_bounds.width / 2.)
+        if dx &lt; 0:
+            dx *= -1
+        dy = circle1.position.y + circle1.global_bounds.height / 2. - (circle2.position.y + circle2.global_bounds.height / 2.)
+        if dy &lt; 0:
+            dy *= -1
+        distance = math.sqrt(dx * dx + dy * dy)
+        if distance &lt;= circle1.global_bounds.width / 2. + circle2.global_bounds.width / 2.:
+            return 1
+        else:
+            return 0
+
+    def movePlayer(self):
+        if self.collided:
+            self.colldirection = self.direction
+        else:
+            self.colldirection = ""
+        self.direction = ""
+        if self.joystick.direction.startswith("up"):
+            if self.position.y &gt; 0:
+                self.direction = "up"
+        if self.joystick.direction.startswith("down"):
+            if self.position.y &lt; HEIGHT - self.global_bounds.height:
+                self.direction = "down"
+        if "left" in self.joystick.direction:
+            if self.position.x &gt; 0:
+                if self.direction != "":
+                    self.direction += "_"
+                self.direction += "left"
+        if "right" in self.joystick.direction:
+            if self.position.x &lt; WIDTH - self.global_bounds.width:
+                if self.direction != "":
+                    self.direction += "_"
+                self.direction += "right"
+
+        if self.direction and self.colldirection != self.direction:
+            self.move(DIRECTIONS[self.direction])
+
+
+class Block(sf.CircleShape):
+    def __init__(self, size, x, y):
+        sf.CircleShape.__init__(self, size)
+        self.fill_color = GREY
+        self.position = (x, y)
+
+
+class Joystick:
+
+    def __init__(self, nr):
+        self.nr = nr
+        self.initStick()
+
+    def initStick(self):
+        self.direction = ""
+        self.fired = False
+
+    def check(self):
+        self.direction = ""
+        if sf.Joystick.get_axis_position(self.nr, 1) == -100:
+            self.direction = "up"
+        if sf.Joystick.get_axis_position(self.nr, 1) == 100:
+            self.direction = "down"
+        if sf.Joystick.get_axis_position(self.nr, 0) == -100:
+            if self.direction != "":
+                self.direction += "_"
+            self.direction += "left"
+        if sf.Joystick.get_axis_position(self.nr, 0) == 100:
+            if self.direction != "":
+                self.direction += "_"
+            self.direction += "right"
+        if sf.Joystick.is_button_pressed(self.nr, 0):
+            self.fired = True
+        else:
+            self.fired = False
+
+Main()</pre>
+<P>
+<HR>
+<h3><A NAME="6">6. Sprites</A></h3>
+<p>Sprites can be seen as smaller or bigger images, that can be moved around the screen and exchanged quickly to create animation.
+<br>A "sf.Texture"-object is used to represent the sprite's image. You can load in an image and connect a sprite to it with:
+<pre>texture = sf.Texture.from_file("my_image.png")
+sprite  = sf.Sprite(texture)</pre>
+<p>Like the rectangles and circles above, sprites have an attribute "<tt>position</tt>", which can be used to get the x and y coordinates of the sprite's topleft corner and to set the sprite's position on the screen. There's also a "<tt>.move()</tt>"-method.
+<br>And it has a "<tt>global_bounds</tt>" attribute to get the width and hight of the surrounding rectangle of the sprite.
+<br>So a sprite basically works just like a "<tt>sf.RectangleShape</tt>" and a "<tt>sf.CircleShape</tt>" object.
+<p>A method "<tt>.scale()</tt>" can be used to scale the sprite's (and its image's) size to your needs.
+<P>
+<HR>
+<h3><A NAME="7">7. Using Sprite Sheets</A></h3>
+<p>To animate a sprite, you'd need several images that show the sprite in its motion. For example, to show a little human being (like "Mario" or "Miner Willy") walking, you'd need one image of him standing, one moving his right arm and one of his feet in front and so on. When you move the sprite and attach one image after the other to it, the illusion of walking is created.
+<br>You could use multiple images. But as these images are often quite small, it became common to combine all of them into a single image-file, which is called a "sprite sheet".
+<br>The game program then loads in this file. It is then pointed to the different regions of the sprite sheet, extracts the wanted sub-images and uses them for the sprite.
+<p>Today, typically ".png"-files are used for sprite sheets, because (unlike ".jpg" files) they can have a socalled "alpha channel" that provides transparent background. When parts of the ".png" image are blitted onto other screen content, only the sprite's texture is shown, and the rest of the screen content stays intact, because of the tranparency of the background of the image.
+<p>To use partial regions of an image for a sprite, in PySFML, at first the whole sprite sheet file is assigned to the sprite's texture. Then, a "<tt>sf.Rect</tt>"-object, that holds the topleft coordinate and the dimensions of the wanted region of the image is assigned to the attribute "<tt>.texture_rectangle</tt>" of the sprite:
+<pre>texture    = sf.Texture.from_file("spritesheet.png")
+sprite     = sf.Sprite(texture)
+topleft    = (10, 10)
+dimensions = (300, 300)
+sprite.texture_rectangle = sf.Rect(topleft, dimensions)</pre>
+<p>Here's another, longer example. Unfortunately I can't provide the sprite sheet file "bird.png" at the moment, but you get the idea of the syntax:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+from sfml import sf
+
+class Bird(sf.Sprite):
+
+    def __init__(self):
+        self.spritesheet = sf.Texture.from_file("bird.png")
+        sf.Sprite.__init__(self, self.spritesheet)
+        self.scale((0.4, 0.4))
+        self.position = (0, 200)
+        self.imagenr = 0
+        self.regionsize = (290, 305)
+        self.regionpositions = ((0, 30), (292, 30), (0, 290), (292, 290))
+        self.setImage()
+
+    def changeImage(self):
+        self.imagenr += 1
+        if self.imagenr &gt;= len(self.regionpositions):
+            self.imagenr = 0
+        self.setImage()
+
+    def setImage(self):
+        self.texture_rectangle = sf.Rect(self.regionpositions[self.imagenr], self.regionsize)
+
+screen = sf.RenderWindow(sf.VideoMode(800, 600), unicode("Hello"))
+screen.position = (218, 43)
+screen.framerate_limit = 60
+
+sprite  = Bird()
+
+frame = 0
+while screen.is_open:
+    screen.clear(sf.Color.BLACK)
+    for event in screen.events:
+        if event.type == sf.Event.CLOSED:
+            screen.close()
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
+            screen.close()
+    if sprite.position.x &lt; 780:
+        sprite.move((3, 0))
+        if frame % 10 == 0:
+            sprite.changeImage()
+    else:
+        sprite.position = (0, 200)
+        frame = 0
+
+    screen.draw(sprite)
+    screen.display()
+    frame += 1</pre>
+<P>
+<HR>
+<h3><A NAME="8">8. Controlling the Speed</A></h3>
+<p>The general speed of the application can be controlled with:
+<pre>screen.framerate_limit = 60</pre>
+<p>There's also a clock, that can be used like this:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+from sfml import sf
+
+screen = sf.RenderWindow(sf.VideoMode(640, 480), unicode("Clock"))
+screen.framerate_limit = 60
+screen.clear()
+clock = sf.Clock()
+clock.restart()
+
+while screen.is_open:
+    for event in screen.events:
+        if event.type == sf.Event.CLOSED:
+            window.close()
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
+            screen.close()
+    screen.display()
+    print clock.elapsed_time.seconds
+    print clock.elapsed_time.milliseconds</pre>
+<P>
+<HR>
+<h3><A NAME="9">9. Scrolling the Background</A></h3>
+<p>On the 8-bit computers of the 1980s, it was quite difficult and tricky to make the whole screen scroll. On the ZX Spectrum, pixel-wise scrolling wasn't hardly possible at all. Finally, programmers made it work to some extent, but just in assembly with tricks and complicated routines.
+<p>So I was quite astonished, how easy it is, to scroll the main screen or parts of it in SFML/PySFML.
+<p>There's a "<tt>sf.View</tt>" object, that can be seen as a "camera", that shows just parts of the main window.
+<br>The size and the center of the view is set, and in the main loop "screen.view" is assigned to the "View" object.
+<p>Here's the small moving red rectangle of the first example above. The rectangle starts moving. After a while, the camera stays on the rectangle and moves with it to the right. Until the red rectangle reaches a grey rectangle (and position 720 of the main window).
+<br>The resolution of the view is automatically scaled to the relation between the main window and the camera view. A "<tt>.zoom()</tt>"-method can be used to adjust the size of the view.
+<br>In the main loop, "screen.view" should be assigned to "view" after the "screen.display()"-command.
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+from sfml import sf
+
+BLACK  = sf.Color(0, 0, 0)
+GREY   = sf.Color(127, 127, 127)
+RED    = sf.Color(255, 0, 0)
+WHITE  = sf.Color(252, 252, 252)
+
+screen = sf.RenderWindow(sf.VideoMode(800, 600), unicode("Scrolling View"))
+screen.framerate_limit = 100
+view = sf.View()
+view.size = (200, 150)
+view.zoom(2.5)
+white_stripes = (sf.RectangleShape((200, 600)),
+                 sf.RectangleShape((200, 600)))
+for i in white_stripes:
+    i.fill_color = WHITE
+white_stripes[0].position = (200, 0)
+white_stripes[1].position = (600, 0)
+
+r = sf.RectangleShape((20, 20))
+r.fill_color = RED
+r.position = (0, 300)
+r2 = sf.RectangleShape((20, 20))
+r2.fill_color = GREY
+r2.position = (720, 300)
+
+delay = 0
+
+while screen.is_open:
+    screen.clear(BLACK)
+    for i in white_stripes:
+        screen.draw(i)
+    for event in screen.events:
+        if event.type == sf.Event.CLOSED:
+            screen.close()
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
+            screen.close()
+    if r.position.x &lt; 700 and delay &gt;= 120:
+        r.move((1, 0))
+    screen.draw(r)
+    screen.draw(r2)
+    screen.display()
+    if r.position.x &lt; 200:
+        view.center = (200, r.position.y)
+    else:
+        view.center = r.position
+    screen.view = view
+    delay += 1
+</pre>
+<p>Actually, I also was able to translate this to C++:
+<pre>#include &lt;SFML/Graphics.hpp&gt;
+
+// scrolling.cpp
+
+/* Compilation:
+ g++ scrolling.cpp -o scrolling -std=c++11 -I/usr/local/include/SFML -L/usr/local/lib -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system
+*/
+
+using namespace sf;
+
+int main() {
+
+    int WIDTH  = 800;
+    int HEIGHT = 600;
+
+    Color BLACK  = Color(0, 0, 0);
+    Color GREY   = Color(127, 127, 127);
+    Color RED    = Color(255, 0, 0);
+    Color WHITE  = Color(252, 252, 252);
+
+    RenderWindow screen(VideoMode(WIDTH, HEIGHT), "Scrolling View");
+    screen.setFramerateLimit(100);
+
+    View view = View();
+    view.setSize({200, 150});
+    view.zoom(2.5);
+    RectangleShape ws1 = RectangleShape({200, 600});
+    ws1.setFillColor(WHITE);
+    ws1.setPosition(200, 0);
+    RectangleShape ws2 = RectangleShape({200, 600});
+    ws2.setFillColor(WHITE);
+    ws2.setPosition(600, 0);
+
+    RectangleShape r = RectangleShape({20, 20});
+    r.setFillColor(RED);
+    r.setPosition(0, 300);
+
+    RectangleShape r2 = RectangleShape({20, 20});
+    r2.setFillColor(GREY);
+    r2.setPosition(720, 300);
+
+    Event event;
+    int delay = 0;
+
+    while (screen.isOpen()) {
+        screen.clear(BLACK);
+        screen.draw(ws1);
+        screen.draw(ws2);
+
+        while (screen.pollEvent(event)) {
+            if (event.type == Event::Closed) {
+                screen.close();
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+                screen.close();
+            }
+        }
+
+        if (r.getPosition().x &lt; 700 and delay &gt;= 120) {
+            r.move(1, 0);
+        }
+        screen.draw(r);
+        screen.draw(r2);
+        screen.display();
+        if (r.getPosition().x &lt; 200) {
+            view.setCenter(200, r.getPosition().y);
+        } else {
+            view.setCenter(r.getPosition());
+        } 
+        screen.setView(view);
+        ++delay;
+    }
+}</pre>
+<P>
+<HR>
+<h3><A NAME="10">10. Drawing Directly to the Screen Using VertexArrays</A></h3>
+<p>VertexArrays can be used to draw a small or large number of points, triangles or rectangles at once with a single "<tt>.draw()</tt>"-command.
+<br>In SFML/PySFML, a vertex (plural "vertices") is a graphical point. It has a position (x, y) and a color. Several vertices can be stored in a "<tt>sf.VertexArray</tt>"-object.
+<br>It must be specified how the vertices in the array shall be interpreted. This is done by setting the "primitive type" like this:
+<pre>vertex_array = sf.VertexArray()
+vertex_array.primitive_type = sf.PrimitiveType.QUADS</pre>
+<p>The following "primitive types" are available:
+<ul>
+<li>POINTS
+<li>LINES
+<li>TRIANGLES 
+<li>TRIANGLES_STRIP
+<li>TRIANGLES_FAN
+<li>QUADS
+</ul>
+<p>The vertices in the VertexArray are interpreted as coordinates to the according "primitive type".
+<br>If you want to draw a triangle for example and the primitive type is set accordingly to "TRIANGLES", three vertices in the VertexArray are needed to define the three mathematical coodinates of the triangle.
+<br>The following script demonstrates drawing such a triangle (and also the use of colours):
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+from sfml import sf
+
+screen = sf.RenderWindow(sf.VideoMode(300, 200), unicode("VertexArray"))
+
+triangle = sf.VertexArray()
+triangle.primitive_type = sf.PrimitiveType.TRIANGLES
+triangle.append(sf.Vertex((10, 100), sf.Color.RED))
+triangle.append(sf.Vertex((10, 10), sf.Color.BLUE))
+triangle.append(sf.Vertex((100, 100), sf.Color.GREEN))
+
+while screen.is_open:
+    for event in screen.events:
+        if event.type == sf.Event.CLOSED:
+            screen.close()
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
+            screen.close()
+    screen.clear()
+    screen.draw(triangle)
+    screen.display()</pre>
+<p>If you want to draw a rectangle using the primitive type "QUADS", the VertexArray has to contain at least four vertices.
+<br>You could also push a lot more vertices into the VertexArray by units of four, to draw many more rectangles at once. 
+<br>So if you wanted to draw 25 rectangles for example, you would fill the VertexArray with 100 "sf.Vertex"-objects, that represent the 100 coordinates of 25 rectangles.
+<p>The properties of the different primitive types are described in detail <a href="https://www.sfml-dev.org/tutorials/2.5/graphics-vertex-array.php#primitive-types">in the C++ documentation</a>.
+<p>If you want to draw to the screen directly using a VertexArray, and if you want to be able to move the things you draw around, it seems, you have to build the VertexArray each frame to set the specific coordinates.
+<br>But the data of the shapes of the objects can be prepared just once in an ordinary Python array. Then the values of the current coordinates can be calculated, when the VertexArray is created each frame.
+<p>With this method, programs run relatively fast, because the time-consuming "<tt>.draw()</tt>"-function has to be called only once for the whole VertexArray, not for each vertex or pixel.
+VertexArrays are used instead of plain Python lists, because somehow the graphics card can draw vertices stored in VertexArrays much faster.
+Modern graphics cards are optimized to quickly display a huge number of triangles on the screen. Rectangles are then internally composed of two triangles.
+<p>A VertexArray can be used to draw writings and graphics directly to the screen, like the ZX Spectrum (a home computer from 1982) did. Here's an example, how this can be achieved:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+from sfml import sf
+
+SCALEFACTOR = 3
+
+WHITE      = (189, 190, 197)
+ALIENBYTES = (129, 66, 60, 90, 126, 66, 60, 195)
+
+def buildVectrexArrayDataFromString():
+    data_array = []
+    # If the ZX Spectrum's character set was used, also whole strings could be used in this function:
+    string_ = "1"
+    t_x = 0
+    t_y = 0
+    for char in string_:
+        for byte in ALIENBYTES:
+            # Convert decimal number to binary string like "10110010":
+            binstring = "{0:08b}".format(byte)
+            for bit in binstring:
+                if bit == "1":
+                    data_array.append((t_x, t_y))
+                    data_array.append((t_x + 1, t_y))
+                    data_array.append((t_x + 1, t_y + 1))
+                    data_array.append((t_x, t_y + 1))
+                t_x += 1
+            # Next line (like a typewriter):
+            t_y += 1
+            t_x -= 8
+        # Next letter:
+        t_y -= 8 
+        t_x += 8 
+    return data_array
+
+def printStringFromDataArray(screen, data_array, zx_x, zx_y):
+    varr = sf.VertexArray()
+    varr.primitive_type = sf.PrimitiveType.QUADS
+    for i in data_array:
+        varr.append(sf.Vertex(((i[0] + zx_x) * SCALEFACTOR, (i[1] + zx_y) * SCALEFACTOR), sf.Color.BLACK))
+    screen.draw(varr)
+    del varr
+
+# Main:
+screen = sf.RenderWindow(sf.VideoMode(256 * SCALEFACTOR, 192 * SCALEFACTOR), unicode("Drawing Directly with VertexArray"))
+screen.position = (218, 43)
+screen.framerate_limit = 60
+screen.clear(sf.Color(WHITE[0], WHITE[1], WHITE[2], 255))
+
+vertexarray_data = buildVectrexArrayDataFromString()
+
+while screen.is_open:
+    for event in screen.events:
+        if event.type == sf.Event.CLOSED:
+            screen.close()
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
+            screen.close()
+    screen.clear(sf.Color(WHITE[0], WHITE[1], WHITE[2], 255))
+    printStringFromDataArray(screen, vertexarray_data, 16 * 8, 10 * 8)
+    screen.display()
+</pre>
+<P>
+<HR>
+<h3><A NAME="11">11. Using VertexArrays To Create Tilemaps</A></h3>
+<p>Rectangles created with a VertexArray can also have textures. This makes the VertexArray the suitable object for quickly drawing game levels from tilesets (that are sets of square tiles). There's an <a href="https://www.sfml-dev.org/tutorials/2.5/graphics-vertex-array.php#example-tile-map">example</a>, how to do that in C++ in the documentation. I tried to translate that to Python. The file "<a href="https://www.sfml-dev.org/tutorials/2.5/images/graphics-vertex-array-tilemap-tileset.png">graphics-vertex-array-tilemap-tileset.png</a>" is required, as it holds the images for the tiles. Then the script shall be able to show a game level created from the tileset using a VertexArray:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+from sfml import sf
+
+"""
+    tmap.py: A PySFML translation of the C++ example at:
+
+    https://www.sfml-dev.org/tutorials/2.5/graphics-vertex-array.php#example-tile-map
+
+    This script needs the following image file in its working directory:
+
+    https://www.sfml-dev.org/tutorials/2.5/images/graphics-vertex-array-tilemap-tileset.png
+
+"""
+
+class TileMap(sf.Drawable):
+
+    def __init__(self, filename, tileSize, leveldata, leveldimensions):
+        # To inherit from "Drawable" makes it possible for "window.draw()" to call "self.draw()".
+        sf.Drawable.__init__(self)
+        # With this, we can transform (for example scale) the tiles (see "self.draw()").
+        self.transformable = sf.Transformable()
+        self.transformable.scale((2, 2))
+        self.vertices = sf.VertexArray()
+        self.tileset  = sf.Texture.from_file(filename)
+        self.prepareMap(tileSize, leveldata, leveldimensions)
+
+    def prepareMap(self, tileSize, leveldata, leveldimensions):
+
+        (width, height) = leveldimensions
+
+        self.vertices.primitive_type = sf.PrimitiveType.QUADS
+        self.vertices.resize(width * height * 4.)
+
+        for i in range(width):
+
+            for j in range(height):
+
+                tileNumber = leveldata[i + j * width]
+                tu = tileNumber % (self.tileset.width / tileSize[0])
+                tv = tileNumber / (self.tileset.width / tileSize[0])
+
+                quadnr = (i + j * width) * 4
+
+                self.vertices[quadnr].position       = (i * tileSize[0], j * tileSize[1])
+                self.vertices[quadnr + 1].position   = ((i + 1) * tileSize[0], j * tileSize[1])
+                self.vertices[quadnr + 2].position   = ((i + 1) * tileSize[0], (j + 1) * tileSize[1])
+                self.vertices[quadnr + 3].position   = (i * tileSize[0], (j + 1) * tileSize[1])
+                self.vertices[quadnr].tex_coords     = (tu * tileSize[0], tv * tileSize[1])
+                self.vertices[quadnr + 1].tex_coords = ((tu + 1) * tileSize[0], tv * tileSize[1])
+                self.vertices[quadnr + 2].tex_coords = ((tu + 1) * tileSize[0], (tv + 1) * tileSize[1])
+                self.vertices[quadnr + 3].tex_coords = (tu * tileSize[0], (tv + 1) * tileSize[1])
+
+    def draw(self, target, states):
+
+        states.transform *= self.transformable.transform
+        states.texture    = self.tileset
+        target.draw(self.vertices, states)
+
+
+def main():
+
+    leveldata = (0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0,
+                 1, 1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3,
+                 0, 1, 0, 0, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 0, 0,
+                 0, 1, 1, 0, 3, 3, 3, 0, 0, 0, 1, 1, 1, 2, 0, 0,
+                 0, 0, 1, 0, 3, 0, 2, 2, 0, 0, 1, 1, 1, 1, 2, 0,
+                 2, 0, 1, 0, 3, 0, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1,
+                 0, 0, 1, 0, 3, 2, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1)
+
+    tilemap = TileMap(filename        = "graphics-vertex-array-tilemap-tileset.png",
+                      tileSize        = (32, 32),
+                      leveldata       = leveldata,
+                      leveldimensions = (16, 8))
+
+    window = sf.RenderWindow(sf.VideoMode(1024, 512), unicode("Tilemap"))
+    while window.is_open:
+        for event in window.events:
+            if event.type == sf.Event.CLOSED:
+                window.close()
+            if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
+                window.close()
+        window.clear()
+        # In the end, this calls tilemap's .draw()-method:
+        window.draw(tilemap)
+        window.display()
+
+main()</pre>
+<hr width=70%>
+<br><center><a href="index.html">Back to the computing-page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>

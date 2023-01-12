@@ -1,0 +1,255 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="C, programming language, Dennis, Ritchie, Kernighan, pointer, segfault, segmantation fault, Speicherzugriffsfehler, array, char">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>Compiling Software from Source on Linux</title>
+</head>
+<body>
+<H2>
+Compiling Software from Source on Linux</title>
+</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>
+<p>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Introduction</A>
+<LI><A HREF="#2">The Software Management System on OpenSuSE: rpm</A>
+<LI><A HREF="#3">Compiling Minimal C/C++-Programs with gcc and g++</A>
+<LI><A HREF="#4">Linking against Libraries</A>
+<LI><A HREF="#5">The Most Common Build-Process: "./configure; make; make install". checkinstall</A>
+<LI><A HREF="#6">Missing Packages with Header-Files; "-devel"-Packages</A>
+<LI><A HREF="#7">Commands for Unpacking Source Code Packages</A>
+<LI><A HREF="#8">"checkinstall"-Patch</A>
+<LI><A HREF="#9">"checkinstall" Needs Directories to be Created</A>
+<LI><A HREF="#10">Finding the Right Source Package for Your Distribution</A>
+<LI><A HREF="#11">Watching the Output of ./configure; Setting Options</A>
+<LI><A HREF="#12">Reading the Compilation Documentation</A>
+<LI><A HREF="#13">Alternative Compilation Programs</A>
+<LI><A HREF="#14">Individual Cases</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. Introduction</A></h3>
+<p>Like probably most people I always had problems compiling software from source on Linux. That's because, if something doesn't work as expected, you need quite some understanding of the system and of the build-process of C/C+++-programs to fix it.
+<br>But recently, I could fix more problems and therefore was able to compile more programs (which makes me a little proud). So I thought, I should write down, what I found out about the process.
+<br>I'm using OpenSuSE 13.1, which of course is not the newest distribution.
+<P>
+<HR>
+<h3><A NAME="2">2. The Software Management System on OpenSuSE: rpm</A></h3>
+<p>First we have to take a look at the way, already compiled programs are managed on the system.
+<p>On OpenSuSE (the Linux-distribution that I use) compiled software is managed in socalled "<tt>rpm</tt>-packages". "<tt>rpm</tt>" is short for "Redhat package manager". These packages are also shown in the software section of the system tool "YaST2".
+<p>When rpm-packages are installed, they check in a system-wide rpm-database, if all other packages, on which they are dependend, are already installed.
+<br>If not, installation - with a command "<tt>rpm -i</tt>" from the console - is canceled, and you get an error message which packages are also required..
+<br>If you install with YaST2, it also checks the dependencied and also installs the other required programs, if you want it.
+<p>As mentioned you can use
+<pre>rpm -i somepackage.rpm</pre>
+<p>(as root) to install it. And you can use
+<pre>rpm -e somepackage</pre>
+<p>to deinstall it. As all information about the files are written to the rpm-database, you usually get a clean deinstallation. This is better than on Windows with "<tt>regedit.exe</tt>" and its "registration database" problems.
+<p>In some cases, you don't care about dependencies or conflicts with other packages, you just want to poke your package into the system, no matter what. Fortunately you can do that (as root) with:
+<pre>rpm -i somepackage.rpm --nodeps --force</pre>
+<p>Notice, that you have to call rpm commands about already installed packages without the "<tt>.rpm</tt>"-suffix. To find out, if a certain package is installed on the system and what its exact name is, you can do:
+<pre>rpm -qa | grep -i somepackage</pre>
+<p>You can then get general information about the package with
+<pre>rpm -qi somepackage</pre>
+<p>And you can get a list of the installed files with:
+<pre>rpm -ql somepackage</pre>
+<p>If you want to use "<tt>-qi</tt>" and "<tt>-ql</tt>" on an uninstalled rpm-package lying as a file in some directory on your harddisk, you have to add a "p":
+<pre>rpm -qpi somepackage.rpm
+rpm -qpl somepackage.rpm</pre>
+<p>Notice, that you can browse the contents of rpm-files by using the <b>Midnight Commander</b>. As this is sometimes necessary, you should learn how to do it.
+<p>So, most OpenSuSE-software comes in these rpm-packages, and YaST2 and the rpm-commands above are enough to manage them. If a rpm-package of the software is available in a trustworthy repository (especially in the official OpenSuSE-repositories), and if it works, you should always use it. You then don't need to care about compiling and can just happily use your software.
+<p>This text deals with software that isn't available in such packages (or that doesn't work as well from older rpms as a newer version, that has been released as source in the mean-time).
+<p>Then the aim is to get the sources (usually provided in a "<tt>.tar.gz</tt>"-file") and create a working ".rpm"-file from them. As mentioned, this can be a complex and difficult process. You'll need the rpm-commands mentioned above then to check the results or to quickly install additional software, the program needs.
+<P>
+<HR>
+<h3><A NAME="3">3. Compiling Minimal C/C++-Programs with gcc and g++</A></h3>
+<p>When you have a minimal "Hello World"-program "<tt>hello.c</tt>" in C,
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    puts("Hello World.");
+    return 0;
+}</pre>
+<p>you can compile it with
+<pre>gcc -o hello hello.c</pre>
+<p>and get an executable called "<tt>hello</tt>".
+<p>The same works for a minimal "Hello World"-program "<tt>hello.cpp</tt>" in C++,
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello World." &lt;&lt; endl;
+    return 0;
+}</pre>
+<p>which can be compiled with:
+<pre>g++ -o hello hello.cpp</pre>
+<P>
+<HR>
+<h3><A NAME="4">4. Linking against Libraries</A></h3>
+<p>Almost every C/C++-program makes use of libaries, that have to be introduced to the compiler. A small program "<tt>printsin.c</tt>" like this:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;
+
+int main(void)
+{
+    printf("%f\n", sin(45));
+    return 0;
+}</pre>
+<p>can only be compiled, if the gcc-command knows which library to use and where to find it. The gcc-command also has to know, where the header-files for the "<tt>#include</tt>"-commands inside the program can be found.
+<br>"<tt>/usr/lib</tt>" is a standard directory to search for libraries, "<tt>/usr/include</tt>" a standard directory for header-files. Other directories for libraries would have to be passed to gcc with the "<tt>-L</tt>"-option.
+<br>Here, it just has to be told to use the library "<tt>libm.so</tt>" in "<tt>/usr/lib</tt>" using the "<tt>-l</tt>"-option. That would be:
+<pre>gcc -o printsin printsin.c -lm</pre>
+<p>Notice, there isn't a space character between "<tt>-l</tt>" and the library name. Also notice, that "<tt>lib</tt>" and the "<tt>.so</tt>"-suffix are not mentioned, so it's just "<tt>-lm</tt>", not "<tt>-llibm.so</tt>".
+<p>The header-files mentioned above, which can be usually found in "<tt>/usr/include</tt>" have the suffix "<tt>.h</tt>". They contain declarations of the functions of the library. By using the "<tt>#include</tt>"-directive, these function-declarations become part of the C-program. That way, the functions of the library can be used in the C-program.
+<P>
+<HR>
+<h3><A NAME="5">5. The Most Common Build-Process: "./configure; make; make install". checkinstall</A></h3>
+<p>gcc- or g++-commands can become rather long and complicated, when compiling real-life programs.
+<br>That's why another procedure has been created, which is the most common, when compiling software on Linux.
+<p>The sources of Linux programs usually come in a compressed archive-file, often in the format "<tt>.tar.gz</tt>". This "tar-ball" can be unpacked with
+<pre>tar xzvf somesourcecode.tar.gz</pre>
+<p>A subdirectory of the program should appear. Change to that directory using "<tt>cd</tt>". In the directory, there is usually a bash-script called "<tt>configure</tt>".
+<p>When executed, this bash-script checks the configuration of the system.
+<br>It is usually executed as "<tt>./configure</tt>", to make sure, it is the "<tt>configure</tt>" inside the current working directory (not a "<tt>configure</tt>" somewhere else on the system). In the language of the shell, the dot "<tt>.</tt>" represents the current working directory, the "<tt>/</tt>" is a directory separator. 
+<br>"<tt>configure</tt>" writes the results of its checks to a file called "<tt>Makefile</tt>".
+<br>Notice the capital letter at the beginning. As Linux is case-sensitive, such a name is quite unusual for a filename.
+<br>The content of a minimal Makefile for the "<tt>Hello World</tt>"-program above would look like this:
+<pre>hello : hello.c
+	cc -o hello hello.c</pre>
+<p>When the Makefile is created, the user can run the command "<tt>make</tt>".
+<br>"<tt>make</tt>" reads in "<tt>Makefile</tt>" and creates the necessary gcc/g++-commands from it, including all complicated options. It then also runs these commands.
+<p>If libraries needed for the build process can not be found or used, or if there are bugs in the source-code of the program, either "<tt>configure</tt>" or "<tt>make</tt>" will fail. They will then cancel the configuration- or build-process and print out an error message instead. It's then up to the user to fix the problem. Sometimes, this is possible, sometimes it isn't, depending on how severe the problem is and how skilled the user is.
+<p>If "<tt>make</tt>" is successful, all executables and other files of the application have been created. But they're still in the subdirectory of the build-process. 
+<p>The user could then run "<tt><tt>make install</tt></tt>" to copy the created files into the system. Copying files into the system requires "root"-privileges, so before running "make install" the user would have to become "root", using the "<tt>su</tt>"-command.
+<br>Unfortunately, running "<tt>make install</tt>"  would bypass the rpm-database. So the application and its programs wouldn't be recognized by rpm or YaST, and it would be difficult to remove them from the system again later.
+<br>Therefore, instead of running "<tt>make install</tt>", I use to run a bash-script called "<tt>checkinstall</tt>". "<tt>checkinstall</tt>" tries to take all executables and other files of the application and build a "rpm"-package from them.
+<br>"checkinstall" is rather old. Nevertheless, it often successfully creates the wanted "rpm" from the compiled files.
+<br>In my opinion it's a very nice tool and deserves to be developed further.
+<p>"configure" and "make" can also be executed in one line like this:
+<pre>./configure; make</pre>
+<p>Then the first command is executed, after that the second. An alternative is:
+<pre>./configure &amp;&amp; make</pre>
+<p>Then the second command is only executed, if the first command has finished successfully (&amp;&amp; is a logical AND).
+<p>This is the general build process. In the following, I describe a few cases of what can go wrong and how to fix it.
+<P>
+<HR>
+<h3><A NAME="6">6. Missing Packages with Header-Files; "-devel"-Packages</A></h3>
+<p>Let's say, you want to compile an application that uses the SDL-library ("Simple Direct Layer", often used by games). You get an error, that the SDL-library is missing. You check with
+<pre>rpm -qa | grep -i sdl</pre>
+<p>but you find a package "libSDL-...". So the library should be there.
+<br>In this situation you should check, if the corresponding "-devel"-package is also installed. So look out for "libSDL-devel...".
+<p>As you can see with
+<pre>rpm -ql libSDL-devel | less</pre>
+<p>the "-devel"-packages often contain the header files for the program (suffix ".h"), which usually can be found below "/usr/include".
+<p>In general, if the build process says, a program or a library is missing, first check in YaST, if there is a rpm-package for that program or library in the available repositories. It's quicker and easier to install missing rpms from the repositories than to search for the project page on the internet and to try to build the missing program or library yourself.
+<br>And, as mentioned, also check for the "-devel"-rpm-packages of the missing program or library and install them too.
+<P>
+<HR>
+<h3><A NAME="7">7. Commands for Unpacking Source Code Packages</A></h3>
+<ul>
+<li>.tar.gz
+<pre>tar xzvf somesourcecode.tar.gz</pre>
+<li>.tar.bz2
+<pre>tar xjvf somesourcecode.tar.bz2</pre>
+<li>.zip
+<pre>unzip somesourcecode.zip</pre>
+<li>.rar
+<pre>unrar x somesourcecode.rar</pre>
+</ul>
+<P>
+<HR>
+<h3><A NAME="8">8. "checkinstall"-Patch</A></h3>
+<p>After installing "checkinstall" for my distributions OpenSuSE 13.1, I found, the program didn't work.
+<br>When trying to create an rpm, it said something about not being able to create a directory down in "/var/run/....".
+<br>Fortunately, I found a patch for the bash-script "/usr/sbin/checkinstall", that fixes the problem. It says:
+<pre>With this patch for checkinstall-1.6.2-0.4.src.rpm;
+
+--- checkinstall.in.orig        2015-05-02 12:34:24.894240253 +0900
++++ checkinstall.in     2015-05-02 12:36:52.561583541 +0900
+@@ -2423,7 +2423,7 @@
+ # Prepare directories to be included in the .spec file
+ mv ${TMP_DIR}/newfiles ${TMP_DIR}/newfiles.tmp
+ cat ${TMP_DIR}/newfiles.tmp | while read line; do
+-   [ -d "${BUILD_DIR}/${line}" -o -L "${BUILD_DIR}/${line}" ] &amp;&amp; echo -n "%dir " &gt;&gt; ${TMP_DIR}/newfiles
++   [ -d "${BUILD_DIR}/${line}" ] &amp;&amp; echo -n "%dir " &gt;&gt; ${TMP_DIR}/newfiles
+    echo "\"/${line}\"" &gt;&gt; ${TMP_DIR}/newfiles
+ done
+
+checkinstall works fine.</pre>
+<p>So maybe you'd have to change the script "/usr/sbin/checkinstall" as specified.
+<P>
+<HR>
+<h3><A NAME="9">9. "checkinstall" Needs Directories to be Created</A></h3>
+<p>Running "checkinstall" sometimes fails with the error-message, not being able to create for example a file "/usr/local/somedir/somefile".
+<br>That's a simple problem: The file cannot be created, because the parent directory "/usr/local/somedir" doesn't exist. Just create it (as root) with
+<pre>mkdir -p /usr/local/somedir</pre>
+<p>then run "checkinstall" again.
+<p>In some cases, "checkinstall" needs a lot of these directories to be created. Then you have to find out the names of these directories and make a list of them. Another idea would be to run "make install". That should create all needed directories. Then run "checkinstall" afterwards and create the rpm.
+When the rpm is installed with "<tt>rpm -i</tt>" and deinstalled again with "<tt>rpm -e</tt>", the files that "<tt>make install</tt>" has created should be deleted. Then you have the wanted result, that is just a rpm of the application (which can be reinstalled again).
+<p>Notice, that "<tt>checkinstall</tt>" is in general a bit experimental. There is a chance, that it creates the rpm, but you can't rely on it. It always makes me happy, when it works.
+<P>
+<HR>
+<h3><A NAME="10">10. Finding the Right Source Package for Your Distribution</A></h3>
+<p>If you use the newest version of your distribution or if you keep updating it (which uses lots of energy and produces huge amounts of CO<sub>2</sub>, considering that billions of computers all over the world do that 24/7 without necessity), you should try to compile the most recent source code of a program.
+<p>If you use an older distribution (like me, running OpenSuSE 13.1 in 2019), it may not be possible to compile the most recent source code, because it may depend on versions of certain libraries that are newer than the ones on your system. So you may have to look for older versions of a program's source code.
+<p>An essential library would be "<tt>glibc</tt>" (on my system that's "<tt>/lib/libc.so.6</tt>". You can check, as you know by now, with "<tt>rpm -ql glibc</tt>"). It provides the fundamental functions for using C on a Linux system. So it's kind of the "backbone" of a distribution. Without "<tt>glibc</tt>", nothing would work.
+<br>If the compilation of a program requires another version of <tt>glibc</tt> than the one on your system, you probably won't be able to compile or use the program. And don't let any compile-process ever try to change the existing version of the <tt>glibc</tt> on your system.
+<p>Other libraries that may cause problems are the ones for the GUI-toolkits, especially <tt>GTK</tt> and <tt>Qt</tt>. These toolkits define what the windows on your desktop look like. It may be difficult to update them. On my OpenSuSE 13.1 for example, I have <tt>Qt4</tt>. If a program requires <tt>Qt5</tt>, I probably won't compile it or look for an older version of the source code, which only requires <tt>Qt4</tt>.
+<P>
+<HR>
+<h3><A NAME="11">11. Watching the Output of ./configure; Setting Options</A></h3>
+<p>Sometimes, "<tt>./configure</tt>" runs successfully, but prints warnings during the process. That shouldn't happen. Read the warnings carefully and decide, whether you can ignore the warning or if you have to try to fix the problem, the warning is mentioning.
+<br>Maybe you have to install additional libraries (and their "<tt>-devel</tt>"-packages) first.
+<p>Often, "<tt>./configure</tt>" also provides special options for compiling the program. You can take a look at them with
+<pre>./configure --help | less</pre>
+<p>Sometimes the install prefix is set to "<tt>/usr/local</tt>", so the program files will be installed to
+<pre>/usr/local/someprogram
+/usr/local/lib/someprogram
+/usr/local/include/someprogram</pre>
+<p>If you want "<tt>/usr/lib</tt>", "<tt>/usr/include</tt>" instead, you have to set the prefix to the directory "<tt>/usr</tt>" by running "<tt>./configure</tt>" with
+<pre>./configure --prefix='/usr'</pre>
+<p>That may not be the only option of "<tt>./configure</tt>", you'll want to change.
+<p>"<tt>qtractor</tt>" up to version 0.9.2 for example (a music software) provides an option to compile for <tt>Qt4</tt>, called "<tt>--enable-qt4</tt>". As <tt>Qt4</tt> is my latest version of <tt>Qt</tt> at the moment, this is quite an essential option for me, if I want to compile "<tt>qtractor</tt>" for my system.
+<P>
+<HR>
+<h3><A NAME="12">12. Reading the Compilation Documentation</A></h3>
+<p>The source files usually come with notes on the compilation process written by the developers of the program. When problems occur, you should read these files. They are usually called "<tt>README</tt>" or "<tt>INSTALL</tt>".
+<P>
+<HR>
+<h3><A NAME="13">13. Alternative Compilation Programs</A></h3>
+<p>"<tt>./configure; make; make install (or checkinstall)</tt>" is the most common installation process. Some programs require other programs for compilation though. 
+<ul>
+<li><tt>cmake</tt>
+<p>
+<li><tt>scons</tt>
+<p>This Python-based compilation routine is probably used, when you see a file "<tt>SConstruct</tt>" in the directory.
+<p>
+<li><tt>waf</tt>
+<br>A compilation program written in Python. "<tt>./waf --help</tt>" works. "<tt>./waf configure</tt>" is used, then "<tt>./waf</tt>" to build and "<tt>./waf install</tt>". Used by <tt>lv2</tt> for example.
+<p>
+<li><tt>qmake</tt>
+<br>Sometimes, you need to run "<tt>qmake</tt>" to compile applications using the widget-toolkit <tt>Qt</tt>. It should say in the <tt>README</tt>, when "<tt>qmake</tt>" is needed.
+</ul>
+<P>
+<HR>
+<h3><A NAME="14">14. Individual Cases</A></h3>
+<p><tt>Polyphone 1.8</tt>, which is an editor for "<tt>.sf2</tt>" and "<tt>.sfz</tt>" music sampler files (soundfonts):
+<br>When running "<tt>qmake</tt>", and then "<tt>make</tt>", it complained about "<tt>qcustomplot.h</tt>" not being found. The sources of "<tt>qcustomplot</tt>" just provided the "<tt>.h</tt>"-file and a "<tt>.cpp</tt>"-file. I then found, that when compiling a static library for <tt>Qt</tt>, you have to use a "<tt>.pro</tt>"-file. I also found, that the Polyphone sources already included the "<tt>qcustomplot</tt>" sources, and there also was a "<tt>.pro</tt>"-file. Activating the line
+<pre>DEFINES += USE_LOCAL_QCUSTOMPLOT</pre>
+<p>in the file "<tt>polyphone.pro</tt>" made it finally possible to compile with "<tt>make</tt>".
+
+</ul>
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<br><center><a href="index.html">Back</a></center>
+</body>
+</html>

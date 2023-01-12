@@ -1,0 +1,780 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Perl,SDL,SDLx,games">
+   <meta name="Author" content="hlubenow2 {at-symbol} gmx.net">
+   <title>Perl Page #6: Creating 2D Video Games in SDL_perl / SDLx</title>
+</head>
+<body>
+<H2>
+<img SRC="icopl.png" height=32 width=32>&nbsp;
+Perl Page #6: Creating 2D Video Games in SDL_perl / SDLx</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.
+<p>The page's not finished yet, it's a work in progress.
+</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">About SDL_perl and SDLx</A>
+<LI><A HREF="#2">Moving Sprites</A>
+<LI><A HREF="#3">More on Keyboard Input</A>
+<LI><A HREF="#4">The First Example Once More, But With Changes</A>
+<LI><A HREF="#5">Displaying Text</A>
+<LI><A HREF="#6">Controlling the Speed</A>
+<LI><A HREF="#7">Doing Things More the SDLx-Way (Including Keyboard Input)</A>
+<LI><A HREF="#8">Scrolling the Background</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. About SDL_perl and SDLx</A></h3>
+<p>"SDL_perl" is a set of Perl modules to create video games. The modules are bindings to the C-library "SDL" ("Simple Direct Layer").
+<p>It seems, the original SDL_perl modules were not so easy to use. To make things more convenient, a further layer called "SDLx" was created. Convenience isn't necessarily a good thing, but it seems, SDLx did quite a good job in assisting the programmer.
+<br>In general, I'll explain things the SDLx way, and fall back to the SDL modules, where I think it's important.
+<p>There's an official tutorial as a pdf file <a href="https://github.com/PerlGameDev/SDL_Manual/tree/master/dist">here</a>. There are also a few <a href="https://github.com/PerlGameDev/SDL/tree/master/examples">code examples</a>. Useful perldocs are:
+<ul>
+<li>perldoc SDLx::Surface (explains methods like "<tt>draw_rect()</tt>")
+<li>perldoc SDLx::Rect
+<li>perldoc SDLx::App
+<li>perldoc SDL::Event
+<li>perldoc SDL::Events (has a list of keysyms for keyboard-input)
+</ul>
+<HR>
+<h3><A NAME="2">2. Moving Sprites</A></h3>
+<p>Let's get right into it. I'm creating a sprite with a black background and red circle on it, and move it from left to right using mostly SDLx. I'm also putting this script on <a href="https://github.com/hlubenow/SDL_perl_experiments/blob/main/tutorial_examples/01.pl">my GitHub page</a>:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# SDL_perl example 1
+
+# Copyright (C) 2021 hlubenow
+# License: GNU GPL 3.
+
+use SDLx::App;
+use SDLx::Surface;
+use SDLx::Rect;
+use SDLx::FPS;
+
+my $RESX  = 800;
+my $RESY  = 600;
+my $BLACK = [0, 0, 0, 255];
+my $BLUE  = [0, 0, 189, 255];
+my $RED   = [220, 0, 0, 255];
+my $SIZE  = 50;
+my $STEP  = 5;
+
+package GameWindow {
+
+    use SDL::Event;
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        $self-&gt;{addon} = AddOn-&gt;new();
+        return bless($self, $classname);
+    }    
+
+    sub start {
+        my $self = shift;
+        SDL::putenv("SDL_VIDEO_WINDOW_POS=130,18");
+        $self-&gt;{app} = SDLx::App-&gt;new(w            =&gt; $RESX,
+                                      h            =&gt; $RESY,
+                                      title        =&gt; 'Moving Circle',
+                                      exit_on_quit =&gt; 1);
+
+        $self-&gt;{screen} = SDLx::Surface::display();
+        $self-&gt;{fps}    = SDLx::FPS-&gt;new(fps =&gt; 50);
+        $self-&gt;{event}  = SDL::Event-&gt;new();
+
+        $self-&gt;{red_circle} = RedCircle-&gt;new($self-&gt;{addon});
+        $self-&gt;{red_circle}-&gt;createSurface();
+
+        $self-&gt;{running} = 1;
+
+        # Main Loop:
+        while ($self-&gt;{running}) {
+            $self-&gt;{fps}-&gt;delay();
+            if ($self-&gt;handleEvents() eq "quit") {
+                $self-&gt;{running} = 0;
+            }
+            $self-&gt;{red_circle}-&gt;moveRight();
+
+            $self-&gt;{addon}-&gt;fill($self-&gt;{screen}, $BLUE);
+            $self-&gt;{red_circle}-&gt;draw($self-&gt;{screen});
+            $self-&gt;{screen}-&gt;flip(); # or "update()"
+        }
+    }
+
+    sub handleEvents {
+        my $self = shift;
+        SDL::Events::pump_events();
+        if (SDL::Events::poll_event($self-&gt;{event})) {
+            if ($self-&gt;{event}-&gt;type == SDL_KEYDOWN ) {
+                if ($self-&gt;{event}-&gt;key_sym == SDLK_SPACE) {
+                    $self-&gt;{red_circle}-&gt;startStopMoving();
+                }
+                if ($self-&gt;{event}-&gt;key_sym == SDLK_q) {
+                    return "quit";
+                }
+            }
+        }
+        return 0;
+    }
+}
+
+package AddOn {
+
+    # My own additions to SDLx.
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }    
+
+    sub get_rect {
+        my ($self, $surface) = @_;
+        return SDLx::Rect-&gt;new(0, 0, $surface-&gt;w, $surface-&gt;h);
+    }
+
+    sub fill {
+        my ($self, $surface, $colorref) = @_;
+        $surface-&gt;draw_rect( [ 0, 0, $surface-&gt;w, $surface-&gt;h ], $colorref);
+    }
+}
+
+
+package RedCircle {
+
+    sub new {
+        my $classname = shift;
+        my $self = {moving =&gt; 1}; 
+        $self-&gt;{addon} = shift;
+        return bless($self, $classname);
+    }    
+
+    sub createSurface {
+        my $self = shift;
+        $self-&gt;{surface} = SDLx::Surface-&gt;new(w =&gt; $SIZE, h =&gt; $SIZE);
+        $self-&gt;{addon}-&gt;fill($self-&gt;{surface}, $BLACK);
+        $self-&gt;{surface}-&gt;draw_circle_filled( [$SIZE / 2, $SIZE / 2], ($SIZE - 10) / 2, $RED);
+        $self-&gt;{rect} = $self-&gt;{addon}-&gt;get_rect($self-&gt;{surface});
+        # Set start-position. Values for "-&gt;topleft()" are in the order of y, x:
+        $self-&gt;{rect}-&gt;topleft(300 - $SIZE, 0);
+    }
+
+    sub startStopMoving {
+        my $self = shift;
+        $self-&gt;{moving} = 1 - $self-&gt;{moving};
+    }
+
+    sub moveRight {
+        my $self = shift;
+        if ($self-&gt;{moving} == 0) {
+            return;
+        }
+        $self-&gt;{rect}-&gt;x($self-&gt;{rect}-&gt;x + $STEP);
+        if ($self-&gt;{rect}-&gt;right &gt; 800) {
+            $self-&gt;{rect}-&gt;x(0);
+        }
+    }
+
+    sub draw {
+        my ($self, $screen) = @_;
+        $screen-&gt;blit_by($self-&gt;{surface}, undef, $self-&gt;{rect});
+    }
+}
+
+my $app = GameWindow-&gt;new();
+$app-&gt;start();</pre>
+<p>There's already quite a lot going on here.
+<ul>
+<li>Without understanding Perl's OOP, you won't get far here, I guess. You can read <a href="perl2_oop.html">my page</a> about it, if you like.
+<p>
+<li>As a matter of fact, instead of creating your own main loop like in the example, you're supposed to define handlers and then call a function "<tt>$app-&gt;run();</tt>" when using SDLx. Like this:
+<pre>$app-&gt;add_event_handler(\&amp;handleEvents);
+$app-&gt;add_move_handler(\&amp;moveObject1);
+$app-&gt;add_move_handler(\&amp;moveObject2);
+$app-&gt;add_show_handler(\&amp;showScreen);
+app-&gt;run();
+
+sub handleEvents { ... }
+sub moveObject1 { ... }
+sub moveObject2 { ... }
+sub showScreen { ... }</pre>
+<p>But I don't see too many advantages of doing it like this, so I create my own main loop just using
+<pre>while ($self-&gt;{running}) {
+...
+}</pre>
+<p>It gives me more control, and I can be sure that there isn't running anything else in the background.
+<br>Regarding event handling, I have to fallback to the original SDL modules then though. But that may be appropriate for that anyway.
+<p>
+<li>The script shows, how sprites are created in SDL_perl (and for example also in Pygame): Socalled "surfaces" are blitted to the main screen (the term "to blit" is an abbreviation of "Block Image Transfer"). It is possible to draw on surfaces (for example a circle can be drawn onto it like in the script), and also images can be loaded from "<tt>.jpg</tt>" and other image-files and brought onto a surface.
+<br>It is useful to create a separate class for each different object on the screen (like the class "RedCircle" here). This class then holds a surface. And it also holds a corresponding rectangle called "rect" (which is a "Rect"-object). A Rect-object just holds values for a position (x, y) and a size (width, height). Originally, a Rect-object isn't necessarily linked to a surface. But when a Rect-object always holds the position and size of a surface, it can be regarded as the surface's rect.
+<br>Similar to Pygame, I added a function "<tt>get_rect()</tt>", that takes a surface as an argument and returns a rectangle of the size of the surface, positioned at (0, 0).
+<br>In a second step, the rectangle can then be moved to the wanted position by redefining its "<tt>topleft</tt>"-value. (The rect's initial position can also be set at instantiation, but it's "<tt>toplevel</tt>"-value has to be used anyway, when the sprite is moved.)
+<br>In the end, the "surface" is blitted to "<tt>$self-&gt;{screen}</tt>" (the main window) at the position defined by "rect".
+<br>(Actually, "<tt>$self-&gt;{screen}</tt>" is also a Surface-object, that's why it's possible to blit other surfaces onto it.)
+<br>So basically, to create a sprite you have a code pattern like this:
+<pre>
+package ObjectOnScreen {
+
+    sub new { ... }
+
+    sub createSurface {
+        my $self = shift;
+        $self-&gt;{surface} = SDLx::Surface-&gt;new(w =&gt; ..., h =&gt; ...);
+        $self-&gt;{rect}    = SDLx::Rect-&gt;new(0, 0, $self-&gt;{surface}-&gt;w, $self-&gt;{surface}-&gt;h);
+        $self-&gt;{rect}-&gt;topleft(...);
+    }
+}
+</pre>
+<p>This mechanism should be used to create almost all objects in the game. The "rect" objects can then also be used to write collision check routines, as they represent the positions of the sprites on the screen.
+<p>
+<li>In the main loop, first the app is delayed to control its speed and to limit it to a certain number of "frames per second" ("fps"). 50 or 60 fps is a traditional rate. See the SDL-manual for different methods of control of the application speed. Look for an option "<tt>dt =&gt; 0.1,</tt>" in the definition of "<tt>$self-&gt;{app}</tt>".
+<p>Then the event handler function is called to handle keyboard-, mouse- or joystick-input.
+<br>Then the screen objects are moved according to the previously processed user-input.
+<p>Then the screen is redrawn each frame: First the "screen"-surface is filled with a background-image or a background-color. Then the screen objects are blitted onto the (now again empty) screen, using their rect-objects to get their positions. In the end, "<tt>$self-&gt;{screen}-&gt;flip();</tt> or "<tt>$self-&gt;{screen}-&gt;update();</tt> is called, to make the changes to the screen visible.
+<br>It would also be possible to update only parts of the screen. But in practice it is often necessary to update the whole screen, so just a "<tt>flip()</tt>" has to be done (although it's relatively time consuming to do that for the whole screen).
+<br>The screen is redrawn and updated 50 times per second this way (or more, according to fps). As a result, animations can be displayed.
+<p>
+<li>A way of handling colors in SDLx are references to arrays of four numbers: The first three numbers are the RGB (Red, Green, Blue) values. The fourth number is the transparency, where 0 is fully transparent, and 255 is fully opaque:
+<pre>my $red = [255, 0, 0, 255];</pre>
+<p>
+<li>Some things have to be prepared only once and are therefore executed before the main loop. For example, in the script the red circle is only drawn once onto the sprite surface. And there are things, that have to be done every frame and are therefore executed within the main loop. For example, the sprite surface (with the circle on it), is blitted to the screen every frame in different positions.
+<p>
+<li>It's typical for video games, that you don't simply write one command after the other, and it's executed slowly one after the other (like in ordinary scripts), but that the game's main loop rushes through your code many times per second, and you have to prevent it from doing things, you don't want.
+<br>A typical situation is the function "<tt>moveRight()</tt>" here: Maybe the sprite's not moving at the moment, so you don't want the function to be executed. Then you rather quickly check in the function, if the sprite's moving variable is set, and if not, you let the main loop return from the function, than putting the whole moving routine under a condition.
+<p>
+<li>When the key "<tt>q</tt>" is pressed, "<tt>$self-&gt;{running}</tt>" is set to 0, so the main while-loop ends, and so does the program.
+<br>SDLx would also make it possible to explicitely call "<tt>$self-&gt;{app}-&gt;stop();</tt>", but that's also done automatically, when the Perl-script ends.
+</ul>
+<P>
+<HR>
+<h3><A NAME="3">3. More on Keyboard Input</A></h3>
+<p>What kind of keyboard I/O routine needs to be used, depends on what kind of keyboard input you want to achieve: 
+<ol type="a">
+<li>Getting just a single key press, and then wait, until the key is relased and another key is pressed (blocking I/O):
+
+
+<pre>package GameWindow {
+    ...
+    use SDL::Event;
+    ...
+    sub start {
+        ...
+        $self-&gt;{event} = SDL::Event-&gt;new();
+        while ($self-&gt;{running}) {
+            if ($self-&gt;processEvents() eq "quit") {
+                $self-&gt;{running} = 0;
+            }
+    }
+
+    sub processEvents {
+        my $self = shift;
+        SDL::Events::pump_events();
+        if (SDL::Events::poll_event($self-&gt;{event})) {
+            if ($self-&gt;{event}-&gt;type == SDL_KEYDOWN ) {
+                if ($self-&gt;{event}-&gt;key_sym == SDLK_SPACE) {
+                    # Do something, when the space-bar is pressed.
+                }
+                if ($self-&gt;{event}-&gt;key_sym == SDLK_q) {
+                    return "quit";
+                }
+            }
+        }
+        return 0;
+    }
+}</pre>
+<li>Non-blocking keyboard input. The user can press several keys at once.
+<br>A variable is set up, and it has to be checked each loop for "<tt>SDL_KEYDOWN</tt>" and "<tt>SDL_KEYUP</tt>" events:
+<pre>package GameWindow {
+    ...
+    use SDL::Event;
+    ...
+    sub start {
+        ...
+        $self-&gt;{event}        = SDL::Event-&gt;new();
+        $self-&gt;{keystates}    = ();
+        $self-&gt;{keystatekeys} = [SDLK_LEFT, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_q];
+        my $i;
+        for $i (@{ $self-&gt;{keystatekeys} }) {
+            $self-&gt;{keystates}{$i} = 0;
+        }
+        ...
+        while ($self-&gt;{running}) {
+            if ($self-&gt;processEvents() eq "quit") {
+                $self-&gt;{running} = 0;
+            }
+    }
+
+    sub processEvents {
+        my $self = shift;
+        my ($i, $num);
+        SDL::Events::pump_events();
+        if (SDL::Events::poll_event($self-&gt;{event})) {
+            if ($self-&gt;{event}-&gt;type == SDL_KEYDOWN ) {
+                for $i (@{ $self-&gt;{keystatekeys} }) {
+                    if ($self-&gt;{event}-&gt;key_sym == $i) {
+                        $self-&gt;{keystates}{$i} = 1;
+                    }
+                }
+            }
+            if ($self-&gt;{event}-&gt;type == SDL_KEYUP ) {
+                for $i (@{ $self-&gt;{keystatekeys} }) {
+                    if ($self-&gt;{event}-&gt;key_sym == $i) {
+                        $self-&gt;{keystates}{$i} = 0;
+                    }
+                }
+            }
+        }
+        $num = SDLK_LEFT;
+        if ($self-&gt;{keystates}{$num}) {
+            # Left
+        }
+        $num = SDLK_RIGHT;
+        if ($self-&gt;{keystates}{$num}) {
+            # Right
+        }
+        $num = SDLK_UP;
+        if ($self-&gt;{keystates}{$num}) {
+            # Up
+        }
+        $num = SDLK_DOWN;
+        if ($self-&gt;{keystates}{$num}) {
+            # Down
+        }
+        $num = SDLK_q;
+        if ($self-&gt;{keystates}{$num}) {
+            # 'q' pressed.
+            return "quit";
+        }
+        return 0;
+    }
+}</pre>
+</ol>
+<p>It is also possible to get non-blocking keyboard input in example (a) by setting:
+<pre>SDL::Events::enable_key_repeat(1, 30);</pre>
+<p>But to process several key presses at once, construction (b) is still needed.
+<P>
+<HR>
+<h3><A NAME="4">4. The First Example Once More, But With Changes</A></h3>
+<p>Let's rewrite the first example script above in a way, that you can move the circle around on the screen with the cursor keys, and that you can press multiple keys at once, so that you can also go diagonally.
+<p>In the first example, I filled the circle-surface's background with a black color, so that you could see, that Surface objects are in the form of a rectangle. This time, I leave that step out. SDLx makes the background of surfaces transparent by default it seems (which is a reasonable choice in my opinion). Therefore, only the red circle will be visible (which would probably be, what you wanted in a game).
+<p>As the code of the second example is a bit longer, I put it on <a href="https://github.com/hlubenow/SDL_perl_experiments/blob/main/tutorial_examples/02.pl">my GitHub page</a>.
+<br>If you want to download it, you have to go a few directories up, to <a href="https://github.com/hlubenow/SDL_perl_experiments">here</a>. There you can download the whole "project", using the button labeled "<tt><font color="green">Code</font></tt>".
+<P>
+<HR>
+<h3><A NAME="5">5. Displaying Text</A></h3>
+<p>Displaying Text in a SDL_Perl game by rendering a given TrueType font is rather straightforward (<a href="https://github.com/hlubenow/SDL_perl_experiments/blob/main/tutorial_examples/03_text.pl">script on GitHub</a>):
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# SDL_perl Example 3
+
+# Displaying text by rendering a font.
+
+# Copyright (C) 2021 hlubenow
+# License: GNU GPL 3.
+
+use SDLx::App;
+use SDLx::Text;
+use SDL::Event;
+
+my $FONTFILE = "FreeSans.ttf";
+
+if (! -e $FONTFILE) {
+    print "\nError: Font-file '$FONTFILE' not found in the script directory.\n";
+    print "       '$FONTFILE' can be downloaded at:\n";
+    print "       http://ftp.gnu.org/gnu/freefont/freefont-ttf.zip\n\n";
+    exit 1;
+}
+
+SDL::putenv("SDL_VIDEO_WINDOW_POS=320,100");
+my $app  = SDLx::App-&gt;new(w => 640,
+                          h => 480,
+                          title => "Text example",
+                          eoq   => 1);
+my $event = SDL::Event-&gt;new();
+
+my $text = SDLx::Text-&gt;new(font  => $FONTFILE,
+                           color => [220, 50, 50, 255],
+                           size    => 32, 
+                           h_align => 'center');
+
+while (1) {
+    processEvents($event);
+    $text-&gt;write_xy($app, 300, 200, "Hello World!");
+    $app-&gt;flip();
+}
+
+sub processEvents {
+    my $event = shift;
+    SDL::Events::pump_events();
+    if (SDL::Events::poll_event($event)) {
+        if ($event-&gt;type == SDL_KEYDOWN ) {
+            if ($event-&gt;key_sym == SDLK_q) {
+                exit;
+            }
+        }
+    }
+}</pre>
+<p>The question is more, where to get good TrueType fonts for your game without getting into copyright trouble.
+<br>For the examples on this page, I used the font "FreeSans" (in the file "FreeSans.ttf") from the <a href="https://www.gnu.org/software/freefont/">GNU FreeFont package</a>, which can be downloaded <a href="http://ftp.gnu.org/gnu/freefont/freefont-ttf.zip">here</a>. So that is easily available and should be safe to use. (Although "FreeSans" is a (very good) general purpose font, that's not really made for being used in games.)
+<P>
+<HR>
+<h3><A NAME="6">6. Controlling the Speed</A></h3>
+<p>To control the general speed of the application, "<tt>SDLx::App</tt>" provides a useful mechanism, that is described in the next chapter.
+<br>This chapter deals with an older method, that is probably deprecated. You may skip to the next chapter.
+<p>One (older) way to control the application's speed would be to use "<tt>SDLx::FPS</tt>". You can then make the application run at a certain "fps" ("frames per second"), like in the following example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use SDLx::App;
+use SDLx::Surface;
+use SDLx::Rect;
+use SDLx::FPS;
+
+package Main {
+
+    sub new { ... }
+
+    sub start {
+        $self-&gt;{app} = SDLx::App-&gt;new( ... );
+        ...
+        $self-&gt;{fps} = SDLx::FPS-&gt;new(fps =&gt; 50);
+        while (1) {
+            $self-&gt;{fps}-&gt;delay();
+            ...
+            $self-&gt;{screen}-&gt;flip(); # or "update()"
+        }
+    }
+}</pre>
+<p>A more detailed speed control is needed, when some objects on the screen are supposed to move faster or slower than others. Which is probably the case in almost every game.
+<br>"<tt>$self-&gt;{app}-&gt;ticks()</tt>" returns the number of milliseconds that have passed, since the application started. With this, you can set up a delay time in a certain function, as shown in this example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use SDLx::App;
+use SDLx::Surface;
+use SDLx::Rect;
+use SDLx::FPS;
+
+my $SPEEDSETTING = 50;
+
+package Spaceship {
+
+    sub new {
+        my $self = {...
+                    timer     =&gt; shift,
+                    delaytime =&gt; shift};
+        return bless($self, $classname);
+    }
+
+    sub move {
+        my ($self, $currenttime) = @_;
+        if ($currenttime - $self-&gt;{timer} &lt;= $self-&gt;{delaytime}) {
+            return;
+        }
+        # Doing something slowed down:
+        ...
+        $self-&gt;{rect}-&gt;x($self-&gt;{rect}-&gt;x + 1);
+        ...
+        # This line is necessary at the end to make it work:
+        $self-&gt;{timer} = $currenttime;
+    }
+
+    sub draw {
+        my ($self, $screen) = @_;
+        ...
+    }
+}
+
+package Main {
+
+    sub new { ... }    
+
+    sub start {
+        my $self = shift;
+        $self-&gt;{app} = SDLx::App-&gt;new( ... );
+        $self-&gt;{fps} = SDLx::FPS-&gt;new(fps =&gt; 50);
+        $self-&gt;{spaceship} = Spaceship-&gt;new(...,
+                                            $self-&gt;{app}-&gt;ticks(),
+                                            $SPEEDSETTING * 2);
+        while (1) {
+            $self-&gt;{fps}-&gt;delay();
+            $self-&gt;{timer} = $self-&gt;{app}-&gt;ticks();
+            ...
+            $self-&gt;{spaceship}-&gt;move($self-&gt;{timer});
+            $self-&gt;{spaceship}-&gt;draw($self-&gt;{screen});
+            $self-&gt;{screen}-&gt;flip(); # or "update()"
+        }
+    }
+    ...
+}</pre>
+<p>So the timer of the class is updated by the timer of the main loop, each time the delaytime has been reached.
+<p>It's a good idea to use a global variable, to which all "<tt>$self-&gt;{delaytime}</tt>" variables relate, like "<tt>$SPEEDSETTING</tt>" in the example above. This way, the speed of all objects can be set in relation to one global application speed.
+<br>With the newer method of SDLx::App, described in the following chapter, you just store the individual speeds of each game object. That is a more elegant (and probably more reliable) solution.
+<P>
+<HR>
+<h3><A NAME="7">7. Doing Things More the SDLx-Way (Including Keyboard Input)</A></h3>
+<p>What I explained up to now works, so I'll leave the first chapters as they are.
+But I found, that in SDLx, you're supposed to write code a bit differently. And it makes sense to me, so I'll follow that route.
+<p>The reason for the changes is the control of speed of the application in general and of single objects (see above). When you use a FPS-limiter like "<tt>SDLx::FPS</tt>", the game will take more ressources from the system than needed. So people thought about a solution to make the game run at the same speed on all PCs without slowing down fast systems. In "<tt>SDLx::Controller</tt>" an "industry-proven standard" (as its perldoc states) was created for controlling the application speed independently from the FPS.
+<br>"<tt>SDLx::Controller</tt>" is automatically loaded, when a "<tt>SDLx::App</tt>" object is created.
+<p>To make it work, you're supposed to store the speed of your game objects. Separated into a positive or negative x-speed and a positive or negative y-speed. In the "Pong" example of the SDL_Manual these are called "<tt>v_x</tt>" and "<tt>v_y</tt>", as "velocity" just means the same as "speed" (it's just about speed, not about acceleration).
+<br>And for the main loop, you're supposed to use callback handlers. Instead of writing your own "<tt>while (1) { ... }</tt>"-loop, you'll set up three types of handlers and then call "<tt>$self->{app}-run();</tt>". The handlers are set up like this:
+<pre>
+        $self-&gt;{app}-&gt;add_event_handler(sub {
+                                              my ( $event, $app ) = @_; 
+                                              $self-&gt;processEvents($event); }); 
+        $self-&gt;{app}-&gt;add_move_handler( sub {
+                                              my ( $step, $app ) = @_; 
+                                              $self-&gt;{gameobject}-&gt;move($step) } );
+
+        $self-&gt;{app}-&gt;add_show_handler( sub { $self-&gt;showScreen(); });
+
+        $self-&gt;{app}-&gt;run();
+</pre>
+<ul>
+<li>Into the "event handler", the arguments "<tt>$event</tt>" and "<tt>$app</tt>" are passed automatically (and into the "move handlers" the arguments "<tt>$step</tt>" and "<tt>$app</tt>"). Unfortunately this conflicts with the "<tt>$self</tt>" of OOP, that is also automatically passed in, when using methods inside a class. That's why I use an anonymous function ("<tt>sub { .. }</tt>") for the handler, and call the methods, I really want, inside these function, as shown.
+<p>
+<li>In the handlers, you basically do the same things, you'd do in a game's "<tt>while</tt>" loop. At the end of "<tt>$self->{showScreen}</tt>" for example, "<tt>$self->{screen}->flip();</tt>" can be found.
+<p>
+<li>The automatically passed "<tt>$event</tt>" argument is useful for processing keyboard and other input.
+<p>
+<li>There can be multiple move handlers (that is several lines of "<tt>-&gt;add_move_handler(...);</tt>"). The automatically passed "<tt>$step</tt>" argument is the key to managing the application speed using "<tt>SDLx::Controller</tt>". In the class of the game object, you then do something like this:
+<pre>
+    sub move {
+        my ($self, $step) = @_;
+        $self-&gt;{rect}-&gt;x(int($self-&gt;{rect}-&gt;x + $self-&gt;{speedx} * $step));
+        $self-&gt;{rect}-&gt;y(int($self-&gt;{rect}-&gt;y + $self-&gt;{speedy} * $step));
+    }</pre>
+<p>That means, the new location of the game object for the frame is calculated by the object's speed, multiplied by a time factor called "<tt>$step</tt>", that is calculated by "<tt>SDLx::Controller</tt>". You don't have to worry about the calculation of "<tt>$step</tt>".
+<br>It works like in Physics: The distance, an object has moved in a certain time, is calculated by its speed multiplied by the time ("<tt>v = s/t</tt>"). That's basically all there is to it.
+<p>
+<li>As a nice side effect, you don't have to use something like "<tt>$self->{app}->ticks()</tt>" and "<tt>$delaytime</tt>" to manage the different speeds of the different game objects (as explained in the previous chapter). The speeds of the game objects are stored directly, and their positions are calculated based on these speeds. I have to admit, this is more elegant.
+<p>
+<li>When creating the "<tt>$self->{app}</tt>" object, there are two parameters, that can influence the calculation of "<tt>$step</tt>" and therefore the main application speed:
+<ul>
+<p>
+<li>"<tt>dt</tt>" defaults to 0.1. It defines the relation between the calls to the move handlers and to the show handler. It's the game loop granularity, its time resolution. If the value for "<tt>dt</tt>" is too small, the program takes too many system ressources. If it's too high, collision detections may fail.
+<p>
+<li>"<tt>min_t</tt>" defaults to 1/60.
+This value makes sure, that the controller can update the screen at a maximum of 60 times per second. 
+Setting "<tt>min_t</tt>" to 0 makes the program run at its maximum speed.
+That sounds interesting, but if the game runs too slowly, setting "<tt>min_t</tt>" to 0 in most cases isn't the solution to the problem.
+</ul>
+<p>
+<li><u>Note</u>: "<tt>$step</tt>" can be quite small, like 0.16 for example. If the speed value in your game objects - that is the value to which "<tt>$speedx</tt>" and "<tt>$speedy</tt>" are set, when the object is supposed to move - is very small, "<tt>int($speed * $step)</tt>" can evaluate to 0, which means, that your object won't move, although it should. This can be fixed by setting the speed value to a higher value (like 20 or 50 for example).
+</ul>
+<p>Alright. That was a lot of theory. I created two example scripts, so you can see how it all comes together in practice. The
+<center><a href="https://github.com/hlubenow/SDL_perl_experiments/blob/main/tutorial_examples/04_sdlx.pl">first example script</a></center>
+<p>seems to do the same thing as the other one before: You can move a red circle around on a blue background using the cursor keys. But as you see, the code to achieve this is quite different.
+<p>At first, I wanted to use the keyboard input routine of the "SDLx Pong" example in the SDL manual. Although it can manage keys being pressed over a longer time, and also multiple key presses at once (making diagonal movement possible), it can become a bit unreliable, when left/right or up/down keys are pressed closely after another.
+<br>So I changed it to my own keyboard routine instead, which works a lot better for this. Let me just show again, how this keyboard routine is used together with the SDLx callback handlers:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use SDLx::App;
+use SDLx::Rect;
+
+package GameWindow {
+    ...
+    use SDL::Event;
+    ...
+    sub start {
+        ...
+        $self-&gt;{keystates}    = ();
+        $self-&gt;{keystatekeys} = [SDLK_LEFT, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_q];
+        for my $i (@{ $self-&gt;{keystatekeys} }) {
+            $self-&gt;{keystates}{$i} = 0;
+        }
+        $self-&gt;{pressed_x}    = 0;
+        $self-&gt;{pressed_y}    = 0;
+
+        $self-&gt;{gameobject}   = GameObject-&gt;new();
+
+        $self-&gt;{app}-&gt;add_event_handler(sub {
+                                              my ( $event, $app ) = @_;
+                                              $self-&gt;processEvents($event); });
+        $self-&gt;{app}-&gt;add_move_handler( sub {
+                                              my ( $step, $app ) = @_;
+                                              $self-&gt;{gameobject}-&gt;move($step) } );
+        $self-&gt;{app}-&gt;add_show_handler( ... );
+        $self-&gt;{app}-&gt;run();
+    }
+
+    ...
+
+    sub processEvents {
+        my ($self, $event) = @_; 
+        my ($i, $num);
+        if ($event-&gt;type == SDL_KEYDOWN) {
+            for $i (@{ $self-&gt;{keystatekeys} }) {
+                if ($event-&gt;key_sym == $i) {
+                    $self-&gt;{keystates}{$i} = 1;
+                }
+            }
+        }
+        if ($event-&gt;type == SDL_KEYUP ) {
+            for $i (@{ $self-&gt;{keystatekeys} }) {
+                if ($event-&gt;key_sym == $i) {
+                    $self-&gt;{keystates}{$i} = 0;
+                }
+            }
+        }
+        $self-&gt;{pressed_x} = 0;
+        $self-&gt;{pressed_y} = 0;
+        $num = SDLK_LEFT;
+        if ($self-&gt;{keystates}{$num}) {
+            $self-&gt;{pressed_x} = 1;
+            $self-&gt;{gameobject}-&gt;startMoving("left");
+        }
+        $num = SDLK_RIGHT;
+        if ($self-&gt;{keystates}{$num}) {
+            $self-&gt;{pressed_x} = 1;
+            $self-&gt;{gameobject}-&gt;startMoving("right");
+        }
+        $num = SDLK_UP;
+        if ($self-&gt;{keystates}{$num}) {
+            $self-&gt;{pressed_y} = 1;
+            $self-&gt;{gameobject}-&gt;startMoving("up");
+        }
+        $num = SDLK_DOWN;
+        if ($self-&gt;{keystates}{$num}) {
+            $self-&gt;{pressed_y} = 1;
+            $self-&gt;{gameobject}-&gt;startMoving("down");
+        }
+        $num = SDLK_q;
+        if ($self-&gt;{keystates}{$num}) {
+            $self-&gt;{app}-&gt;stop();
+        }
+        if ($self-&gt;{pressed_x} == 0) {
+            $self-&gt;{gameobject}-&gt;stopMoving("x");
+        }
+        if ($self-&gt;{pressed_y} == 0) {
+            $self-&gt;{gameobject}-&gt;stopMoving("y");
+        }
+    }   
+}
+
+package GameObject {
+
+    sub new {
+        my $classname = shift;
+        my $self = {speedx => 0,
+                    speedy => 0};
+        $self-&gt;{speed} = 50;
+        return bless($self, $classname);
+    }    
+
+    sub startMoving {
+        my ($self, $direction) = @_;
+        if ($direction eq "left") {
+            $self-&gt;{speedx} = -$self-&gt;{speed};
+        }
+        if ($direction eq "right") {
+            $self-&gt;{speedx} = $self-&gt;{speed};
+        }
+        if ($direction eq "up") {
+            $self-&gt;{speedy} = -$self-&gt;{speed};
+        }
+        if ($direction eq "down") {
+            $self-&gt;{speedy} = $self-&gt;{speed};
+        }
+    }
+
+    sub stopMoving {
+        my ($self, $axis) = @_;
+        if ($axis eq "x") {
+            $self-&gt;{speedx} = 0;
+        } else {
+            $self-&gt;{speedy} = 0;
+        }
+    }
+
+    sub move {
+        my ($self, $step) = @_;
+        $self-&gt;{rect}-&gt;x(int($self-&gt;{rect}-&gt;x + $self-&gt;{speedx} * $step));
+        $self-&gt;{rect}-&gt;y(int($self-&gt;{rect}-&gt;y + $self-&gt;{speedy} * $step));
+    }
+
+    sub draw {
+        my ($self, $screen) = @_;
+        $screen-&gt;blit_by($self-&gt;{surface}, undef, $self-&gt;{rect});
+    }
+}
+
+my $app = GameWindow-&gt;new();
+$app-&gt;start();</pre>
+<p>As a second script, I rewrote the "SDLx Pong" example of "<a href="https://github.com/PerlGameDev/SDL_Manual/tree/master/dist">SDL_Manual.pdf</a>".
+<br>To this day (08-25-2021) there are a few problems with this example in the manual - which after all is the first game in SDLx, that is presented to the reader:
+<ul>
+<li>The score isn't displayed correctly.
+<li>The keyboard routine - though ok for the example - wouldn't be perfect in a game with diagonal movement.
+<li>The computer player always reaches the ball, so you can't score at all.
+<li>The game runs way too slowly.
+</ul>
+<p>The reason for the last issue (being way too slow) may be a mistake in the manual: It says, the default value for "<tt>dt</tt>" is 0.01, but in fact it's 0.1 (so it's higher by factor 10). Accordingly, in the "SDLx Pong" example, "<tt>dt</tt>" is set to 0.02. Which is way too low, slowing down the application. That's not necessary.
+<br>My rewritten version of the "SDLx Pong" example can be found
+<center><a href="https://github.com/hlubenow/SDL_perl_experiments/blob/main/tutorial_examples/05_sdlx_pong_v2.pl">here</a>.</center>
+<p>I didn't bother to fix the problem with the AI. May not be so easy to do.
+<br>The original example draws the objects to the screen directly each frame (using "<tt>-&gt;draw_rect()</tt>"). I changed that to a surface for each game object, that is blitted to the screen. That's the more common way of generating and moving sprites. So in my version each game object has its own class, its own "<tt>surface</tt>" and its own "<tt>rect</tt>", like already explained in the chapters <a href="#2">above</a>.
+<br>To be able to set the speeds of the game objects in the script directly and to be sure, that they are displayed that way on every user's system (because this is calculated by "<tt>SDLx::Controller</tt>"), is not only convenient. It's actually really nice.
+<P>
+<HR>
+<h3><A NAME="8">8. Scrolling the Background</A></h3>
+<p>Scrolling the background is an essential programming technique, that is used in many 2D games. Think of classic games like "River Raid" or "Giana Sisters".
+The background is scrolled, while the player avatar is animated on a spot. This gives the illusion of movement.
+<p>To be scrolled, the background has to be a surface, that is larger than the screen surface. The screen then only displays a part of the background surface at a time.
+In this context, the background is also called the "<a href="https://youtu.be/AX8YU2hLBUg?t=151">stage</a>".
+<p>The functions "<tt>-&gt;blit()</tt>" and "<tt>-&gt;blit_by()</tt>" of SDLx make it possible, to blit just a part of a surface onto another surface. So you can do something like this:
+<pre>
+my $app                = SDLx::App-&gt;new(w => 640,
+                                        h => 480);
+my $screen             = SDLx::Surface::display();
+
+# Way larger than $screen:
+my $backgroundsurface  = SDLx::Surface-&gt;new(w => 8192,
+                                            h => 1024);
+# $arearect: x_position => 1024, 
+#            y_position => 0,
+#            width      => 640,
+#            height     => 480:
+my $arearect           = SDLx::Rect-&gt;new(1024, 0, 640, 480);
+my $positionrect       = SDLx::Rect-&gt;new(0, 0, 0, 0);
+$screen-&gt;blit_by($backgroundsurface , $arearect, $positionrect);
+</pre>
+<p>This would blit a part of 640x480 of the background (that's size is all in all 8192x1024) to the screen at [0, 0]. Where the background part that's displayed starts at [1024, 0] of the background.
+<p>Again, I created a
+<center><a href="https://github.com/hlubenow/SDL_perl_experiments/tree/main/scrolling_background.pl">larger script</a></center>
+<p>that shows, how this can be done in practice.
+<br>For the background, I drew 3x3 "checkerboards" of 9x9 tiles each onto the surface of an object called "map".
+<p>I encountered a problem (with perl_SDL) here: At first, I wanted to create a surface for each checkerboard, and then blit these 9 smaller surfaces onto the large background surface. It turned out, it wasn't possible to display the background surface then (with the other surfaces blitted onto it). I don't know why (in Pygame this is absolutely possible).
+I worked around this then, by drawing everything right onto the large background surface. This worked.
+<p>Well, this has become already a more complex script. I'm quite pleased with the result, although there sometimes is still a little flickering during the movement. But the scrolling technique should be good enough for my games.
+
+<p><i>To be continued ...</i>
+<br>
+<p>
+</ul>
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<br><center><a href="index.html">Back</a></center>
+</body>
+</html>

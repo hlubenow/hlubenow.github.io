@@ -1,0 +1,1479 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Tkinter, Tk, Python,Tips,Tipps,Tricks,Guido,Rossum,script,scripts,sripting,language">
+   <meta name="Author" content="abgdf {at-symbol} gmx.net">
+   <title>Tkinter-Tutorial</title>
+</head>
+<body>
+<H2>
+<img SRC="icopy.png" height=32 width=32>&nbsp;
+Creating Window-Applications using Python and Tkinter</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<UL>
+<LI><A HREF="#1">1. About Tkinter. Accessing its Documentation</A>
+<LI><A HREF="#2">2. Creating a Window using Tkinter</A>
+<LI><A HREF="#3">3. Displaying Text using the Label-Widget</A>
+<LI><A HREF="#4">4. Setting reasonable Window-Fonts; Setting the Window- and Icon-Title; Resizing and Moving the Window</A>
+<LI><A HREF="#5">5. Buttons, an Entry-Field and a tkMessageBox</A>
+<LI><A HREF="#6">6. Changes of Variable-Values at Application-Runtime and the "Tkinter.Variable"-Object</A>
+<LI><A HREF="#7">7. Making a Choice using Radiobuttons</A>
+<LI><A HREF="#8">8. Making several Choices using Checkbuttons</A>
+<LI><A HREF="#9">9. Frames and the Widget-Hierarchy</A>
+<LI><A HREF="#10">10. Getting Widget Attributes</A>
+<LI><A HREF="#11">11. More about ".pack()" and Tkconstants</A>
+<LI><A HREF="#12">12. Example-Script "IceChooser"</A>
+<LI><A HREF="#13">13. Creating a Text-Field</A>
+<LI><A HREF="#14">14. Creating a Menubar</A>
+<LI><A HREF="#15">15. Displaying a Statusbar</A>
+<LI><A HREF="#16">16. Scrollbars and the ScrolledText-Widget</A>
+<LI><A HREF="#17">17. Dialog-Windows</A>
+<LI><A HREF="#18">18. Passing arguments from Buttons to functions using lambda-functions</A>
+<LI><A HREF="#19">19. Processing Keyboard-Events using ".bind()"</A>
+<LI><A HREF="#20">20. Making the Application aware of other than Keyboard- and Mouse-Events</A>
+<LI><A HREF="#21">21. Displaying gif-Images</A>
+<LI><A HREF="#22">22. Scale-Widgets</A>
+<LI><A HREF="#23">23. Graphics with the Canvas-widget</A>
+<LI><A HREF="#24">24. Setting Up a Scrollable Canvas-widget</A>
+</UL>
+<P>
+<HR>
+<h3><A NAME="1">1. About Tkinter. Accessing its Documentation</A></h3>
+<p>"Tkinter" is a Python-module. It is an interface to the Tk-language (which was originally used together with the programming-language "Tcl"). With Tkinter it is possible to build small to medium-size window-applications.
+<br>Compared to other GUI ("Guided User Interface")-toolkits (like "gtk" or "Qt"), Tkinter is quite small. Therefore it is part of the main Python-distributions on Windows, Linux and Mac OS X since Version 10.4 ("Tiger"). So window-applications written in Python/Tkinter can be really plattform-independent.
+<br>On the other hand, some Tkinter-applications don't look too beautiful and certain advanced window-elements are not available in the original Tkinter-module.
+<br>Nevertheless you can achieve a lot of GUI-tasks using plain Tkinter without any extensions (although there are some very interesting extensions available).
+<p>Window-applications in general are made up of window-elements like buttons, switches and so on. These window-elements (including the application's main-window itself) are called
+<pre>widgets</pre>
+<p>This often used term is short for "window gadgets" and just means "some kind of window-element".
+<p>Python comes with a quite detailed documentation of Tkinter. You can access it by just executing
+<pre>pydoc Tkinter</pre>
+<p>If you want detailed information about a certain widget-class, for example the "Button", you can run
+<pre>pydoc Tkinter.Button</pre>
+<P>
+<HR>
+<h3><A NAME="2">2. Creating a Window using Tkinter</A></h3>
+<p>This code just creates an empty Tkinter-window:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+mw = tk.Tk()
+mw.mainloop()</pre>
+<p>What happened here ?
+After importing the Tkinter-module (after telling the system where to find the Python-executable and the encoding of the script), an instance of a "Tkinter.Tk"-object, a Tkinter-main-window, was created.
+<p>The "as tk" in the "import"-line means, that the script knows the Tkinter-module now under the name "tk". That's easier to write for the author and in the long run easier to read too.
+<p>The "tk.Tk"-object was called "mw".
+After that, the ".mainloop()"-method of "mw" was called.
+As a result the (empty) main-window was displayed and the Tkinter-main-loop was started.
+<p>Scripts for window-applications need a different structure than scripts for text-only-applications:
+<br>Text-only-applications can be executed line by line.
+<br>But window-applications display one or more windows and then wait for events, that come from the user (like mouse-clicks or keyboard-presses) or from somewhere else.
+<br>This processing of events, that feels nearly simultaneous to the user, is done by the main-loop.
+<br>So, the main-window is shown and the main-loop is started. It waits for events. If an event occurs, the main-loop reacts on it.
+<br>Usually it calls a function, that is defined inside the program.
+<br>For example, lateron we will define an "Exit"-Button. We will create a "Button"-instance and define, that it shall show the text "Exit" on it and that, when it is clicked, it shall call a function, that destroys the main-window (when the main-window is destroyed, the main-loop will stop and the application will end).
+So, when this application is started, sooner or later the main-loop is started. It waits for the event "Exit-button clicked". If this event occurs, the main-loop will call the function defined in connection with the button. As a result the application will end.
+<p>In the little example above, we have just created an empty main-window. The only thing the main-loop can wait for here, is the event "application shall end, because its window's 'close'-button was clicked or 'Alt+F4' (on Windows) or something similar was pressed".
+<P>
+<HR>
+<h3><A NAME="3">3. Displaying Text using the Label-Widget</A></h3>
+<p>This code displays "Hello" inside the Tkinter-window.
+<br>This is done using the "Tkinter.Label"-widget:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+mw = tk.Tk()
+
+lab1 = tk.Label(mw, text = "Hello")
+lab1.pack()
+
+mw.mainloop()</pre>
+<p>The ".pack()"-method is always needed, if you want the window-elements to show up. So first you define what your window-element (called "widget") shall look like and then you call ".pack()" to show it.
+<p>The main-loop of the program still has nothing more to wait for than in the first example.
+<P>
+<HR>
+<h3><A NAME="4">4. Setting reasonable Window-Fonts; Setting the Window- and Icon-Title; Resizing and Moving the Window</A></h3>
+<p>One of the reasons, some people think, Tkinter is ugly, is, that often the window-fonts aren't set properly.
+<br>But this can be done for example like this:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+mw = tk.Tk()
+mw.option_add("*font", ("Arial", 15, "normal"))
+
+mw.title("MyWindow")
+mw.iconname("MyIcon")
+mw.geometry("320x240+325+200")
+
+lab1 = tk.Label(mw, text = "Hello")
+lab1.pack()
+
+mw.mainloop()</pre>
+<p>We also
+<ul>
+<li>added a window-title and</li>
+<li>an icon-title (if possible),</li>
+<li>resized the main-window and</li>
+<li>moved it to some other place on the desktop</li>
+</ul>
+<p>here. Now we're at a point, where we should move on to writing things in a bit more "pythonic", object-orientated way. So we rewrite the code above like this:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+class myWindow:
+
+    def __init__(self):
+
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("320x240+325+200")
+
+        self.mw.title("MyWindow")
+        self.mw.iconname("MyIcon")
+
+        self.lab1 = tk.Label(self.mw, text = "Hello")
+        self.lab1.pack()
+
+        self.mw.mainloop()
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>If you don't understand what's going on in this step, please read again about object-orientated-programming in Python.
+<p>The main-loop of the program still hasn't much to wait for.
+<P>
+<HR>
+<h3><A NAME="5">5. Buttons, an Entry-Field and a tkMessageBox</A></h3>
+<p>Now take a look at this small script:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+250+200")
+
+        self.lab1 = tk.Label(self.mw, text = "Please enter something:")
+        self.lab1.pack()
+
+        self.entr1 = tk.Entry(self.mw)
+        self.entr1.pack()
+
+        self.btn1 = tk.Button(self.mw, text = "Ok", command = self.btnClick)
+        self.btn1.pack()
+
+        self.btn2 = tk.Button(self.mw, text = "Exit", command = self.mw.destroy)
+        self.btn2.pack()
+
+        self.mw.mainloop()
+
+    def btnClick(self):
+        tkMessageBox.showinfo(title = 'From entr1', message = "Entryfield 1 contains: " + self.entr1.get())
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>When the script starts, the "myWindow"-instance "app" is created and its "__init__"-function is run. So the Tkinter-main-window "mw", a label, an entry-field and two buttons are created. Then the main-loop of "mw" is run, so the application waits for events (like mouse-clicks or key-presses). You can enter something in the entry-field. Whenever you click on "btn1", the method "btnClick" is run. Notice that you can't pass arguments to "btnClick" here. That's why it's easier to use object-orientated-programming here.
+<br>In "btnClick" a "tkMessageBox" is created. This is an easy way to create simple message-boxes provided by the tkMessageBox-module imported at the beginning of the script.
+<br>The ".get()"-method of the entry-field "entr1" returns the contents of the entry-field as a Python-string. This is then displayed in the tkMessageBox. After this message-box is closed, the application returns to the main-loop of "mw".
+<br>By clicking the second button, the Tkinter-main-window "mw" is closed and the application is ended, because the "destroy"-method of "mw" has been called.
+<P>
+<HR>
+<h3><A NAME="6">6. Changes of Variable-Values at Application-Runtime and the "Tkinter.Variable"-Object</A></h3>
+<p>Some widgets like "Tkinter.Label" accept a "textvariable"-argument instead of the "text"-argument.
+<br>With it, the displayed text can be changed while the main-loop of the program is running.
+<p>While you can pass an ordinary Python-string with the "text"-argument like in
+<pre>text = "Hello"</pre>
+<p>this isn't enough for "textvariable".
+<p>For this a special object called "Tkinter.Variable" is needed.
+<p>This object isn't difficult to use, but you have to know, when you need it.
+<p>If a Tkinter-main-window is already defined, you can get an instance of a "Tkinter.Variable" just like this:
+<pre>mytkvar = Tkinter.Variable()</pre>
+<p>Then its value can be set with:
+<pre>mytkvar.set("Hello")</pre>
+<p>Then, the label can be defined with the "textvariable"-argument and the "Tkinter.Variable"-object:
+<pre>label = Tkinter.Label(mainwindow, textvariable = mytkvar)</pre>
+<p>Later, when the program is running, the text displayed in the label can be dynamically changed just doing:
+<pre>mytkvar.set("World")</pre>
+<p>The value stored in the "Tkinter.Variable"-object can be accessed as a Python-datatype any time doing:
+<pre>myPythonVariable = mytkvar.get()</pre>
+<p>(There are some flavours of "Tkinter.Variable" called "Tkinter.StringVar", "Tkinter.IntVar", "Tkinter.DoubleVar" and "Tkinter.BooleanVar".)
+<p>
+<p>Basically, "Tkinter.Variable"-objects must be used in widget-arguments instead of Python-strings or -integers, when the variable-values can change dynamically at application-runtime. 
+<p>This is typically the case, when
+<ul>
+<li>the "textvariable"-argument,
+<li>the Radiobutton-widget,
+<li>the Checkbutton-widget.
+</ul>
+<p>is used.
+<p>There's another way of changing the resource-options of some widgets at application-runtime manually by using their ".configure()"-method.
+<P>
+<HR>
+<h3><A NAME="7">7. Making a Choice using Radiobuttons</A></h3>
+<p>This script demonstrates the use of radiobuttons:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+250+200")
+
+        self.colour = tk.Variable()
+
+        self.rb1 = tk.Radiobutton(self.mw, text = "Red", variable = self.colour, value = "Red")
+        self.rb2 = tk.Radiobutton(self.mw, text = "Yellow", variable = self.colour, value = "Yellow")
+        self.rb3 = tk.Radiobutton(self.mw, text = "Green", variable = self.colour, value = "Green")
+
+        self.rb2.select()
+
+        self.rb1.pack()
+        self.rb2.pack()
+        self.rb3.pack()
+
+        self.btn1 = tk.Button(self.mw, text = "Ok", command = self.btnClick)
+        self.btn1.pack()
+
+        self.btn2 = tk.Button(self.mw, text = "Exit", command = self.mw.destroy)
+        self.btn2.pack()
+
+        self.mw.mainloop()
+
+    def btnClick(self):
+        a = self.colour.get()
+        tkMessageBox.showinfo(title = 'Your selection', message = "The selected colour is: " + a)
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>Radiobuttons are very useful, if the user should make a single choice between several possibilities.
+<p>In the script we create three radiobuttons "rb1", "rb2" and "rb3" and sign them with "Red", "Yellow" and "Green" (this could be the selection for a colour of a car for example).
+<br>The radiobuttons are connected by sharing the same variable "colour". We have to use a special "Tkinter.Variable"-object for the "colour"-variable. 
+<br>Passing the "value"-argument, we define, what value should be assigned to the variable "colour", if the radiobutton is selected.
+<br>Using the ".select()"-method, we make radiobutton "rb2" the default-selection.
+<br>When "btn1" is clicked, the method "btnClick" is run. We need to use the ".get()"-method of the "Tkinter.Variable"-object "colour" to get its value as a Python-string.
+This value is then displayed in the "tkMessageBox" like in the example above.
+<P>
+<HR>
+<h3><A NAME="8">8. Making several Choices using Checkbuttons</A></h3>
+<p>This script demonstrates the usage of checkbuttons. They are useful, if several options can be selected, for example you could choose, what you wanted to eat ("soup" and "meat", just "ice" or even nothing at all):
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+250+200")
+
+        self.cbtexts = ["Soup", "Meat", "Ice"]
+
+        self.cbv = []
+        self.cb = []
+
+        for i in range(len(self.cbtexts)):
+
+            self.cbv.append(tk.Variable())
+            self.cb.append(tk.Checkbutton(self.mw, text = self.cbtexts[i], variable = self.cbv[i]))
+            self.cb[i].deselect()
+            self.cb[i].pack()
+
+        self.btn1 = tk.Button(self.mw, text = "Ok", command = self.btnClick)
+        self.btn1.pack()
+
+        self.btn2 = tk.Button(self.mw, text = "Exit", command = self.mw.destroy)
+        self.btn2.pack()
+
+        self.mw.mainloop()
+
+    def btnClick(self):
+
+        a = "Selected:\n\n"
+
+        x = 0
+
+        for i in range(len(self.cbv)):
+
+            if self.cbv[i].get() == "1":
+                a += "- " + self.cbtexts[i] + "\n"
+                x += 1
+
+        if x == 0:
+            a += "Nothing.\n"
+
+        tkMessageBox.showinfo(title = 'Your selection', message = a)
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>We manage the checkbuttons and some other Tkinter-objects in Python-lists here.
+<p>Notice, we need "Tkinter.Variable"-objects to store the state of the Checkbuttons. Their ".get()"-methods return the strings "1" for "on" and "0" for "off". We could define other values with "onvalue" and "offvalue"-arguments of the checkbuttons.
+<br>At initialisation we need to call ".deselect()" to store "0" in the variables.
+<P>
+<HR>
+<h3><A NAME="9">9. Frames and the Widget-Hierarchy</A></h3>
+<p>When you create a widget, you usually pass the name of its parent-widget as the first argument. For example, in
+<pre>Tkinter.Label(mw, text = "Hello")</pre>
+<p>"mw" (for "main-window") is the name of the parent-widget.
+<br>So there's a hierarchy of widgets. On top of it is the socalled "toplevel"-widget. Usually, the toplevel-widget is the main-window.
+<p>Widgets can have other parents than the toplevel-widget. For example, you can group them in frames, to give your application a more ordered look.
+To do that, first, you create a frame
+<pre>frame1 = Tkinter.Frame(mw)</pre>
+<p>(Notice, that the frame itself is a widget too, with the main-window as its parent-widget).
+<p>Then, you put your (other) widgets into the frame, for example:
+<pre>lab1 = Tkinter.Label(frame1, text = "Hello")</pre>
+<p>After that, you use ".pack()" to show it all:
+<pre>lab1.pack()
+frame1.pack()</pre>
+<P>
+<HR>
+<h3><A NAME="10">10. Getting Widget Attributes</A></h3>
+<p>The attributes of a widget can be accessed by somehow passing hash-tags to it. Like this:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+mw = tk.Tk()
+lab1 = tk.Label(mw, text = "Hello")
+lab1.pack()
+
+print lab1["text"]
+
+mw.mainloop()</pre>
+<P>
+<HR>
+<h3><A NAME="11">11. More about ".pack()" and Tkconstants</A></h3>
+<p>The ".pack()"-method is used to show widgets inside their parent-widgets (like for example the main-window).
+<p>The ".pack()"-method calls "Pack", one of Tkinter's geometry-managers.
+<p>Tkinter offers two more geometry-managers called "Grid" and "Place".
+"Pack" is the most commonly used one.
+<br>It can handle the relative distances between the widgets, even if the size of the application-window is changed.
+<p>The ".pack()"-method has several arguments to position your widgets where you want them:
+<p>First, there's the "side"-argument. It tells Pack where to add the widget in its parent-widget.
+<p>The values for "side" are
+<ul>
+<li>tk.TOP,
+<li>tk.BOTTOM,
+<li>tk.LEFT,
+<li>tk.RIGHT.
+</ul>
+<p>Then, there are the "padx" and "pady"-arguments.
+<br>They give a widget some (horizontal, respectively vertical) space in its parent-widget. For example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+mw = tk.Tk()
+mw.option_add("*font", ("Arial", 15, "normal"))
+mw.geometry("+250+200")
+
+btn1 = tk.Button(mw, text = "Hello")
+btn1.pack(padx = 100, pady = 80)
+
+mw.mainloop()</pre>
+<p>"padx" and "pady" add space outside the original widget in the parent-widget.
+<p>If you want to add space inside the original widget (and enlarge it this way), you can use "ipadx" and "ipady":
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+mw = tk.Tk()
+mw.option_add("*font", ("Arial", 15, "normal"))
+mw.geometry("+250+200")
+
+btn1 = tk.Button(mw, text = "Hello")
+btn1.pack(ipadx = 100, ipady = 80, padx = 20, pady = 20)
+
+mw.mainloop()</pre>
+<p>Usually, there are several widgets. It is of importance, in which order their ".pack()"-methods are called in the Python-script.
+<p><u>Hint</u>: If you want three widgets (for example three buttons) in a horizontal row in a parent-widget (for example a frame), you can use
+<pre>widget.pack(side = tk.LEFT)</pre>
+on every widget. Then, the first one is packed left, and the second one is packed left too, that is, right of the first widget, and so on.
+<p>More information on Pack can be found executing
+<pre>pydoc Tkinter.Pack</pre>
+<p>Above, I mentioned, the arguments for "side" were "tk.TOP" and so on. The "tk" means "Tkinter", as it's usually imported at the beginning of a script:
+<pre>import Tkinter as tk</pre>
+<p>Without that line, you'd have to write "Tkinter.TOP" and so on. So "TOP" is an attribute inside the Tkinter-module. But these values are also defined in the module "Tkconstants" (that comes with Tkinter). So you could also do
+<pre>from Tkconstants import *</pre>
+<p>at the beginning of a script, and access the values just under the name "TOP" and so on. But it's better, not to import the module that way, but instead to just write "tk.TOP" and so on. Because then you always know, where these constants come from. And your script doesn't depend on that extra module.
+<P>
+<HR>
+<h3><A NAME="12">12. Example-Script "IceChooser"</A></h3>
+<p>The little examples above worked, but still didn't look too much like a proper window-application.
+<p>So let's combine, what was said about the widgets
+<ul>
+<li>Label</li>
+<li>Button</li>
+<li>Radiobutton</li>
+<li>Checkbutton</li>
+<li>Frame</li>
+<li>and the geometry-manager Pack</li>
+</ul>
+<p>to a slightly larger example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+# icechooser.py, 15.01.2008.
+#
+# Python-rewrite of a Perl/Tk-example.
+
+class IceChooser:
+
+    def __init__(self):
+
+        self.mw = tk.Tk()
+        self.mw.title('Ice-cream chooser')
+
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+250+200")
+
+        self.f1 = tk.Frame(self.mw)
+        self.f1.pack(side = tk.TOP, expand = 1, fill = tk.BOTH)
+
+        # Some checkbuttons in a frame:
+
+        self.f2 = tk.Frame(self.f1, borderwidth = 3, relief = tk.GROOVE)
+        self.f2.pack(side = tk.RIGHT, expand = 1, fill = tk.BOTH)
+
+        tk.Label(self.f2, text = "Extras").pack()
+
+        self.cream = tk.Variable()
+        self.wafer = tk.Variable()
+
+        self.cb1 = tk.Checkbutton(self.f2, text = "Cream", variable = self.cream)
+        self.cb1.pack(anchor = tk.W)
+
+        self.cb2 = tk.Checkbutton(self.f2, text = "Extra wafer", variable = self.wafer)
+        self.cb2.pack(anchor = tk.W)
+
+        # Two groups of radiobuttons in two frames:
+
+        self.f3 = tk.Frame(self.f1, borderwidth = 3, relief = tk.GROOVE)
+        self.f3.pack(side = tk.RIGHT, expand = 1, fill = tk.BOTH)
+
+        tk.Label(self.f3, text = "Crumbles").pack()
+
+        self.crumblesorts = ['No crumbles',
+                             'Chocolate crumbles',
+                             'Colourful crumbles',
+                             'Cracknel crumbles',
+                             'Flakes of plain chocolate']
+
+        self.crumble = tk.Variable()
+
+        self.rb1 = []
+
+        for i in range(len(self.crumblesorts)):
+
+            self.rb1.append(tk.Radiobutton(self.f3,
+                                                text = self.crumblesorts[i],
+                                                variable = self.crumble,
+                                                value = i))
+            self.rb1[i].pack(anchor = tk.W)
+
+        self.rb1[0].select()
+
+        self.f4 = tk.Frame(self.f1, borderwidth = 3, relief = tk.GROOVE)
+        self.f4.pack(side = tk.RIGHT, expand = 1, fill = tk.BOTH)
+
+        tk.Label(self.f4, text = "Sauces").pack()
+
+        self.saucesorts = ['No sauce',
+                           'Strawberry-sauce',
+                           'Chocolate-sauce',
+                           'Tropico']
+
+        self.sauce = tk.Variable()
+
+        self.rb2 = []
+
+        for i in range(len(self.saucesorts)):
+
+            self.rb2.append(tk.Radiobutton(self.f4,
+                                                text = self.saucesorts[i],
+                                                variable = self.sauce,
+                                                value = i))
+            self.rb2[i].pack(anchor = tk.W)
+
+        self.rb2[0].select()
+
+        # A listbox:
+
+        self.listbox  = tk.Listbox(self.f1, relief = tk.SUNKEN,
+                                        width = -1,
+                                        setgrid = 1,
+                                        selectmode = tk.SINGLE)
+
+        self.listbox.pack(side = tk.RIGHT, expand = 1, fill = tk.BOTH)
+
+        for ball in ('One ball', 'Two balls', 'Three balls', 'Four balls', 'Five balls'):
+            self.listbox.insert(tk.END, ball)
+
+        self.listbox.selection_set(2, 2) # Default : Three balls.
+
+        # The Buttons "OK" and "Exit":
+
+        self.f5 = tk.Frame(self.mw)
+        self.f5.pack(side = tk.BOTTOM)
+
+        self.btn1 = tk.Button(self.f5, text = 'OK', command = self.btnClick)
+        self.btn1.pack(side = tk.LEFT, expand = 0, fill = tk.NONE, ipadx = 20, padx = 10, pady = 10)
+
+        self.btn2 = tk.Button(self.f5, text = 'Exit', command = self.mw.destroy)
+        self.btn2.pack(side = tk.RIGHT, expand = 0, fill = tk.NONE, ipadx = 20, padx = 10, pady = 10)
+
+
+        self.mw.mainloop()
+
+    def btnClick(self):
+
+        msg = "Your selected ice-cream:\n\n"
+
+        l = self.listbox.get(0, tk.END)
+
+        s = self.listbox.curselection()
+
+        msg += l[int(s[0])] + "\n\n"
+
+        msg += "Cream:           "
+
+        if self.cream.get() == "1":
+            msg += 'Yes\n'
+        else:
+            msg += 'No\n'
+
+        msg +=  "Extra wafer:    "
+
+        if self.wafer.get() == "1":
+            msg += 'Yes\n'
+        else:
+            msg += 'No\n'
+
+        msg += "Crumble:         " + self.crumblesorts[self.crumble.get()] + "\n"
+        msg += "Sauce:            " + self.saucesorts[self.sauce.get()] + "\n"
+
+        tkMessageBox.showinfo(title = 'Your ice-cream', message = msg)
+
+if __name__ == "__main__":
+   app = IceChooser()</pre>
+<p>Already looks a lot better, if you ask me.
+<p>We have a "Tkinter.Listbox"-widget here. That wasn't explained before, but I think you can already see what it does.
+<P>
+<HR>
+<h3><A NAME="13">13. Creating a Text-Field</A></h3>
+<p>When you look at professional window-applications like editors or wordprocessors, you'll find, that most of their windows are occupied by a large field, in which text is displayed and can be edited by the user.
+<p>Tkinter offers a widget "Tkinter.Text" with which such a large text-field can be created.
+<p>Basically "Text"-widgets are created like any other Tkinter-widget.
+Passing arguments can do the following things:
+<ul>
+<li>A custom "font" can be set for the Text-widget.</li>
+<li>The "width" and "height" of the widget can be set in text-characters.</li>
+<li>The "background" and "foreground"-colours can be defined.</li>
+<li>(Left) tabstops can be set in centimeters, using a parameter like "tabs = ("3c", "5c")".</li>
+</ul>
+<p>After the creation of the widget, you can automatically insert text in it, using its ".insert()"-method.
+The first argument for this method is, where to insert the text.
+Therefore, two coordinates have to be given in a string, separated by a colon, where "1.0" is the top left corner of the Text-widget.
+This string of coordinates is called an "index".
+tk.END points to the index, where the last character has been inserted into the text-field up to now.
+<br><u>Notice</u>:The coordinates have to be inside the range, where text has already been inserted. Otherwise the text will be inserted at tk.END.
+<br>The second argument to ".insert()" is the text, that should be inserted.
+<p>When the Text-widget has the focus, a cursor appears, and the user can insert text into the text-field. He can even mark text for cut/copy/paste-operations supported by the operating-system.
+<p>The text-field can be cleared using
+<pre>tfield.delete("1.0", tk.END)</pre>
+<p>(where "tfield" is the text-field).
+<p>Text can be read from the text-field using ".get()".
+<p>Text can also be reformatted at runtime including change of text-fonts, colours and sizes using "tags". It is even said to be possible, to embed images or other Tkinter-widgets inside a Text-widget. Please see
+<pre>pydoc Tkinter.Text</pre>
+<p>for details. Here's an example-script for some of the possible text-field-operations:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+250+200")
+        self.mw.title("Text-Field-Demonstration")
+
+        self.tfield = tk.Text(self.mw,
+                              font = "{Courier} 15 {normal}",
+                              width = 82,
+                              height = 20,
+                              background = 'white',
+                              foreground = 'black')
+        self.tfield.pack()
+        self.tfield.insert(tk.END, "Hello from inside the Text-widget.\n\nIf you click on it once, you can edit this text.")
+        self.fr = tk.Frame(self.mw)
+        self.btn1 = tk.Button(self.fr, text = "Show contents", command = self.Contents)
+        self.btn2 = tk.Button(self.fr, text = "Clear text-field", command = self.clearField)
+        self.btn3 = tk.Button(self.fr, text = "Exit", command = self.mw.destroy)
+        self.btn1.pack(side = tk.LEFT, padx = 20)
+        self.btn3.pack(side = tk.RIGHT, padx = 20)
+        self.btn2.pack(padx = 20)
+        self.fr.pack(pady = 10)
+        self.mw.mainloop()
+
+    def Contents(self):
+        msg = "The text-field contains right now:\n\n"
+        msg += self.tfield.get("1.0", tk.END) + "\n"
+        tkMessageBox.showinfo(title = 'Text-field-Contents', message = msg)
+
+    def clearField(self):
+        self.tfield.delete("1.0", tk.END)
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<P>
+<HR>
+<h3><A NAME="14">14. Creating a Menubar</A></h3>
+<p>Wouldn't it be nice to have a menubar with headlines like "File", "Edit" and so on, too ?
+<p>As far as I know, there isn't a preconfigured template for that in Tkinter, but there are the widgets "Menu" and "Menubutton".
+<br>With these we can create a custom solution in five steps:
+<ol>
+<li>We create a "Tkinter.Frame".</li>
+<li>We fill the frame with several "Tkinter.Menubutton"s.</li>
+<li>For each menubutton we create a "Tkinter.Menu".</li>
+<li>We fill the menues with several menu-options, using the ".insert_command()"-method of the menues.</li>
+<li>We connect the menus to the menubuttons using the ".config(menu = ...)"-method of the menubuttons.</li>
+</ol>
+<p><u>Please notice</u>: The "Tkinter.Menu" offers a feature, to drag a menu away from its application with the mouse and move it around on the screen in its own window.
+You see this sometimes on Linux, but Windows-users aren't used to it, so we switch this feature off doing:
+<pre>mainwindow.option_add("*tearOff", tk.FALSE)</pre>
+<p>(where "mainwindow" is the main window.)
+<p>Today (2022 - 14 years after writing the first version of this example), I prefer '.insert_command' to '.add_command'. Then the menu commands are given a number as the first option. They then can be identified by this number later.
+<br>It is then also possible to reconfigure them later. While '.config()' is used to do that with ordinary widgets, these menu commands or menu entries are reconfigured using '.entryconfig()'.
+<p>When a menu would have just a single entry (like "<tt>self.menu_info</tt>" in the example), you can also use an ordinary 'Button' instead of a 'Menubutton'. Use "<tt>relief = tk.FLAT</tt>" to make it blend in with the menubar.
+<p>Here comes the example-script:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+158+190")
+        self.mw.option_add("*tearOff", tk.FALSE)
+        self.mw.title("Menubar-Demonstration")
+
+        # The menubar-frame:
+        self.mbarframe = tk.Frame(self.mw, relief = 'ridge', bd = 5);
+
+        # The menubuttons:
+        self.mb_file = tk.Menubutton(self.mbarframe, text = "File")
+        self.mb_edit = tk.Menubutton(self.mbarframe, text = "Edit")
+        self.mb_info = tk.Menubutton(self.mbarframe, text = "Info")
+
+        self.mbarframe.pack(side = tk.TOP, fill = tk.X)
+
+        self.mb_file.pack(side = tk.LEFT)
+        self.mb_edit.pack(side = tk.LEFT)
+        self.mb_info.pack(side = tk.RIGHT)
+
+        # Menues associated with the menubuttons:
+        
+        # First, the "File"-menu:
+        self.menu_file = tk.Menu(self.mb_file)
+        self.menu_file.insert_command(0,
+                                      label = "Open",
+                                      command = "pass",
+                                      state = tk.DISABLED)
+        self.menu_file.insert_command(1,
+                                      label = "Save",
+                                      command = "pass",
+                                      state = tk.DISABLED)
+        self.menu_file.insert_separator(2)
+        self.menu_file.insert_command(3,
+                                      label = "Exit",
+                                      command = self.mw.destroy)
+        self.mb_file.config(menu = self.menu_file)
+
+        # The "Edit"-menu:
+        self.menu_edit = tk.Menu(self.mb_edit)
+        self.menu_edit.insert_command(0,
+                                      label = "Show contents",
+                                      command = self.Contents)
+        self.menu_edit.insert_command(1,
+                                      label = "Clear text-field",
+                                      command = self.clearField)
+        self.mb_edit.config(menu = self.menu_edit)
+
+        # The "Info"-menu:
+        self.menu_info = tk.Menu(self.mb_info)
+        self.menu_info.insert_command(0,
+                                      label = "Show Info",
+                                      command = self.showInfo)
+        self.mb_info.config(menu = self.menu_info)
+
+        # That's all for the menubar. Now comes the text-field again:
+        self.tfield = tk.Text(self.mw,
+                              font = "{Courier} 15 {normal}",
+                              width = 82,
+                              height = 20,
+                              background = 'white',
+                              foreground = 'black')
+        self.tfield.pack()
+        self.tfield.insert(tk.END, "Hello.\n\nPlease click on the menubar, to see, what you can do here.")
+        self.mw.mainloop()
+
+    def Contents(self):
+        msg = "The text-field contains right now:\n\n"
+        msg += self.tfield.get("1.0", tk.END) + "\n"
+        tkMessageBox.showinfo(title = 'Text-field-Contents', message = msg)
+
+    def clearField(self):
+        self.tfield.delete("1.0", tk.END)
+        """ The commands inside the menues can be reconfigured
+            using ".entryconfig" (not ".config").
+            Just as an example, here the menu command's color is
+            changed to blue, after the textfield has been cleared: """
+        self.menu_edit.entryconfig(1, foreground = 'blue')
+
+    def showInfo(self):
+        tkMessageBox.showinfo(title = 'Info',
+                              message = 'This is just a little menubar-demonstration,\ncreated on 1-16-2008.\n"entryconfig" added on 3-17-2022.')
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<P>
+<HR>
+<h3><A NAME="15">15. Displaying a Statusbar</A></h3>
+<p>At the window-bottom of many professional applications there is a statusbar showing short messages about what the program is doing at the moment.
+Tkinter doesn't provide a special widget for such a statusbar.
+<p>But it is possible to emulate one using a Label-widget with a textvariable in a frame at the bottom of the main-window. 
+<p>Here's an example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+class myWindow:
+
+    def __init__(self):
+
+        self.numclicks = 0
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+320+235")
+        self.mw.title("Statusbar-Demonstration")
+
+        self.btn1 = tk.Button(self.mw, text = "Press", command = self.btnClick)
+        self.btn1.pack(padx = 150, pady = 50)
+
+        self.btn2 = tk.Button(self.mw, text = "Exit", command = self.mw.destroy)
+        self.btn2.pack(anchor = tk.E, padx = 20, pady = 20)
+
+        self.sbartext = tk.Variable()
+        self.sbarframe = tk.Frame(self.mw)
+        self.sbarlabel = tk.Label(self.sbarframe,
+                                  bd = 1,
+                                  relief = tk.SUNKEN,
+                                  anchor = tk.W,
+                                  textvariable = self.sbartext)
+        self.sbarframe.pack(side = tk.BOTTOM, fill = tk.X)
+        self.sbarlabel.pack(fill = tk.X)
+
+        self.sbartext.set("Waiting.")
+
+        self.mw.mainloop()
+
+    def btnClick(self):
+
+        self.numclicks += 1
+        self.sbartext.set("Button pressed " + str(self.numclicks) + " times.")
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>There's another way of writing this example using a StatusBar-class for the statusbar and using the ".configure()"-method of the Label-widget:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+class myWindow:
+
+    def __init__(self):
+        self.numclicks = 0
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+320+235")
+        self.mw.title("Statusbar-Demonstration")
+        self.btn1 = tk.Button(self.mw, text = "Press", command = self.btnClick)
+        self.btn1.pack(padx = 150, pady = 50)
+        self.btn2 = tk.Button(self.mw, text = "Exit", command = self.mw.destroy)
+        self.btn2.pack(anchor = tk.E, padx = 20, pady = 20)
+        self.sbar = StatusBar(self.mw)
+        self.sbar.pack(side = tk.BOTTOM, fill = tk.BOTH)
+        self.sbar.set("Waiting.")
+        self.mw.mainloop()
+
+    def btnClick(self):
+        self.numclicks += 1
+        self.sbar.set("Button pressed " + str(self.numclicks) + " times.")
+
+class StatusBar(tk.Frame):
+
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        self.label = tk.Label(self,
+                              bd = 1,
+                              relief = tk.SUNKEN,
+                              anchor = tk.W)
+        self.label.pack(fill = tk.X)
+
+    def set(self, format):
+        self.label.config(text = format)
+        self.label.update_idletasks()
+
+    def clear(self):
+        self.label.config(text = "")
+        self.label.update_idletasks()
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<P>
+<HR>
+<h3><A NAME="16">16. Scrollbars and the ScrolledText-Widget</A></h3>
+<p>If you want to show more text in a Text-widget than can be displayed at once, you can create a "ScrolledText"-widget using the "ScrolledText"-module.
+It provides a Text-widget with a scrollbar, so the user can scroll the text-content up and down.
+<p>Here's an example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import ScrolledText
+
+mw = tk.Tk()
+mw.option_add("*font", ("Arial", 15, "normal"))
+mw.title('ScrolledText-Demo')
+mw.geometry("+373+262")
+txt = ScrolledText.ScrolledText(mw,
+                                background = 'white',
+                                width = 25,
+                                height = 5,
+                                font = ("Arial", 15, "normal"))
+txt.pack()
+
+for i in range(20):
+    txt.insert(tk.END, str(i + 1))
+    if i != 19:
+        txt.insert(tk.END, "\n")
+btn1 = tk.Button(mw, text = "Ok", command = mw.destroy)
+btn1.pack(side = tk.RIGHT, padx = 10, pady = 10)
+mw.mainloop()</pre>
+<hr width=50%>
+<p>A scrollbar can be added to other widgets than Text-widgets too, but it is a bit more complicated:
+<p>To do that, you have to tell
+<ul>
+<li>the main-widget, that there is a scrollbar (with the <tt>yscrollcommand</tt>-option) and
+<li>the scrollbar, what shall happen when it is used (with the <tt>.config(command = ...)</tt>-method).
+</ul>
+<p>Here's an example with a "Tkinter.Listbox"-widget and a "Tkinter.Scrollbar":
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+mw = tk.Tk()
+mw.option_add("*font", ("Arial", 15, "normal"))
+mw.title('Scrollbar-Demo')
+mw.geometry("+400+250")
+fr = tk.Frame()
+fr.pack()
+scrbar = tk.Scrollbar(fr)
+scrbar.pack(side = tk.RIGHT, fill = tk.Y)
+txt = tk.Listbox(fr,
+                 background = 'white',
+                 width = 20,
+                 height = 5,
+                 font = ("Arial", 15, "normal"),
+                 yscrollcommand = scrbar.set)
+txt.pack()
+scrbar.config(command = txt.yview)
+for i in range(20):
+    txt.insert(tk.END, str(i + 1))
+btn1 = tk.Button(mw, text = "Ok", command = mw.destroy)
+btn1.pack(side = tk.RIGHT, padx = 10, pady = 10)
+mw.mainloop()</pre>
+<p><u>Note</u>: In Perl/Tk, adding a scrollbar is implemented for every widget like in Python's "ScrolledText". See "perldoc Tk::Scrolled" for details.
+<P>
+<HR>
+<h3><A NAME="17">17. Dialog-Windows</A></h3>
+<p>Simple dialog-windows can be created using tkMessageBox:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+250+200")
+        self.mw.title("Example of Simple Dialog")
+        self.btn1 = tk.Button(self.mw,
+                              text = "Click button to open dialog-window.",
+                              command = self.btnClick)
+        self.btn1.pack()
+        self.btn2 = tk.Button(self.mw,
+                              text = "Exit",
+                              command = self.mw.destroy)
+        self.btn2.pack()
+        self.mw.mainloop()
+
+    def btnClick(self):
+        self.answer = tkMessageBox.askyesno(title = "Your Choice", message = 'Please click either "Yes" or "No".')
+        if self.answer:
+            tkMessageBox.showinfo(title = "Yes", message = "Your choice was: Yes.")
+        else:
+            tkMessageBox.showinfo(title = "No", message = "Your choice was: No.")
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>If you need more complex input from the user, for example from one or more entry-fields, tkMessageBox isn't sufficient any more.
+<p>Then you have to create your own dialog-window.
+<p>"Tkinter.Toplevel" provides a second main-window-widget.
+<p>So it should be easy to create such a window and populate it with an entry-field, a button and so on. But there is a problem:
+<p>If you open the new main-window, the Python-script doesn't wait for the user to make his input, but just moves on and returns to the mainloop.
+<br>So your application gets messed up.
+<p>(You don't run into this problem, when you use tkMessageBox, because the code there already takes care of this automatically).
+<p>Fortunately, there's a solution for this problem:
+<p>When the new Toplevel-window is open, you can make the first window wait, until the new ones closes again, by doing:
+<pre>mainwindow.wait_window(dialogwindow)</pre>
+<p>Here's an example-script again:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+250+200")
+        self.mw.title("Example of Custom Dialog-Window")
+        self.btn1 = tk.Button(self.mw,
+                              text = "Click button to open dialog-window.",
+                              command = self.btnClick)
+        self.btn1.pack(padx = 20, pady = 20)
+        self.btn2 = tk.Button(self.mw,
+                              text = "Exit",
+                              command = self.mw.destroy)
+        self.btn2.pack(pady = 10)
+        self.mw.mainloop()
+
+    def btnClick(self):
+        self.dialogwindow = tk.Toplevel()
+        self.dialogwindow.title("Dialog Window")
+        self.dialogwindow.geometry("+300+250")
+        self.lab1 = tk.Label(self.dialogwindow,
+                             text = "Please enter something:")
+        self.lab1.pack()
+        self.entr1 = tk.Entry(self.dialogwindow)
+        self.entr1.pack()
+        self.entr1.focus()
+        self.btn3 = tk.Button(self.dialogwindow,
+                              text = "Ok",
+                              command = self.dialogEnd)
+        self.btn3.pack()
+
+        # This is the important line: It tells the main-window to wait:
+
+        self.mw.wait_window(self.dialogwindow)
+
+    def dialogEnd(self):
+        e = self.entr1.get()
+        self.dialogwindow.destroy() 
+        tkMessageBox.showinfo(title = "Input", message = "You entered:\n\n" + e + "\n")
+        
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<P>
+<HR>
+<h3><A NAME="18">18. Passing arguments from Buttons to functions using lambda-functions</A></h3>
+<p>Sometimes, you would like to pass some arguments from a Button to the function it calls. But with the usual construction:
+<pre>Tkinter.Button(master = mw, command = somefunc)</pre>
+<p>this is not possible: Neither:
+<pre>Tkinter.Button(master = mw, command = somefunc(1))</pre>
+<p>nor
+<pre>Tkinter.Button(master = mw, command = somefunc, 1)</pre>
+<p>work.
+<p>But arguments can be passed, using a socalled "lambda-function".
+<p>A "lambda-function" is an anonymous function. The arguments it takes should be written after the key-word "<i>lambda</i>" and before a colon. After the colon, the return-values of the lambda-function should be specified.
+<br>Inside the lambda-function, other functions can be called too.
+<br>The lambda-function can be called using arguments inside brackets. So these function-calls are equal:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+def somefunc(a, b):
+    return a * b
+
+print somefunc(2, 3)
+
+# is equal to:
+
+print (lambda a, b: a * b) (2, 3)
+</pre>
+<p>So, let's use the lambda-function to pass an argument from a Tkinter-Button:
+<pre>
+#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+        self.mw = tk.Tk()
+        self.mw.geometry("+400+300")
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        a = 5
+        self.btn1 = tk.Button(self.mw,
+                              text = "Ok",
+                              command = lambda arg = a : self.btnClick(arg))
+        self.btn1.pack()
+        self.btn2 = tk.Button(self.mw, text = "Exit", command = self.mw.destroy)
+        self.btn2.pack()
+        self.mw.mainloop()
+
+    def btnClick(self, b):
+        tkMessageBox.showinfo(message = str(b))
+
+if __name__ == "__main__":
+   app = myWindow()
+</pre>
+<P>
+<HR>
+<h3><A NAME="19">19. Processing Keyboard-Events using ".bind()"</A></h3>
+<p>Most widgets, including the main-window, support the ".bind()"-method.
+<br>With it, you can execute a function, when a given key was pressed and the widget, to which the key was bound, has the focus.
+<p>So key-combinations, that should work everywhere in your application, should be bound to the main-window-widget.
+<p>The name of the key has to be specified as a string. Possible expressions are for example:
+<pre>&lt;Return&gt;
+&lt;Control-q&gt;</pre>
+<p>More of these are described in "pydoc Tkinter.Misc".
+<p>So, ".bind()" is called for example like this:
+<pre>mw.bind(sequence = "&lt;Control-q&gt;", func = someFunc)</pre>
+<p>The ".bind()"-method has a special behaviour: It always passes one argument to the function, that is called, when the specified key is pressed.
+<br>So you can't call directly:
+<ul>
+<li>A function, that doesn't take any argument (especially mw.destroy()) or</li>
+<li>A function, that requires another argument itself.</li>
+</ul>
+<p>In these cases, I hack around this by writing a special "bindFunc(a)" that takes care of the argument passed by ".bind()" and then calls the function I really want.
+<br>My functions, that don't require another argument and can take care of the argument passed by ".bind()" themselves, can be called directly. But they need a parameter to be able to take this argument.
+<p>Here's an example-script:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+class myWindow:
+
+    def __init__(self):
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+250+200")
+        self.mw.title("Bind-Example")
+        self.mw.bind(sequence = "&lt;Control-q&gt;", func = self.bindFunc)
+        self.lab1 = tk.Label(self.mw,
+                             text = 'You can enter something here and press "Return" afterwards.')
+        self.lab1.pack(padx = 10, pady = 10)
+        self.entr1 = tk.Entry(self.mw)
+        self.entr1.pack()
+        self.entr1.bind(sequence = "&lt;Return&gt;", func = self.showEntry)
+        self.entr1.focus()
+        self.lab2 = tk.Label(self.mw,
+                             text = 'Press "Ctrl+q" to quit.')
+        self.lab2.pack(side = tk.RIGHT, pady = 20)
+        self.mw.mainloop()
+
+    def bindFunc(self, a):
+
+        # self.mw.destroy() can't be called directly, because it can't
+        # cope with the argument passed by ".bind()".
+
+        self.mw.destroy()
+
+    def showEntry(self, a):
+
+        # Parameter "a" isn't used in this method, but it is needed,
+        # to be able to deal with the argument passed by ".bind()".
+
+        e = self.entr1.get()
+
+        tkMessageBox.showinfo(title = "Input", message = "You entered:\n\n" + e + "\n")
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>In fact, the "bindFunc()" mentioned above could also be replaced by a <a href="#17">lambda-function</a>.
+<br>The argument, that is passed by ".bind()" automatically, is neglected then. So instead of using "bindFunc()", you could also write in the example-script above:
+<pre>        self.mw.bind(sequence = "&lt;Control-q&gt;", func = lambda event : self.mw.destroy())</pre>
+<P>
+<HR>
+<h3><A NAME="20">20. Making the Application aware of other than Keyboard- and Mouse-Events</A></h3>
+<p>When the main-loop of the Tkinter-application is run, it expects input from the user like mouse-clicks on buttons or pressing of key-combinations assigned with ".bind()".
+<br>But what, if the application shall notice something else, for example a certain amount of time passed by or the change of a variable ?
+<p>This can be done with the methods ".after()" and especially "after_idle()".
+<p>In the following example for ".after()" a second toplevel-window is opened and closed in a time-interval without any interaction of the user:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+import tkMessageBox
+
+INTERVAL = 3
+
+class myWindow:
+
+    def __init__(self):
+
+        self.task1on = False
+        self.task2on = False
+
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.title('Example for the ".after()"-method')
+        self.mw.geometry("+250+200")
+        self.lab1 = tk.Label(self.mw,
+                             text = 'When you click on "On", a second window pops up and closes again every ' + str(INTERVAL) + ' seconds.\n\nBy clicking on "Off", you can stop this again.')
+        self.lab1.pack(padx = 20, pady = 20)
+        self.fr1 = tk.Frame(self.mw)
+        self.fr1.pack()
+        self.btn1 = tk.Button(self.fr1,
+                              text = "On",
+                              command = self.on)
+        self.btn1.pack(side = tk.LEFT, padx = 10)
+        self.btn2 = tk.Button(self.fr1,
+                              text = "Off",
+                              command = self.off)
+        self.btn2.pack(side = tk.RIGHT, padx = 10)
+        self.btn3 = tk.Button(self.mw,
+                              text = "Exit",
+                              command = self.mw.destroy)
+        self.btn3.pack(side = tk.RIGHT, padx = 10, pady = 10)
+        self.mw.mainloop()
+
+    def on(self):
+        if not self.task1on and not self.task2on:
+            self.task1 = self.mw.after(ms = INTERVAL * 1000, func = self.openWin)
+            self.task1on = True
+
+    def off(self):
+        if self.task1on:
+            self.mw.after_cancel(self.task1)
+            self.task1on = False
+
+        if self.task2on:
+            self.secwin.destroy()
+            self.mw.after_cancel(self.task2)
+            self.task2on = False
+
+    def openWin(self):
+        self.secwin = tk.Toplevel(self.mw)
+        self.secwin.title("Temporary Window")
+        self.secwin.geometry("+400+250")
+        self.lab2 = tk.Label(self.secwin,
+                             text = "This is a temporary window.\n\nIt closes and reopens every " + str(INTERVAL) + " seconds.")
+        self.lab2.pack(padx = 20, pady = 20)
+        self.task1on = False
+        self.task2 = self.mw.after(ms = INTERVAL * 1000, func = self.closeWinAndSetRetask1on)
+        self.task2on = True
+
+    def closeWinAndSetRetask1on(self):
+        self.secwin.destroy()
+        self.task2on = False
+        self.task1 = self.mw.after(ms = INTERVAL * 1000, func = self.openWin)
+        self.task1on = True
+        
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>As you can see, controlling the main-loop can get rather complicated.
+<p><u>Notice</u>: The result couldn't have been achieved using
+<pre>time.sleep(INTERVAL)</pre>
+<p>because "time.sleep()" would have frozen the whole application.
+<br>But you need the application to keep on running to watch out for mouse-clicks or other events.
+<P>
+<HR>
+<h3><A NAME="21">21. Displaying gif-Images</A></h3>
+<p>The "Tkinter.PhotoImage"-class makes it quite easy to display an image in the application-window.
+<br>Supported image-formats are "gif", "ppm" and "pgm" (unfortunately not my favourites "jpg" and "png").
+<p>The "Tkinter.PhotoImage"-object must be connected to another widget like a "Tkinter.Label". This widget can then be packed into another widget like the main-window.
+<p>Here's an example-script. It needs a gif-image "yourimage.gif" in the script's directory, respectively you have to adapt the script to the filename of the gif-image to display:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+mw = tk.Tk()
+mw.option_add("*font", ("Arial", 15, "normal"))
+mw.title('Displaying a gif-Image')
+mw.geometry("+250+200")
+
+myimg = tk.PhotoImage(file = "yourimage.gif")
+
+lab1 = tk.Label(mw, image = myimg, relief = tk.RAISED)
+lab1.pack(padx = 20, pady = 20, ipadx = 20, ipady = 20)
+
+btn1 = tk.Button(mw, text = "Ok", command = mw.destroy)
+btn1.pack(side = tk.RIGHT, padx = 10, pady = 10)
+mw.mainloop()</pre>
+<p>Embedding such an image into an existing textfield "tfield" can be done with:
+<pre>myimg = tk.PhotoImage(file = "yourimage.gif") 
+tfield.image_create("1.0", image = myimg)</pre>
+<p>In a Canvas it would be:
+<pre>canvas.create_image(0, 0, anchor = NW, image = myimg)</pre>
+<p>Instead of reading the image-data from a file, it can be obtained from a base64-encoded string. Read "pydoc base64" on how to convert data into base64-strings and back. Such an image would be created with
+<pre>myimg = tk.PhotoImage(data = string)</pre>
+<p>Displaying animated gif-images can be emulated. For that, take a look <a href="http://www.daniweb.com/forums/post225611-64.html">here</a>.
+<P>
+<HR>
+<h3><A NAME="22">22. Scale-Widgets</A></h3>
+<p>"Tkinter.Scale" provides graphical push-controls for entering numerical values in a certain range defined by "from_" and "to"-arguments.
+<p>Here's an example-script, that should make clearer, what "Tkinter.Scale" is about:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+
+class myWindow:
+
+    def __init__(self):
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.title('SumCalculator')
+        self.mw.geometry("+250+200")
+        self.fr1 = tk.Frame(self.mw,
+                            relief = tk.SUNKEN,
+                            borderwidth = 10)
+        self.fr1.pack(side = tk.LEFT, padx = 10, pady = 10)
+        self.fr2 = tk.Frame(self.mw,
+                            relief = tk.RAISED,
+                            borderwidth = 10)
+        self.fr2.pack(side = tk.LEFT, padx = 10, pady = 10)
+        self.fr3 = tk.Frame(self.mw,
+                            relief = tk.SUNKEN,
+                            borderwidth = 10)
+        self.fr3.pack(side = tk.LEFT, padx = 10, pady = 10, ipadx = 10)
+        self.sum = tk.StringVar()
+        self.sum.set(0)
+        self.lab1 = tk.Label(self.fr3, textvariable = self.sum)
+        self.lab1.pack()
+        self.btn1 = tk.Button(self.fr2,
+                              text = "Calculate Sum",
+                              command = self.result)
+        self.btn1.pack(anchor = tk.CENTER)
+        self.btn2 = tk.Button(self.mw,
+                              text = "Exit",
+                              command = self.mw.destroy)
+        self.btn2.pack(side = tk.BOTTOM, padx = 10, pady = 10)
+        self.scale1 = tk.Scale(self.fr1,
+                               from_ = 0,
+                               to = 100,
+                               orient = tk.HORIZONTAL,
+                               label = "Number 1:")
+        self.scale1.pack()
+        self.scale2 = tk.Scale(self.fr1,
+                               from_ = 0,
+                               to = 100,
+                               orient = tk.HORIZONTAL,
+                               label = "Number 2:")
+        self.scale2.pack()
+        self.scale3 = tk.Scale(self.fr1,
+                               from_ = 0,
+                               to = 100,
+                               orient = tk.HORIZONTAL,
+                               label = "Number 3:")
+        self.scale3.pack()
+        self.mw.mainloop()
+
+    def result(self):
+        self.sum.set(self.scale1.get() + self.scale2.get() + self.scale3.get())
+
+if __name__ == "__main__":
+   app = myWindow()</pre>
+<p>Usually you may prefer the "Tkinter.Entry"-widget to ask numerical input from the user.
+<br>But "Tkinter.Scale" is a very nice widget, if you want to write an audio-mixer-application for example.
+<p>The push-controls can be set up vertically too.
+<P>
+<HR>
+<h3><A NAME="23">23. Graphics with the Canvas-widget</A></h3>
+<p>The "Tkinter.Canvas"-widget makes it possible to draw some graphics in a Tkinter-window.
+<p>Here's a (quite beautiful) example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import math
+import Tkinter as tk
+
+# Screen resolution:
+
+RESX = 1024
+RESY = 576
+
+class SplashWindow:
+
+    def __init__(self):
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 12, "normal"))
+        self.mw.title("Splash")
+        self.mw.geometry("+130+18")
+        self.cv = tk.Canvas(self.mw,
+                            bg = "white",
+                            width = RESX,
+                            height = RESY)
+        self.cv.pack()
+        self.drawSplash()
+        self.btn = tk.Button(self.mw,
+                             text = "Ok",
+                             command = self.mw.destroy)
+        self.btn.bind(sequence = "&lt;Return&gt;", func = self.bindFunc)
+        self.btn.bind(sequence = "&lt;Control-q&gt;", func = self.bindFunc)
+        self.btn.focus()
+        self.btn.pack(side = tk.RIGHT,
+                      padx = 10,
+                      pady = 10)
+        self.mw.mainloop()
+
+    def bindFunc(self, event):
+        self.mw.destroy()
+
+    def drawSplash(self):
+        m = []
+        for i in range(1000):
+            m.append(0)
+        n = 141
+        a = math.cos(math.pi / 4.)
+        peak_width = -0.001
+        peak_height = 90.
+        for y in range(1, n + 1):
+            e = a * y
+            c = y - n / 2. - 1
+            c *= c
+            for x in range(1, n + 1):
+                d = x - n / 2. - 1
+                z = peak_height * math.exp(peak_width * (c + d * d))
+                x1 = x + e
+                y1 = z + e
+                # Skip overlapping points:
+                if y1 &gt;= m[int(x1)]:
+                    m[int(x1)] = y1
+                    self.plot(x1, y1)
+
+    def plot(self, x, y):
+        pointsize = 2
+        padx = 30
+        pady = 40
+        zx_spectrum_x = 256
+        zx_spectrum_y = 176
+        x = x / zx_spectrum_x * RESX + padx
+        y = RESY - y / zx_spectrum_y * RESY - pady
+        for i in range(pointsize):
+            self.cv.create_line(x, y + i, x + pointsize, y + i)
+
+if __name__ == "__main__":
+   app = SplashWindow()</pre>
+<p>Although I haven't used that feature here yet, the Canvas widget keeps track of every item, that is drawn onto it. Every "<tt>.create_...</tt>"-command returns a number, by which the drawn item can be identified. Later, that number can be used to remove the item again from the Canvas by calling "<tt>canvas.delete(number)</tt>". You're supposed to use that mechanism, if you want to remove an item from the Canvas. It's not enough to draw other items on top of it. That would lead to the Canvas having to keep track of more and more unnecessary items.
+<P>
+<HR>
+<h3><A NAME="24">24. Setting Up a Scrollable Canvas-widget</A></h3>
+<p>Here's some more advanced stuff: Setting up a scrollable Canvas-widget, by attaching Scrollbar-widgets to it:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import Tkinter as tk
+ 
+class Main:
+
+    def __init__(self):
+        self.mw = tk.Tk()
+        self.mw.option_add("*font", ("Arial", 15, "normal"))
+        self.mw.geometry("+430+190")
+        self.mw.option_add("*font", ("Arial", 24))
+        self.mw.title("Canvas with Scrollbars")
+        self.mw.bind(sequence = "<Control-q>", func = lambda e: self.mw.destroy())
+
+        # Setting up a Canvas with attached Scrollbars:
+        self.cv_frame = tk.Frame(self.mw)
+        self.cv_viewable  = (300, 300)
+        self.cv_stagesize = (500, 500)
+        self.cv = tk.Canvas(self.cv_frame,
+                            bg     = "white",
+                            width  = self.cv_viewable[0],
+                            height = self.cv_viewable[1],
+                            scrollregion = (0, 0, self.cv_stagesize[0], self.cv_stagesize[1]))
+        self.scrollcv_x = tk.Scrollbar(self.cv_frame,
+                                       orient = tk.HORIZONTAL,
+                                       command = self.cv.xview)
+        self.scrollcv_y = tk.Scrollbar(self.cv_frame,
+                                       orient = tk.VERTICAL,
+                                       command = self.cv.yview)
+        self.cv.configure(xscrollcommand = self.scrollcv_x.set)
+        self.cv.configure(yscrollcommand = self.scrollcv_y.set)
+        self.scrollcv_x.pack(side = tk.BOTTOM, fill = tk.X)
+        self.scrollcv_y.pack(side = tk.RIGHT, fill = tk.Y)
+        # The Canvas has to be packed after the Scrollbars:
+        self.cv.pack()
+        self.cv_frame.pack(expand = 1, fill = tk.BOTH)
+
+        self.mw.mainloop()
+
+app = Main()</pre>
+<hr width="70%">
+<br><center><a href="index.html">Back</a></center>
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>
+

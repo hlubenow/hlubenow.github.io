@@ -1,0 +1,708 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Python,Tips,Tipps,Tricks,Guido,Rossum,script,scripts,sripting,language">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>A Crash Course in Pascal</title>
+</head>
+<body>
+<H2>
+A Crash Course in Pascal</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">About this Page</A>
+<LI><A HREF="#2">Compiling</A>
+<LI><A HREF="#3">A First Program - Hello World</A>
+<LI><A HREF="#4">Constants and Variables</A>
+<LI><A HREF="#5">For-Loops</A>
+<LI><A HREF="#6">If-Statements and Comments</A>
+<LI><A HREF="#7">Input on the Command-Line; static Strings; while-Loop</A>
+<LI><A HREF="#8">Datatypes, Simple Types</A>
+<LI><A HREF="#9">Printing numbers of type "real" or "double"</A>
+<LI><A HREF="#10">Enumerated Type</A>
+<LI><A HREF="#11">Subrange Type</A>
+<LI><A HREF="#12">Arrays</A>
+<LI><A HREF="#13">Records</A>
+<LI><A HREF="#14">Functions. Structured Programming</A>
+<LI><A HREF="#15">Procedures. Passing Arguments "By Reference" or "By Value"</A>
+<LI><A HREF="#16">Procedures and Functions inside other Procedures and Functions</A>
+<LI><A HREF="#17">Pointers</A>
+<LI><A HREF="#18">Linked Lists</A>
+</OL>
+<p>
+<HR>
+<h3><A NAME="1">1. About this Page</A></h3>
+<p>For some course, I had to learn Pascal.
+<p>I didn't want to, but I had to. In the course, there were even more restrictions, I didn't like at all. For example were "break" and "continue" forbidden.
+<p>So I wanted to get over Pascal as quickly as possible. That's why I wrote this website.
+<p>
+<HR>
+<h3><A NAME="2">2. Compiling</A></h3>
+<p>I'm using <a href="http://www.freepascal.org/">Free Pascal (fpc)</a> here.
+<p>Files with source-code written in Pascal usually have the suffix ".pas" or ".pp".
+<P>
+<HR>
+<h3><A NAME="3">3. A First Program - Hello World</A></h3>
+<p>Here's a "Hello World" in Pascal:
+<pre>program HelloWorld (output);
+
+begin
+    writeln('Hello World.');
+end.</pre>
+<p>"HelloWorld" is the name of the program, "(output)" is needed to print something. The ";" is required.
+<br>'Hello World.' is a string-constant and has to be written in <b>single quotes</b>.
+<br>Notice the dot "." after the last "end".
+<p>Notice, that Pascal is <b>not</b> case-sensitive (like it or not).
+<p>If you got that ugly message
+<pre>/usr/bin/ld: warning: link.res contains output sections; did you forget -T?</pre>
+<p>while compiling, ignore it (and get used to it). It's some bug in fpc and ld. After all, it's only a warning, not an error.
+<HR>
+<h3><A NAME="4">4. Constants and Variables</A></h3>
+<p>Constants and Variables have to be declared in certain areas named "const" and "var" before the main "begin"-statement. These areas have an indentation of one level (we'll see later, why (the reason is, there can be whole functions and procedures between "var" and "begin"), while the main "begin"- and "end"-statements don't have indentation, so they are on the same indentation-level as "program":
+<pre>program MyProgram (output);
+
+    const
+        PI = 3.1415;
+
+    var
+        a, b : integer;
+
+begin
+    a := 5;
+    b := 10;
+    writeln(a);
+    writeln(b);
+end.</pre>
+<p>Notice, that variables have to be declared with ":" and have to be assigned with ":=".
+<p>Whereas constants are assigned with a simple "=".
+<HR>
+<h3><A NAME="5">5. For-Loops</A></h3>
+<p>A for-loop is done like that:
+<pre>program MyProgram (output);
+
+    var
+        i : integer;
+
+begin
+    for i := 1 to 10 do
+        writeln(i);
+
+    writeln;
+
+    for i := 20 downto 10 do
+        writeln(i);
+
+end.</pre>
+<p>Notice, that there's no semicolon after the "do"!
+<p>In the example above, only the next line is part of the for-loop.
+<br>If you want more than one line inside the for-loop, you have to write another "begin"-"end"-block:
+<pre>program MyProgram (output);
+
+    var
+        i : integer;
+
+begin
+    for i := 1 to 4 do
+    begin
+        writeln('Inside the for-loop');
+        writeln(i);
+    end;
+
+end.</pre>
+<p>Notice, that there has to be a semicolon after the "end" of the for-loop-block!
+<p>At least in fpc (but not in the stone-age-Pascal of my recent university-course), there are also "break" and "continue" to exit loops prematurely:
+<pre>program MyProgram (output);
+    var 
+        i : integer;
+
+begin
+    for i := 1 to 20 do
+    begin
+        if i = 5 then
+        begin
+            writeln('No 5!');
+            continue;
+        end;
+        if i = 10 then
+            break;
+        writeln(i);
+    end;
+end.</pre>
+<HR>
+<h3><A NAME="6">6. If-Statements and Comments</A></h3>
+<p>Comments are written inside curly brackets.
+<pre>program MyProgram (output);
+
+    var
+        a, b : integer;
+
+begin
+    a := 1;
+    b := 2;
+
+    if a = 1 then
+        writeln('a is ', a);
+
+    if b &gt; a then
+        writeln(b, ' is greater than ', a, '.');
+
+    if (a &lt; b) and (b = 2) then
+        writeln('a is less than b and b is 2.');
+
+    { These code-blocks again, if you want more than one line. }
+    if (a &lt; b) and (b = 2) then
+    begin
+        writeln('a is less than b and b is 2.');
+        writeln('Code-block needed for more than one line.');
+    end;
+
+    if a = 10 then
+        writeln('a is 10.')
+    else
+        writeln('a is not 10.');
+
+    if a &lt;&gt; 10 then
+        writeln('a is really not 10.');
+
+end.</pre>
+<p>Notice, that the syntax for "is equal" is "=", not "==" like in C/C++ and other languages!
+<p>The syntax for "is not equal" is "&lt;&gt;", not "!=" like in C/C++ and other languages.
+<p>If you use "and" or "or", you need brackets around the expressions, otherwise you get wrong results!
+<p>Notice, that before the "else" of an if-then-else-construction, there <b>must not</b> be a semicolon.
+<br>This is even the case, if before the "else" is an "end"-statement of a previous loop or a previous if-statement.
+<br>The reason is, that in Pascal the whole if-then-else-construction is seen as a single command.
+<br>In "begin ... end"-constructions <b>inside</b> the if-then-else-construction can be semicola, though.
+<p>There is also "else if".
+<HR>
+<h3><A NAME="7">7. Input on the Command-Line; static Strings; while-Loop</A></h3>
+<p>This is a nice small program from a Perl-book (by Laura Lemay) I once read. If you come to this program and can run it, you already know some of the constructions, a programming-language uses:
+<pre>program Kruemelmonster (input, output);
+
+    var
+        Kekse : string[10];
+
+begin
+   Kekse := '';
+   while Kekse &lt;&gt; 'Kekse' do
+   begin
+       write('Ich will Kekse: ');
+       readln(Kekse);
+   end;
+   writeln('Mmmm. KEKSE.')
+end.</pre>
+<p>So, we can declare a string of 10 characters.
+<p>The while-loop works as you might expect. :)
+<p>Somehow, we don't have to cut out (chomp) the newline-character of input (we get with "read()" or "readln()").
+<br>To get input, we have to write "(input, output);" into the first line.
+<HR>
+<h3><A NAME="8">8. Datatypes, Simple Types</A></h3>
+<p>Built-in datatypes ("simple types") in Pascal are:
+<ul>
+<li>integer
+<li>real
+<li>boolean
+<li>char
+</ul>
+<HR>
+<h3><A NAME="9">9. Printing numbers of type "real" or "double"</A></h3>
+<p>Consider this program:
+<pre>program MyPro (output);
+
+    var
+        a : real;
+
+begin
+    a := 520.2;
+    writeln(a);
+end.</pre>
+<p>If I compile and run it, instead of "520.2", I get
+<center>5.2020000000000005E+002</center>
+<p>Not what I had expected.
+<p>The output is formatted in "floating point notation" (dt: "Gleitkommadarstellung"), while I wanted "fixed point notation" (dt: "Festkommadarstellung").
+<p>Fortunately, "write()" and "writeln()" can format the values to that.
+<br>You have to pass two more values to "write()" to allocate space for the numbers. So the format is "<tt>write(value : field_width : decimal_field_width)</tt>". Example:
+<pre>program MyPro (output);
+
+    var
+        a : real;
+
+begin
+    a := 520.2;
+    writeln(a : 4 : 1);
+end.</pre>
+<p>"a : 4 : 1", because "520.2" has 4 digits altogether, with 1 digit after the decimal point. It won't harm to allocate more space, make sure, it's always enough for your needs.
+<p>There's a lot of theory behind the representation of floating-point numbers.
+<p>"<tt>write(value : field_width)</tt>" can be used for other datatypes too. If you set "field_width" larger than the data, you'd like to print, extra spaces are printed. This is for example useful to produce formatted tables.
+<p>
+<HR>
+<h3><A NAME="10">10. Enumerated Type</A></h3>
+<p>More datatypes can be defined in a "type"-part of a Pascal program. 
+<br>There's for example the "enumerated type" (dt. "Aufz&auml;hlungstyp"). Several "identifiers" in an enumerated type are declared at once.
+<br>Numbers are automatically assigned to these identifiers. You can access these numbers with the "ord()"-function.
+<br>Operators like "=", "&gt;=", "&lt;&gt;" can be used directly with the identifiers and are applied to the corresponding numbers.
+<br>You can access the next identifier and the previous one with the functions "succ()" and "pred()".
+<br>Here's an example:
+<pre>program MyProgram (output);
+
+    type
+        tColor = (black, blue, red, magenta, green, cyan, yellow, white);
+
+begin
+    writeln;
+    writeln('The number of cyan is: ', ord (cyan));
+    writeln('The successor of cyan is: ', succ(cyan));
+    writeln('The predecessor of cyan is: ', pred(cyan));
+    writeln;
+    if red &lt; yellow then
+        writeln('The number of red is less than the number of yellow.');
+end.</pre>
+<p>This is similar to the datatype "enum" in C/C++.
+<p>There's a "t" before "Color" in "tColor" to show, that "tColor" is a type.
+<p>If you declare a variable of the enumerated type, you can assign an identifier to it:
+<pre>program MyProgram (output);
+
+    type
+        tColor = (black, blue, red);
+
+    var
+        a : tColor;
+
+begin
+    a := red;
+    writeln(a); 
+end.</pre>
+<HR>
+<h3><A NAME="11">11. Subrange Type</A></h3>
+<p>Then, there's the "subrange type" (dt. "Ausschnittstyp"). It's a datatype for subranges of integers, chars or enumerated types. It is declared with the ".."-operator.
+Example:
+<pre>program MyProgram (output);
+
+    type
+        { a subrange of integers: }
+        tSlice = 0 .. 5;
+
+        { first an enumerated type: }
+        tColor = (black, blue, red, magenta, green, cyan, yellow, white);
+        { then a subrange of the enumerated type: }
+        tColorPart = magenta .. cyan;
+
+    var 
+        a : tSlice; 
+        b : tColorPart; 
+
+begin
+    a := 3;
+    b := green;
+    writeln(a);
+    writeln(b);
+end.</pre>
+<p>Notice, there are no brackets in the subrange type-declaration.
+<HR>
+<h3><A NAME="12">12. Arrays</A></h3>
+<p>Now that we know, what enumerated types and subrange types are, we can finally declare an array.
+The declaration in the "type"-part has the form:
+<center>t<i>Typename </i> = array [<i>subrange</i>] of <i>datatype</i>;</center>
+<p>A subrange type is needed, so we would have to declare one first. But it's possible to declare the subrange inside the array-declaration (see example below)
+<p>It's useful to use constants for the first and last index-number of the array.
+<p>Example:
+<pre>program MyProgram (output);
+{ Creates, fills, and prints an array with the numbers from 0 to 9. }
+
+    const
+       AIndexStart = 0;
+       AIndexEnd = 9;
+
+    type
+        tArray = array [AIndexStart .. AIndexEnd] of integer;
+    var 
+        a : tArray; 
+    i : integer;
+
+begin
+    for i := AIndexStart to AIndexEnd do
+        a[i] := i;
+
+    for i := AIndexStart to AIndexEnd do
+        writeln(a[i]);
+end.</pre>
+<HR>
+<h3><A NAME="13">13. Records</A></h3>
+<p>While arrays can only store elements of the same datatype, records (dt. "Verbund", "Verbundtyp") can store elements of different datatypes.
+The declaration in the "type"-part has the form:
+<center>t<i>Typename </i> = record var1 : datatype1; var2 : datatype2; end;</center>
+<p>The variable-declarations and the end-statement are often written below each other (i.e. in a culumn).
+<p>The variables inside the record (called "record selectors") are accessed with a dot (".").
+ Example:
+<pre>program MyProgram (output);
+
+    type
+        tRec = record 
+                  a, b : integer;
+                  c : char;
+                  d : boolean;
+               end;
+    var
+
+        rec : tRec;
+
+begin
+    rec.a := 5;
+    rec.b := 10;
+    rec.c := 'f';
+    rec.d := false;
+
+    writeln(rec.a);
+    writeln(rec.b);
+    writeln(rec.c);
+    writeln(rec.d);
+end.</pre>
+<p>You can have records inside records too:
+<pre>program MyProgram (output);
+
+    type
+        tRec = record 
+                  a : integer;
+                  r2 : record
+                          f : integer;
+                          g : char;
+                       end;
+               end;
+    var
+
+        rec : tRec;
+
+begin
+    rec.r2.f := 1;
+    rec.r2.g := 'b';
+
+    writeln(rec.r2.f);
+    writeln(rec.r2.g);
+end.</pre>
+<p>Maybe there should be no semicolon after the first "end". fpc seems to take both.
+
+<HR>
+<h3><A NAME="14">14. Functions. Structured Programming</A></h3>
+<p>The principles of functions seem to be the same for most programming-languages. A code-block takes some arguments, processes them and returns a return-value. That makes it possible to separate a program into small pieces, that deal with more specific problems ("<a href="https://en.wikipedia.org/wiki/Structured_programming">structured programming</a>" (see end of this section too)). I can't teach the principles here (like what it means to have local variables and so on).
+Look it up for your favourite language (Python maybe, it's as easy as it gets there).
+<br>For Pascal, a function-declaration (with its head and body (dt.: "Kopf und Rumpf")) looks like this:
+<pre>program MyProgram (output);
+
+    function Product(a : integer; b : integer) : integer;
+
+        var
+            c : integer;
+
+    begin
+        c := 5;
+        Product := a * b * c;
+    end; { Product }
+
+begin
+    writeln(Product(5, 10));
+end.</pre>
+<p>So we have an indentation, the key-word 'function', then a function name, then some parameters (and their types) in brackets (notice, the parameters are separated by semicolon, not comma, as usual), then the type of the return-value. Then a semicolon.
+<br>After that, we have all the parts, you find in the main-part too. So, in a function there can be:
+<pre>    const
+        .....
+    type
+        .....
+    var
+        .....
+begin
+.....
+end;</pre>
+<p>To return a value, take the <b>name of the function</b> again and assign the return-value to it (there's no "return-statement" like in other languages).
+<br>Assigning a value to the name of the function itself doesn't do a "return":
+<pre>program MyProgram (output);
+
+    function Func () : integer;
+    begin
+        Func := 5;
+        Func := 10;
+    end;
+
+begin
+
+    writeln(Func());
+
+end.</pre>
+<p>Result: 10.
+<p>(By the way: Programming with functions in Pascal or especially in C is called
+<center>"<a href="https://en.wikipedia.org/wiki/Structured_programming">structured programming</a>,"</center>
+<p>
+<center>not "<a href="https://en.wikipedia.org/wiki/Functional_Programming ">functional programming</a>",</center>
+<p>because that term means something else: Pascal, C, C++, Java, and so on, are <a href="https://en.wikipedia.org/wiki/Imperative_programming">imperative programming-languages</a>. Commands are used to tell the computer, what to do.
+On the other hand, in functional programming-languages (like Haskell, Lisp and Scheme) <b>mathematical functions</b> (like "f(x) = ax + b" and so on) are used, to describe and (hopefully) solve a programming problem.
+<br>Many languages (Perl, Python, Ruby) are basically imperative, but also support functional approaches (of course they also support structured programming).
+<br>Often, the possibility to use functional programming is added into later versions of a language and doesn't fit well to the rest of the language.
+<br>Most programs are still written in imperative style.) 
+<HR>
+<h3><A NAME="15">15. Procedures. Passing Arguments "By Reference" or "By Value"</A></h3>
+<p>Procedures are similar to functions, but don't return anything.
+<ul>
+<li>However, you can pass arguments to it "by reference". Then the procedure can change the memory-area of the variable directly, so that the variable is changed even outside the procedure.
+<p>
+<li>Usually, you don't do that. You pass arguments "by value", so that the function/procedure uses just a local copy of the variable. That way the variable stays unchanged outside the function/procedure. And the copy of the variable expires, when the function/procedure is finished.
+<br>Maybe you should read a little more theory about passing "by value" and "by reference". Though in general, that's it.
+</ul>
+<p>Strange enough, the keyword to pass values "by reference" is "val" inside the procedure-declaration.
+<p>So here's an example:
+<pre>program MyProgram (output);
+
+    procedure ProcedureByValue(a : integer);
+    begin
+        writeln('ProcedureByValue: a is now: ', a);
+        a := 10;
+        writeln('ProcedureByValue: a is now: ', a);
+    end;
+
+    procedure ProcedureByReference(var a : integer);
+    begin
+        writeln('ProcedureByReference: a is now: ', a);
+        a := 10;
+        writeln('ProcedureByReference: a is now: ', a);
+    end;
+
+    var
+       a : integer;
+
+begin
+    a := 5;
+    writeln('main: a is now: ', a);
+    writeln;
+    ProcedureByValue(a);
+    writeln('main: a is now: ', a);
+    writeln;
+    ProcedureByReference(a);
+    writeln('main: a is now: ', a);
+end.</pre>
+<HR>
+<h3><A NAME="16">16. Procedures and Functions inside other Procedures and Functions</A></h3>
+<p>Inside procedures and functions, there can be other procedures and functions.
+<p>Inside the inner procedure or function the variables of the surrounding procedures and functions are visible.
+<p>If a variable is declared in an inner procedure or function with the same identifier (name) as a variable in the surrounding environment, the inner declaration is superior to the outer. 
+<pre>program MyProgram (output);
+
+    function func1 (a : integer) : integer;
+
+        procedure proc1;
+        begin
+            { Variable a, passed to func1, is visible here. }
+            writeln('a of func1 in proc1: ', a);
+        end;
+
+    begin
+        proc1();
+        func1 := 3 * a;
+    end;
+
+    var
+        b : integer;
+
+begin
+    b := func1(10);
+    writeln('b in main: ', b);
+end.</pre>
+<HR>
+<h3><A NAME="17">17. Pointers</A></h3>
+<p>Pointers are variables that point to other variables. The pointer itself just stores the memory-address of the other variable.
+After they are "dereferenced" though, the content of the other variable can be accessed using the pointer.
+<br>Pointers are quite difficult to handle for the programmer, so more programmer-friendly languages like Python or JavaScript get along without them.
+<br>C though, makes heavy use of pointers, and Pascal has them too.
+<br>So let's just deal with a pointer pointing to an integer. To get a pointer, you declare one with the roof-symbol "^", then call the function "new()". Then you set the pointer to the other variable (the one, to which it is supposed to point). After that you can access the other variable with the pointer:
+<pre>program MyProgram (output);
+
+    var
+        a : integer;
+        p : ^integer;
+
+begin
+    a := 5;
+    new(p);
+    p^ := a;
+    writeln(p^);
+end.</pre>
+<p>By writing "p^" instead of just "p", the pointer is dereferenced.
+<br>So: "p^" is the data, the pointer points to, while "p" is the pointer itself. So, if you want to pass a pointer to a function for example, you'll have to pass it "p", not "p^".
+<p>You can get rid of a pointer with the "dispose()"-function.
+<p>You can set pointers to variables of any datatype, even to complex data-structures such as records for example:
+<pre>program MyProgram (output);
+
+    type
+        tRec = record 
+                  a, b : integer;
+                  c : char;
+                  d : boolean;
+               end;
+    var
+        rec : tRec;
+        p : ^tRec;
+
+begin
+    rec.a := 5;
+    rec.b := 10;
+    rec.c := 'f';
+    rec.d := false;
+
+    new(p);
+    p^ := rec;
+
+    writeln(p^.b);
+    writeln(p^.d);
+end.</pre>
+<p>This way, you can <a href="#15">pass data-structures by reference</a> (pointers are references) to functions and procedures and (even more important) back from functions.
+<center>More needed here</center>
+<HR>
+<h3><A NAME="18">18. Linked Lists</A></h3>
+<p>While arrays and ordinary records are static, so the number of elements has to be declared at the beginning and can't be changed afterwards, with pointers and records dynamic lists can be created.
+<br>To implement a linked list, a record is declared, that has elements for the data and at the end a pointer pointing to another record of the same type. So one record-pointer points at the next record and so on. The last pointer in the list of records points to "<tt>nil</tt>", which is a keyword for "nothing".
+<p>In practice you don't implement linked lists yourself, you just use a class that has all the details (also for manipulating such lists), for example <a href="http://www.freepascal.org/docs-html/rtl/classes/tlist.html">tList</a>.
+<p>In the following, there are some details on implementing linked lists by hand. Just skip this, if you don't need it.
+<p>Well, I think I managed to implement a basic double-ended linked list with the hint from <a href="http://mypascalbook.blogspot.de/2009/11/13-pointer-basics-link-lists-in-pascal.html">here</a>. He suggests three pointers "first", "last" and "current" to control the list. Actually, it makes sense after that: While writing it that way, the pointers started representing the knots in my mind, almost as (OOP-)objects would have done, so it became easier to imagine the list and what the pointers did:
+<hr width="30%">
+<pre>program ExampleForDoubleEndedLinkedList (output);
+
+uses sysutils;
+{ If you don't want sysutils, change the "PyPrintList"-calls to "PrintList"-calls. }
+
+    type
+        tp = ^tRec;
+        tRec = record
+                 nr : integer;
+                 previous : tp;
+                 next: tp;
+              end;
+    var
+        first, current, last : tp;
+        i : integer;
+
+    procedure InitList;
+    { Creating three globally known pointers to control the list. }
+    begin
+        new(first);
+        new(last);
+        new(current);
+        last^.next := nil;
+        first^.previous := nil;
+        first^.next := last;
+        last^.previous := first;
+        current := first;
+    end;
+
+    procedure UnshiftInt(a: integer);
+    { Adds an integer to the beginning of a list, like unshift() in Perl. }
+    var
+        p : tp;
+    begin
+        current := first^.next;
+        new(p);
+        p^.nr := a;
+        first^.next := p;
+        p^.previous := first;
+        current^.previous := p;
+        p^.next := current;
+    end;
+
+    procedure PushInt(a : integer);
+    { Adds an integer to the end of a list, like push() in Perl. }
+    var
+        p : tp;
+    begin
+        current := last^.previous;
+        new(p);
+        p^.nr := a;
+        p^.next := last;
+        last^.previous := p;
+        p^.previous := current;
+        current^.next := p;
+    end;
+
+    procedure PrintList;
+    { Prints the integers of the list one per line. }
+    begin
+        current := first;
+        while current^.next &lt;&gt; last do
+        begin
+            current := current^.next;
+            writeln(current^.nr);
+        end;
+    end;
+
+    procedure PyPrintList;
+    { Prints a Pascal-linked list of integers in Python-style. }
+        var
+            i, slen, llen : integer;
+            s, temp : string;
+    begin
+        { Calculating string-length. }
+        slen := 0;
+        llen := 0;
+        current := first;
+        while current^.next &lt;&gt; last do
+        begin
+            llen := llen + 1;
+            current := current^.next;
+            temp := IntToStr(current^.nr);
+            slen := slen + length(temp) + 2 { 2 for ', '. };
+        end;
+        slen := slen + 10;
+        SetLength(s, slen);
+        s := '[';
+        current := first;
+        i := 0;
+        while current^.next &lt;&gt; last do
+        begin
+            current := current^.next;
+            temp := IntToStr(current^.nr);
+            s := s + temp;
+            i := i + 1;
+            if i &lt; llen then
+                s := s + ', ';
+        end;
+        s := s + ']';
+        writeln(s);
+    end;
+
+    procedure ClearList;
+    { Trying hard to clean up. }
+        var
+            temp : tp;
+    begin
+        current := first;
+        while current^.next &lt;&gt; nil do
+        begin
+            temp := current;
+            current := current^.next;
+            dispose(temp);
+        end;
+    end;
+
+begin
+    InitList;
+    for i := 1 to 5 do
+    begin
+        UnshiftInt(i);
+    end;
+    PyPrintList;
+    writeln;
+    ClearList;
+    InitList;
+    for i := 1 to 10 do
+    begin
+        PushInt(i);
+    end;
+    PyPrintList;
+end.</pre>
+<hr width="30%">
+<br><center><a href="index.html">Back to the computing-page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>

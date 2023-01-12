@@ -1,0 +1,350 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="Perl,perl,Tips,Tipps,Tricks,Larry,Wall,Camel,script,scripts,sripting,language">
+   <meta name="Author" content="hlubenow2 {at-symbol} gmx.net">
+   <title>Perl Page #5: Tips and Tricks</title>
+</head>
+<body>
+<H2>
+<img SRC="icopl.png">
+&nbsp;
+Perl Page #5: Tips and Tricks</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Page Description</A>
+<LI><A HREF="#2">Generating random numbers</A>
+<LI><A HREF="#3">Check, if the user is 'root'</h3</A>
+<LI><A HREF="#4">Date and Time</A>
+<LI><A HREF="#5">Conversions Between Decimal, Hexadecimal, Binary and Octal Numbers</A>
+<LI><A HREF="#6">Parsing HTML</A>
+<LI><A HREF="#7">Getting User-Input on the Linux-Console with Default Value and History-Function</A>
+<LI><A HREF="#8">Encrypting and Decrypting Text Using a Password</A>
+<LI><A HREF="#9">Installing Perl-Modules with the cpan-Command</A>
+<LI><A HREF="#10">Sending Keystrokes to Other Applications on Windows</A>
+<LI><A HREF="#11">Perl One-liners</A>
+<LI><A HREF="#12">Further Reading</A>
+</OL>
+<p>
+<P>
+<HR>
+<h3><A NAME="1">1. Page Description</A></h3>
+<p>On this page, I collect further Perl topics. Things, you can do with Perl.
+<P>
+<HR>
+<h3><A NAME="2">2. Generating random numbers</A></h3>
+<p>Just like that:
+<pre>perl -e 'print int(rand(10)) . "\n";'</pre>
+<P>
+<HR>
+<h3><A NAME="3">3. Check, if the user is 'root'</h3</A></h3>
+<p>On Linux, the administrator, who has full access to the system, is called 'root'. This checks, if the user, who is executing the Perl script, is 'root':
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+if ( $> != 0 ) {
+    print "\nError: This script must be run as root\n\n"; 
+    exit 1;
+}
+
+print "User is 'root'.\n";
+</pre>
+<p>In the 'English'-module ("<tt>use English;</tt>"), the system variable "<tt>$></tt>" is also called "<tt>$EFFECTIVE_USER_ID</tt>".
+<P>
+<HR>
+<h3><A NAME="4">4. Date and Time</A></h3>
+<p>This script demonstrates some often-used operations concerning date and time:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# Without the brackets, too many functions would be exported
+# into the main::-namespace:
+use POSIX (); 
+
+# Print current time in central European format including seconds:
+print POSIX::strftime("%H:%M:%S", localtime) . "\n";
+
+# On Linux, you can read more about format-strings like "%H:%M:%S"
+# by executing the shell-command "info date".
+
+# Print today's date in central European format; the numbers of days and months
+# below 10 are zero-padded (like in 09.08.2007):
+print POSIX::strftime("%d.%m.%Y", localtime) . "\n";
+
+# Print seconds since epoch (on Linux, epoch is 1.1.1970):
+print time . "\n";
+
+# Generate a time-list from seconds since epoch and print it:
+my @tml = localtime;
+print join(", ", @tml) . "\n";
+
+# Print today's date in central European format using the time-list generated above;
+# the numbers of days and months below 10 are blank-padded (like in 9.8.2007):
+
+print $tml[3] . "." . ($tml[4] + 1) . "." . ($tml[5] + 1900) . "\n";
+
+# Convert the time-tuple back to seconds since epoch:
+
+print POSIX::mktime(@tml) . "\n";
+</pre>
+<p>There is also a module called "Time::Local".
+<P>
+<HR>
+<h3><A NAME="5">5. Conversions Between Decimal, Hexadecimal, Binary and Octal Numbers</A></h3>
+<P>This script shows, how these number-conversions can be done:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $hexnum = "FF";
+my $decnum = 255;
+my $binnum = "11111111";
+my $octnum = "377";
+
+# Hexadecimal to decimal:
+
+# Hexadecimal numbers start with "0x":
+print 0xFF . "\n";
+
+print hex($hexnum) . "\n";
+print oct("0x". $hexnum) . "\n";
+
+# Decimal to hexadecimal:
+printf("%X\n", $decnum);
+
+# Binary to decimal:
+
+# Binary numbers start with "0b":
+print 0b11111111 . "\n";
+
+print oct("0b". $binnum) . "\n";
+
+# Decimal to binary:
+printf("%b\n", $decnum);
+
+# Octal to decimal:
+
+# Octal numbers start with "0".
+# They are used for example in functions like chmod().
+print 0377 . "\n";
+
+print oct($octnum) . "\n";
+
+# Decimal to octal:
+printf("%o\n", $decnum);
+</pre>
+<P>
+<HR>
+<h3><A NAME="6">6. Parsing HTML</A></h3>
+<p>To parse HTML, it's better to use a module than trying to figure out a RegEx yourself. "HTML::Parser" is a rather low-level module. "HTML::TokeParser", which is built on top of it, is more convenient for the user. This extracts the texts between all "a href="-links in a HTML file called "test.html":
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use HTML::TokeParser;
+
+my $filename = "test.html";
+
+my $p = HTML::TokeParser->new($filename);
+ 
+while (my $token = $p->get_tag("a")) {
+    my $url = $token->[1]{href} || "-";
+    my $text = $p->get_trimmed_text("/a");
+    print "$url\t$text\n";
+}</pre>
+<P>
+<HR>
+<h3><A NAME="7">7. Getting User-Input on the Linux-Console with Default Value and History-Function</A></h3>
+<p>In general, user-input on the Linux-console can be retrieved with:
+<pre>print "Please enter something: ";
+my $input = &lt;STDIN&gt;;
+chomp($input);
+</pre>
+<p>But what, if you also wanted to set a default value, that could be edited or adopted as input?
+<br>And what, if you wanted to have a list of previously entered values, that could be accessed during input with the "cursor up" key, similar to the behaviour of Linux shells?
+<br>There are the C libraries <a href="https://en.wikipedia.org/wiki/GNU_Readline">GNU Readline</a> and <a href="https://tiswww.case.edu/php/chet/readline/history.html#SEC6">GNU History</a> which provide these features. They can be used from a Perl script using the module "<a href="https://metacpan.org/pod/Term::ReadLine">Term::ReadLine</a>". It seems, a valid installation (which is probably already available in most Linux distributions) also needs the modules "<tt>Term::ReadLine::Perl</tt>" or "<tt>Term::ReadLine::Gnu</tt>".
+<br>Then it is possible to achieve user input with a default value and an entry history function like this:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Term::ReadLine;
+
+my $term = Term::ReadLine->new();
+
+print "\n";
+
+# Switching off the prompt underlining:
+$term->ornaments(0);
+
+for my $i (1 .. 10) {
+    $term->addhistory("Entry $i");
+}
+
+my $prompt = "Please enter something: ";
+
+my $input = $term->readline($prompt, "Please press up");
+
+print "\nYou entered '$input'.\n\n";</pre>
+<P>
+<HR>
+<h3><A NAME="8">8. Encrypting and Decrypting Text Using a Password</A></h3>
+<p>First, download the modules "Crypt::CBC" and "Crypt::Blowfish" from the CPAN ("The Comprehensive Perl Archive Network" - The central archive of Perl-modules on the internet) and install them.
+<p>Then you should be able to run the following example-script:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Crypt::CBC;
+
+# Just trying to clean the screen:
+if($^O eq "linux") {
+    system("clear");
+}
+
+my $plaintext = "For your eyes only !";
+my $password = "Melina";
+
+my $cipher = Crypt::CBC-&gt;new(-key =&gt; $password,
+                             -cipher =&gt; 'Blowfish');
+
+my $ciphertext = $cipher-&gt;encrypt($plaintext);
+
+print "\nHello !\n\n";
+print "I just encrypted some text. It looks like this now\n";
+print "(only some of the characters are printed to avoid printing escape sequences):\n\n";
+
+# Printing just some of the characters:
+
+my $i, $a;
+
+for($i = 0; $i < length($ciphertext); $i++) {
+
+    $a = substr($ciphertext, $i, 1);
+
+    if(ord($a) > 31 &amp;&amp; ord($a) < 128) {
+        print $a;
+    }
+}
+
+print "\n\nThe password for decryption is: \n\n";
+
+print $password, "\n\n";
+
+print "Let's decrypt again:\n\n"; # like we did last summer :).
+
+$plaintext = $cipher->decrypt($ciphertext);
+
+print $plaintext, "\n\n";
+</pre>
+<p> ------------------------
+<p>Similar result using shell-commands (not Perl):
+<pre>
+# Encrypting to file 'encrypted.txt' using password "Melina":
+# echo 'Melina' | gpg --batch --textmode --passphrase-fd 0 -o encrypted.txt -c unencrypted.txt
+
+# Decrypting to file 'decrypted.txt' using password "Melina":
+# echo 'Melina' | gpg --batch --textmode --passphrase-fd 0 -d encrypted.txt &gt; decrypted.txt
+</pre>
+<P>
+<HR>
+<h3><A NAME="9">9. Installing Perl-Modules with the cpan-Command</A></h3>
+<p>If you use Linux, and you want to install a certain Perl module, you should first check, if it is provided by your Linux distribution. When using OpenSuSE-Linux, you can run "<tt>yast2</tt>" as root and select "<tt>Software Installation</tt>". Look for the module there and select it for installation. YaST2 then installs the module, as provided by your distribution, taking all dependencies into account.
+<p>If the module is not part of the distribution, but can be found on the <a href="https://metacpan.org">CPAN</a>, you can install it with all dependencies by using the shell command "<tt>cpan</tt>".
+For example, you can just do as root:
+<pre>cpan Text::Unidecode</pre>
+<p>The module and all dependent modules are then downloaded from the CPAN on the internet and are installed on your system. Althought that feels still a bit risky to me, I have to admit, it is convenient.
+<p>Of course, you could also download each module by hand and do the installation yourself (<tt>perl Makefile.pl; make; make install</tt>). The problem is, this can become rather tedious, if the module depends on too many other modules.
+<P>
+<HR>
+<h3><A NAME="10">10. Sending Keystrokes to Other Applications on Windows</A></h3>
+<p>First it needs to be said, that in most cases, sending keystrokes to other applications is a bad idea. Whenever you are tempted to do that, think first, if there isn't a better solution to the problem. In most cases there is.
+<p>That being said, with the module "<a href="https://metacpan.org/pod/Win32::GuiTest">Win32::GuiTest</a>" it is possible to send keystrokes from a Perl script to other applications on Windows. I've only tried this on an old 32-bit Windows version (using "Strawberry Perl" on "Windows XP"). I'm not sure, if this also works on newer systems like "Windows 10". Anyway, here's an example, how to send keys to a running window of "<tt>notepad.exe</tt>", that has the word "<tt>Editor</tt>" in its window title:
+<pre>#!perl
+
+use warnings;
+use strict;
+
+use Win32::GuiTest qw/:FUNC :VK/;
+
+sub sendKeyDown {
+    my $val  = shift;
+    SendRawKey($val, 0);
+}
+
+sub sendKeyUp {
+    my $val  = shift;
+    SendRawKey($val, KEYEVENTF_KEYUP);
+}
+
+my ($x, $y) = Win32::GuiTest::GetCursorPos();
+print "\nCurrently, the mouse is at position $x" . "x" . "$y.\n";
+
+my @found = Win32::GuiTest::FindWindowLike(undef, "Editor");
+for my $i (@found) {
+    print "\n$i\n";
+}
+if ($#found != 0) {
+    print "\nCan't proceed: Either too few or too many windows found. Nothing done.\n\n";
+    exit 1;
+}
+
+my $windowid = $found[0];
+Win32::GuiTest::SetActiveWindow($windowid);
+Win32::GuiTest::SendKeys("Hello\n");
+sendKeyDown(VK_NUMPAD1);
+sleep(1);
+sendKeyUp(VK_NUMPAD1);</pre>
+<p>So you can find the id number of the wanted window by its title string. You have to make sure, that exactly one window is found. Then the module can set the focus to this window and send its keys there.
+<p>When using the "<tt>SendRawKey()</tt>" function, the <a href="https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes">codes of virtual keys</a> can be used.
+<br>For example, "VK_NUMPAD0" to "VK_NUMPAD9" represent the keys on the numeric keypad. (If you want the second function of these keys, use the "KEYEVENTF_EXTENDEDKEY" flag: See the module's documentation for details). "VK_LCONTROL" represents the left control key.
+<p>
+<p>To send keys in a similar way on Linux, check out a console program called "<tt>xdotool</tt>". This can then be used with "<tt>system()</tt>"-calls from a Perl script.
+<P>
+<HR>
+<h3><A NAME="11">11. Perl One-liners</A></h3>
+<p>Without switches, the perl-command expects the file-name of a perl-script to be executed:
+<pre>perl myscript.pl</pre>
+<p>Using the "-e"-switch of the perl-command, you can pass a line of Perl-code to it instead and have it executed, for example:
+<pre>perl -e 'print "Hello World.\n";'</pre>
+<p>You can use this construction to pass some data from a pipe to Perl. You must tell Perl to read input from <tt>stdin</tt> then, so you would use "while(&lt;&gt;){}" around your code:
+<pre>echo "Hello World" | perl -e 'while(&lt;&gt;) {$_ =~ s/World/Earth/; print $_;}'</pre>
+<p>The "-n"-switch puts the "while(&lt;&gt;){}"-construction around your code automatically:
+<pre>echo "Hello World" | perl -ne '$_ =~ s/World/Earth/; print $_;'</pre>
+<p>(If no argument is passed to Perl's "print"-command, the default-variable "$_" is printed, so instead of "print $_", you can just write "print".)
+<p>Instead of a pipe you can use the perl-command on files too. If you have a file called "test.txt" with the content
+<pre>Hello World
+Hello World
+Hello World</pre>
+<p>you can run 
+<pre>perl -ne '$_ =~ s/World/Earth/; print;' test.txt</pre>
+<p>on it, and get an output to <tt>stdout</tt> of three times of "Hello Earth".
+<p>Using the "-i"-switch, you can also edit files "in place" instead of having the output printed to <tt>stdout</tt>. The command
+<pre>perl -ne '$_ =~ s/World/Earth/; print;' -i test.txt</pre>
+<p>doesn't produce output, but the text inside the file is edited to three times "Hello Earth".
+<br>This behaviour is somehow similar to the "sed"-command of Unix/Linux.
+<p>You can also pass multiple file-names to the perl-command with the "-i"-switch. This changes the content of several files at once.
+<P>
+<HR>
+<h3><A NAME="12">12. Further Reading</A></h3>
+<p>My little series about Perl continues with "<a href="perl6_sdl.html">Perl Page #6: Creating 2D Video Games in SDL_perl / SDLx</a>".
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<p><a href="index.html">Back to main-page</a>
+</body>
+</html>

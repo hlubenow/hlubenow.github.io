@@ -1,0 +1,953 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="Perl,perl,Intro,Introduction,Tips,Tipps,Tricks,Larry,Wall,Camel,script,scripts,sripting,programming,language">
+   <meta name="Author" content="hlubenow2 {at-symbol} gmx.net">
+   <title>Perl Page #1: An Introduction to Perl-Programming</title>
+</head>
+<body>
+<H2>
+<img SRC="icopl.png">
+&nbsp;
+Perl Page #1: An Introduction to Perl-Programming</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">About Perl</A>
+<LI><A HREF="#2">How to execute a Perl Script</A>
+<LI><A HREF="#3">Header of a Perl Script</A>
+<LI><A HREF="#4">Scalar Variables</A>
+<LI><A HREF="#5">Strings</A>
+<LI><A HREF="#6">for- and while-Loops</A>
+<LI><A HREF="#7">if-Statements</A>
+<LI><A HREF="#8">Input on the Command Line. Cookie-Monster Script</A>
+<LI><A HREF="#9">Lists / Arrays</A>
+<LI><A HREF="#10">Sorting Lists</A>
+<LI><A HREF="#11">Hashes</A>
+<LI><A HREF="#12">Functions</A>
+<LI><A HREF="#13">Using Modules</A>
+<LI><A HREF="#14">Regular Expressions (RegEx)</A>
+<LI><A HREF="#15">File-Operations</A>
+<LI><A HREF="#16">Going Further: References</A>
+<LI><A HREF="#17">Anonymous Arrays and Hashes. Arrays of Arrays (AoA), Hashes of Hashes (HoH)</A>
+<LI><A HREF="#18">Sorting "Lists of Lists" and Objects</A>
+<LI><A HREF="#19">Object-Oriented Programming</A>
+</OL>
+<p>
+<P>
+<HR>
+<h3><A NAME="1">1. About Perl</A></h3>
+<p>Perl is an interpreted programming language created by Larry Wall. Development began in 1987 (Perl 1.0) and continues until today (2021: Perl 5.34).
+<br>Larry Wall is a programmer with a linguistic background. In 1987, he had to process large quantities of text for a project he was working on. It turned out, it was uncomfortable to do that in C, so Larry Wall created a programming language, that made this task easier. Later he released that language to the public.
+<br>In Perl ("Practical Extraction and Report Language"), elements of C were combined with those of shells like bash and shell tools like awk and sed.
+<p>Perl's mascot is a camel (actually a dromedar) which is also depicted on the book "Programming Perl" (described in "perldoc perlbook").
+<br>While the executable of the interpreter is called "perl" (in lower-case letters), the language itself is called "Perl" (with an upper-case letter).
+<p>Perl follows the concept of "There's more than one way to do it." (TMTOWTDI).
+<br>It was designed similar to principles of natural (human) languages.
+<br>So when writing in Perl, the programmer has a relatively wide range of expressing himself compared to other programming languages.
+<br>Perl doesn't give developers many directives, how to write their code. As a result, Perl code written by different people can look rather different, and it may be difficult to understand the Perl code written by somebody else.
+<br>Some say, Perl code also looks ugly.
+<p>Perl provides flexible, dynamic datatypes: There are 
+<li>Scalar-variables ("$a"): These contain texts or numbers (integers or floating-point numbers which are automatically converted),</li>
+<li>Arrays (lists) ("@a"): These contain several scalars adressed by their position in the list ("$a[4]") and</li>
+<li>Hashes ("%a"): These contain several scalars, adressed by key-words defined by the programmer ("$a{somekey}").</li>
+<p>These datatypes are quite easy to handle, and Perl also takes care of memory-management automatically. The price for that is, that Perl-code usually runs slower than C-code doing the same thing. It is also not possible to automatically translate Perl-code to C first and then compile and run it as a C-program, just in case you wonder.
+<p>Some time ago, Perl was used as a language for controlling internet websites, using the modul "CGI". Today, PHP and Python may be used more often for this task.
+<p>Object oriented programming is only possible since Perl 5, which was originally released in 1994. So before that it wasn't available in Perl. As it was implemented later, it may feel like something, that has been put on top of the original concept.
+<p>Python on the other hand had object oriented programming from the beginning. Python code also looks much cleaner than Perl code, as Perl uses sigils like "$", "@", "%" and curly brackets "{ ... }" all the time, while Python does without them. Therefore many developers prefer writing larger software projects in Python. Perl still has its strengths when used for smaller scripts though.
+<p>There's also a large number of modules for almost all tasks available for Perl, that can be found in the "<a href="https://www.metacpan.org">CPAN</a>" ("Comprehensive Perl Archive Network").
+<p>While Perl 5 was designed by Larry Wall, the next Perl version (Perl 6) was supposed to be designed by the internet community. Discussion started in 2000, but didn't get on well and got stuck for many years. It turned out, Perl 6 became a different language than Perl (5). In 2020, "Perl 6" was renamed to "Raku". 
+<br>Perl 7 once will be a closer to Perl 5 again.
+<p>I really like the book about Perl 5 called "<tt>Sams Teach Yourself Perl in 21 Days</tt>" by Laura Lemay (2002). The German translation is called "<tt>Perl in 21 Tagen</tt>". There are several books with this title, be sure to get the one written by Laura Lemay.
+<p>Help can also be found using the "perldoc"-shell-command. It is run with an argument, for example
+<pre>perldoc perlintro</pre>
+Many of these arguments are listed in
+<pre>man perl</pre>
+<p>After getting to know Perl a little better, I found especially these pages useful:
+<pre>perldoc perlrun
+perldoc perlfunc
+perldoc perlvar
+perldoc Tk
+perldoc Tk::UserGuide
+perldoc perltoc</pre>
+<p>If you use the "-f" option of "perldoc", you can get information on a certain function directly, for example
+<pre>perldoc -f split</pre>
+<p>More books and tutorials about Perl are mentioned in
+<pre>perldoc perlfaq2</pre>
+<P>
+<HR>
+<h3><A NAME="2">2. How to execute a Perl Script</A></h3>
+<p>Executing a Perl-script isn't difficult: Copy and paste its code into a text-editor.
+<br>On Windows, "Notepad.exe" will do, but you can also use an IDE ("Integrated Development Environment") like for example "Geany".
+<br>On Linux, I suggest learning how to use one of the editors "vim" or "emacs", but "kate", "gedit" or "kwrite" will do, too.
+<br>Then save the script as for example "script.pl".
+<br>On Windows, you can then run the script by double-clicking it. If it's a GUI-application, you may want to get rid of the DOS-box that is usually opened. You can achieve this by creating a link to your script and use "C:\Perl\bin\wperl.exe" as its application.
+<br>In a DOS-box you can run your script by typing
+<pre>perl script.pl</pre>
+<p>in its directory. On Linux, you have to make your script executable first. You can do that by executing
+<pre>chmod +x script.pl</pre>
+After that you can run it by doing
+<pre>./script.pl</pre>
+<p>in its directory.
+<p>Notice, that the script is compiled into some kind of bytecode first and only executed, after the compilation has been completed successfully. This process can take a little time (usually just a few milliseconds).
+<p>It is also possible to run small pieces of Perl-code, socalled "one-liners", in a Linux-shell with perl's "-e"-switch, for example:
+<pre>perl -e 'print "Hello World\n";'</pre>
+<P>
+<HR>
+<h3><A NAME="3">3. Header of a Perl Script</A></h3>
+<p>A Perl script has to be told, where the Perl interpreter can be found. This is done by a special line of code (shown below).
+<br>The modules "<tt>warnings</tt>" and "<tt>strict</tt>" should be used. They make sure, that the programmer gets debugging information. Every script should be written in a way, that it runs without errors, while these modules are active. That's why a Perl script should have this header:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;</pre>
+<P>
+<HR>
+<h3><A NAME="4">4. Scalar Variables</A></h3>
+<p>Perl (we're always talking about Perl 5 here) uses the same kind of variable for a number as well as for a string. Such a variable is called a "scalar variable". It has a sigil "<tt>$</tt>" before it.
+The keyword "<tt>my</tt>" needs to be used to define such a variable. At the end of Perl statements, there's a semicolon (like at the end of C statements).
+So scalar variables can be defined in a script like this:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $a = 10;
+my $b = "Hello";
+print "$a\n";
+print "$b\n";</pre>
+<p>The "<tt>\n</tt>" is the newline character (on Linux). It can be used in "<tt>print</tt>" commands. Recent Perl 5 distributions also have a command "<tt>say</tt>", that prints statements automatically with a newline character.
+<P>
+<HR>
+<h3><A NAME="5">5. Strings</A></h3>
+<p>You can store a string in a scalar variable. Here's an example what can be done with strings:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $a = "Hello";
+my $b = "World";
+
+# Strings can be concatanated using the "."-operator:
+my $c = $a . " " . $b;
+
+# Scalar variables in quotation marks are expanded,
+# similar to the expansion mechanism of shells:
+print "$c\n";
+
+# You can get the length of a string like this:
+my $d = length($c);
+print "$d\n";
+
+# Substrings of a string can be extracted:
+my $e = substr($a, 0, 2);
+print "$e\n";
+
+# The pattern "rl" is found at this position in $a:
+print index($c, "rl") . "\n";
+</pre>
+<p>Search and replace-operations are done using "regular expressions", that are described later.
+<br>Some more:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+print "'a' has an ASCII-code of " . ord("a") . ".\n";
+print "The character with ASCII-code 69 is '" . chr(69) . "'.\n";
+print "\n";
+
+# If you want to get rid of the last character of a string,
+# you can use "chop()":
+my $a = "streets";
+chop($a);
+print "$a\n";
+
+# "chomp()" does the same, but it only works on a "\n" at the end:
+my $b = "Hello!\n";
+print "$b";
+chomp($b);
+
+# The "x"-operator multiplies strings (the number has to be behind it):
+my $c = "-" x 54;
+print "$c\n";
+</pre>
+<P>
+<HR>
+<h3><A NAME="6">6. for- and while-Loops</A></h3>
+<p>Here's an example how to create <tt>for</tt>- and <tt>while</tt>-loops in Perl:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $i;
+
+# A for-loop can be created similar to those in C:
+for ($i=1; $i<=10; $i++) {
+    print "$i\n";
+}
+print "\n";
+
+# Another method is even more common in Perl:
+
+for $i (1 .. 10) {
+    print "$i\n";
+}
+print "\n";
+
+# while-loops are as well possible:
+
+$i = 1;
+while ($i <= 10) {
+    print "$i\n";
+    $i++;
+}</pre>
+<p><tt>$i++;</tt> is the same as
+<pre>$i = $i + 1;</pre>
+<p>"<tt>$i += 1;</tt>" is also possible.
+<p><u>Note</u>: "<tt>for $i (0 .. 10) {}</tt>" also includes the 10. This is different to "<tt>for i in range(10)</tt>" in Python, which doesn't.
+<P>
+<HR>
+<h3><A NAME="7">7. if-Statements</A></h3>
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $a = 1;
+my $b = 2;
+
+# Equal numbers:
+if ($a == 1) {
+    print "\$a is 1.\n";
+}
+
+# Not equal numbers:
+if ($a != 10) {
+    print "\$a is not 10.\n";
+}
+
+# Greater than:
+if ($b > $a) {
+    print "\$b is greater than \$a.\n";
+}
+
+# Smaller than and logical AND:
+if (($a < $b) &amp;&amp; ($b == 2)) {
+    print "\$a is less than \$b, and \$b is 2.\n";
+}
+
+# Logical OR:
+if (($a < $b) || ($b == 1)) {
+    print "\$a is less than \$b, or \$b is 1.\n";
+}
+
+# if, else:
+if ($a == 10) {
+    print "\$a is 10.\n";
+} else {
+    print "\$a is not 10.\n";
+}
+
+# if, elsif, else:
+if ($a == 5) {
+    print "\$a is 5.\n";
+} elsif ($a == 1) {
+    print "\$a is 1.\n";
+} else {
+    print "\$a is not 5 and not 1.\n";
+}
+
+# Strings: If you want to test strings, you have to use
+# "eq" and "ne" instead of "==" and "!=":
+
+my $c = "hello";
+
+if ($c eq "hello") {
+    print "\$c is 'hello'.\n";
+}
+
+if ($c ne "hello") {
+    print "\$c is not 'hello'.\n";
+}</pre>
+<P>
+<HR>
+<h3><A NAME="8">8. Input on the Command Line. Cookie-Monster Script</A></h3>
+<p>This is a nice example script from the book of Laura Lemay, I mentioned above:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# Cookie Monster
+
+my $cookies = "";
+while ($cookies ne "COOKIES") {
+    print 'I want COOKIES: ';
+    $cookies = &lt;STDIN&gt;;
+    chomp($cookies);
+}
+
+print "Mmmm. COOKIES.\n";
+</pre>
+<hr width="30%">
+<p>The line
+<pre>$cookies = &lt;STDIN&gt;;</pre>
+<p>reads input from the command line and assigns it to a (scalar-)variable.
+"<tt>STDIN</tt>" is a so-called "handle" for the standard input. Programs have a standard input "<tt>STDIN</tt>" from where they read, and a standard output "<tt>STDOUT</tt>" to where they write, for example, when something is printed. (And there's also a handle "<tt>STDERR</tt>", to which error messages are printed.)
+<br>Here, "<tt>STDIN</tt>" could have been even left out, like this:
+<pre>$cookies = &lt;&gt;;</pre>
+<p>because Perl assumes, that <tt>STDIN</tt> is meant, when using this "diamond-operator" without anything in between.
+<p>The function "<tt>chomp()</tt>" cuts a final newline character from a string, if there is one at its end. In the script, the command with the diamond operator receives input including the newline character at the end, so this character has to be cut off from the variable again using "<tt>chomp()</tt>".
+<br>There is also a function "<tt>chop()</tt>", that cuts any last character from a string.
+<P>
+<HR>
+<h3><A NAME="9">9. Lists / Arrays</A></h3>
+<p>Lists contain a number of elements. In Perl, lists are stored in array variables, that have a sigil "<tt>@</tt>". Here's an example, what can be done with arrays:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my @a = ("apple", "banana");
+
+# Add an element at the end of the list:
+push(@a, "peach");
+
+# Create a loop, that iterates through the list (printing it).
+# The "for" is short for "foreach" here:
+my $i;
+for $i (@a) {
+    print "$i\n";
+}
+print "\n";
+
+# Remove the last element of the list and return it:
+my $l = pop(@a);
+print "$l\n";
+
+# Remove the first element of the list and return it:
+my $f = shift(@a);
+print "$f\n";
+
+# Add an element at the beginning of the list:
+unshift(@a, "peach");
+unshift(@a, "apple");
+
+print "\n";
+
+# Iterate through the list again:
+for $i (@a) {
+    print "$i\n";
+}
+print "\n";
+
+# Get the number of elements of the list minus 1:
+my $n = $#a;
+print "$n\n\n";
+
+# Iterate over the element numbers:
+for $i (0 .. $#a) {
+    print "$i\n";
+}
+print "\n";
+
+# Extract an element in the middle of the list:
+my $e = splice(@a, 1, 1);
+print "$e\n\n";
+
+# Add an element in the middle of the list:
+splice(@a, 1, 0, "cherry");
+
+# Iterate through the list again:
+for $i (@a) {
+    print "$i\n";
+}
+print "\n";
+
+# Access an element by element number.
+# Notice that the element numbers are in the range from 0 to the number of elements minus 1,
+# so "$a[1]" is the second element of the list:
+print $a[1] . "\n";
+$a[1] = "strawberry";
+print $a[1] . "\n";
+</pre>
+<p>Arrays with single word elements can be defined quicker using the "<tt>qw</tt>" (= "quote word") operator. Quation marks and commas can then be left out. So, instead of:
+<pre>my @a = ("apple", "banana", "peach");</pre>
+<p>you can also write:
+<pre>my @a = qw(apple banana peach);</pre>
+<p><u>split() and join()</u>: A string can be splitted into a list at a given pattern using the function "<tt>split()</tt>".
+<br>A list can be joined together to a string with a given pattern using the function "<tt>join()</tt>":
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $a = "This is a line of text.";
+
+# We create a list "@b" by splitting "$a" at " ":
+my @b = split(" ", $a);
+
+my $i;
+for $i (@b) {
+    print "$i\n";
+}
+print "\n";
+
+# We join the elements of "@b" together to a string "$c",
+# using ";" as the connecting string:
+
+my $c = join(";", @b);
+print "$c\n";</pre>
+<p>
+<p>Notes on the functions "<tt>split()</tt>" and "<tt>join()</tt>":
+<ul>
+<li>The term to split the string is actually a regular expression, so you would use something like "<tt>/term/</tt>" as the first argument to "<tt>split()</tt>".
+<p>
+<li>If the term to split the string occurs at the beginning of the string, the first element of the resulting array is an empty string ("").
+<p>
+<li>If the term to split the string occurs at the end of the string, the last element of the resulting array is not an empty string, but that last, empty string is omitted.
+<br>This behaviour of Perl's "<tt>split()</tt>" is actually a bit strange and differs from the one of Python for example.
+<p>
+<li>The term to join the elements of a list to a string, is not a regular expression, but a string.
+</ul>
+<P>
+<HR>
+<h3><A NAME="10">10. Sorting Lists</A></h3>
+<p>You can sort a list "<tt>@a</tt>" just by doing:
+<pre>@a = sort(@a);</pre>
+<p>In most cases this is enough, and you can stop reading here.
+<hr width="30%">
+<br>Just as a reference for myself, I write down several more advanced Perl sorting operations here:
+<p>1. <u>List-sort <b>by string</b></u>:
+<pre>my @l = qw(b c e d f a);
+@l = sort {$a cmp $b} @l;</pre>
+<p>The "$a" and "$b" inside the sort-line are special variables, internal to Perl.
+<p>2. <u>List-sort <b>by number</b></u>:
+<pre>my @l = qw(2 3 5 4 6 1);
+@l = sort {$a &lt;=&gt; $b} @l;</pre>
+<p>3. <u>Reverse sort</u>:
+<pre>my @l = qw(b c e d f a);
+
+# By string:
+@l = sort {$b cmp $a} @l;
+
+# By number:
+@l = sort {$b &lt;=&gt; $a} @l;</pre>
+<P>
+<HR>
+<h3><A NAME="11">11. Hashes</A></h3>
+<p>A hash is a kind of dictionary. It hold pairs of "keys" and "values". It has a a sigil "<tt>%</tt>".
+<br>The keys of a hash can be written with quotation marks like other strings. But in this case, the quotation marks can also exceptionally be left out.
+<p>The function "<tt>keys()</tt>" returns the keys of the hash as an array. Then you can iterate over that array to access all pairs of "keys" and "values" of the hash. There's also a corresponding function "<tt>values()</tt>", but it isn't used that often.
+<br>The function "<tt>exists()</tt>" tells you, if a value exists in a hash.
+<br>Notice, that unlike lists, the pairs in a hash are <b>not sorted</b>. You can sort the array returned by the "<tt>keys()</tt>" function though, using the "<tt>sort()</tt>" function.
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# A hash can be defined like this:
+my %h = (name => "Steve",
+         age  => 29,
+         job  => "doctor");
+
+# Print all keys and values of the hash,
+# using the functions "keys()" and "sort()":
+my $i;
+for $i (sort(keys(%h))) {
+    print "$i \t $h{$i}\n";
+}
+
+print "\nThis is the value for 'name':\n";
+print $h{name} . "\n";
+
+print "\nSteve changes his job.\n";
+$h{job} = "architect";
+print "His job is now: " . $h{job} . ".\n";
+</pre>
+<p>Programming beginners tend to avoid hashes at first.
+But they are especially useful, when you want to count the occurrences of elements in a list. Or when you want to remove multiple occurrences of elements from a list (and you don't care about the order of the elements). Here's an example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my @a = qw(apple banana peach apple banana apple banana apple peach);
+
+my %h;
+my $i;
+
+# Build a hash to count the numbers of occurrences of the elements:
+for $i (@a) {
+    if (exists($h{$i})) {
+        $h{$i}++;
+    } else {
+        $h{$i} = 1;
+    }
+}
+
+for $i (sort(keys(%h))) {
+    print "$i \t $h{$i}\n";
+}
+
+print "\n";
+
+# The keys of %h are the single elements of @a without multiple occurrences:
+my @b = keys(%h);
+@b = sort(@b);
+for $i (@b) {
+    print "$i\n";
+}</pre>
+<P>
+<HR>
+<h3><A NAME="12">12. Functions</A></h3>
+<p>Functions are written with the keyword "<tt>sub</tt>", followed by the name of the function and a code block (in curly brackets).
+<br>Different from C, the parameters of the function are not written into the function declaration. Instead, every function knows a special array variable called "<tt>@_</tt>", that holds all the arguments to the function.
+<br>Array operations at the beginning of the function without other arguments refer to that function. Therefore it is common practice to extract the arguments as scalar variables from the array "<tt>@_</tt>" using the "<tt>shift()</tt>" function at the beginning the function. So you'd write for example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+sub printArguments {
+   my $first_argument  = shift;
+   my $second_argument = shift;
+
+   print "$first_argument\n";
+   print "$second_argument\n";
+
+}
+
+printArguments("Hello", "World");</pre>
+<p>That way, the parameters are written at the beginning of the function, but not in the function declaration itself.
+<p><u>Passing an array to a function</u>: The easiest way to pass a mix of scalar- and array variables to a function, is to keep the order of the arguments in mind, cut the scalar variables from the array "<tt>@_</tt>" using "<tt>shift()</tt>" and pass the rest of that array to the array parameter:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+sub printArguments {
+   my $first_argument  = shift;
+   my $second_argument = shift;
+   my @an_array        = @_;
+
+   print "$first_argument\n";
+   print "$second_argument\n";
+   my $i;
+   for $i (@an_array) {
+       print "$i\n";
+   }
+
+}
+
+my @arr = qw(A list of more words);
+printArguments("Hello", "World", @arr);</pre>
+<p>When you pass several arrays, they'll get "flattened" into that single one in the function. You could for example pass the number of elements of each array too, so you could separate the arrays from the single one in the function again.
+<p><u>Passing a hash to a function</u>: Hashes can also be passed to functions. The first element of "<tt>@_</tt>" is then interpreted as the first key of the hash, the second element is interpreted as the first value of the hash and so on:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+sub printArguments {
+   my %h = @_;
+   my $i;
+   for $i (sort(keys(%h))) {
+       print "$i \t $h{$i}\n";
+   }
+}
+
+my %h_out = (a    => 10,
+             b    => "hello",
+             test => "nothing");
+printArguments(%h_out);</pre>
+<p>In a similar way, you have to return values from a function: You can either return a single scalar variable or one array holding several values. Returning a hash would be interpreted as returning one array as well.
+<p>If you want to pass several arguments, that are supposed to stay separated, you have to use references.
+<p>Functions used to have their own sigil "<tt>&amp;</tt>". Today, you don't write that sigil, when calling a function.
+<P>
+<HR>
+<h3><A NAME="13">13. Using Modules</A></h3>
+<p>Modules are external pieces of code that can be imported into your script. There are thousands of modules on the <a href="http://www.metacpan.org">CPAN</a> for almost any Perl programming task.
+<br>Modules can be downloaded and installed from the CPAN. But Linux distributions also already come with many Perl modules, prepared in packages. So if a Perl module, you want to use, is provided in a distribution package, you should install it from there.
+<br>There are also some core modules, that come with Perl itself.
+"<tt>Cwd</tt>" is for example such a module. You can use it to get the pathname of the current working directory. You can get information on modules by executing "<tt>perldoc</tt>" with the module's name, so you get information on "<tt>Cwd</tt>" by running:
+<pre>perldoc Cwd</pre>
+<p>If a module is installed, you can import it, by writing "<tt>use</tt>" in your script followed by the module's name (and the semicolon at the line's end). After that, the functions and variables provided by the module are available in your script. For example, this is how "<tt>Cwd</tt>" can be used:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Cwd;
+
+my $cwd = getcwd();
+print "$cwd\n";</pre>
+<p>The function "<tt>getcwd()</tt>" is not available in custom Perl. It was provided by the module.
+<P>
+<HR>
+<h3><A NAME="14">14. Regular Expressions (RegEx)</A></h3>
+<p>"Regular expressions" are used to do search and replace operations in strings. Here's a basic example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $a = "Hello Work";
+
+# Searching:
+if ($a =~ /ell/) {
+    print "'ell' is in \$a.\n";
+}
+
+# Replacing:
+$a =~ s/Work/World/;
+print "$a\n";</pre>
+<p>Programmers used to write a "<tt>m</tt>" before the first slash of the search operation, like a "<tt>s</tt>" is still needed before the first slash of the replace operation. But today, the "<tt>m</tt>" is mostly omitted and only two slashes are used to express searching.
+<p>When searching, you can use "<tt>^</tt>" at the beginning of the RegEx to look for the substring only at the beginning of the string. And you can use "<tt>$</tt>" at the end of the RegEx to look for the substring only at the end of the string. 
+<p>In a RegEx, "<tt>.</tt>" is a placeholder for any character. If you really want to search for a dot (and not for "any character"), you have to put a backslash in front of the dot, like "<tt>\.</tt>".
+<br>There are also multipliers: "<tt>*</tt>" searches for an unlimited number of repetitions of the characters before it (including none). So "<tt>.*</tt>" means "An infinite number of any character, including none", while "<tt>.+</tt>" means "An infinite number of any character, but at least one".
+<br>Again, if you want to search only for a star, you have to put a backslash in front of the character like "<tt>\*</tt>" (this is a general rule).
+<p>Square brackets represent character classes. For example, "<tt>[0-9]</tt>" searches for a number.
+<br>When used in square brackets, "<tt>^</tt>" means "not", so "<tt>[^0-9]</tt>" searches for a character, that is not a number.
+<p>You can also use scalar variables inside regular expressions, for example "<tt>if ($a =~ /$b/) { ... }</tt>". But when you write it like this, the string inside <tt>$b</tt> also becomes expanded as a regular expression. If you just want to search for the literal string inside <tt>$b</tt>, you have to put the variable between "<tt>\Q</tt>" and "<tt>\E</tt>", like this:
+<pre>if ($a =~ /\Q$b\E/) { ... }</pre>
+<p>When searching with placeholders, regular expressions tend to become "greedy" (which is something, I'm just mentioning; you should read more about it somewhere else, if this happens in your script).
+<p>The replacing operation shown above only replaces the first occurrence of the RegEx. If you put a "<tt>g</tt>" behind the last slash (this is called using a "flag"), every occurence of the RegEx is replaced.
+<br>By default, Perl's replace operations are case sensitive. You can use the "<tt>i</tt>" flag to turn case sensitivity off.
+<p>Sometimes, you want to extract the string, a RegEx has found. This can be done by putting the part of the RegEx you want to store in round brackets. When the search (or replace) operation is successful, the result is stored in temporary variables called <tt>$1</tt>, <tt>$2</tt> and so on. From there, you can then fetch the substring:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $a = "Hello World";
+
+my $b;
+
+if ($a =~ /(o Wo)/) {
+    $b = $1;
+    print "$b\n";
+}</pre>
+<p>There are many larger documentations about regular expressions, beginning with:
+<pre>perldoc perlretut</pre>
+So I only explain the most important rules here. Although the RegEx language is quite powerful, with that many slashes, backslashes and different types of brackets, RegEx code can become very cryptic and hardly readable. So I use it only, when I have to.
+<P>
+<HR>
+<h3><A NAME="15">15. File-Operations</A></h3>
+<p>This script demonstrates some often-used file-operations. For security-reasons I comment the lines accessing the disk out. If you want to test the script including writing and deleting, remove the comment-sign ("#") from the beginning of the two relevant lines in the script:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Cwd;
+
+# Get the current working directory:
+my $PATH = getcwd();
+my $fh;
+
+my $fname = "$PATH/myfile.txt";
+
+# Test, if file exists:
+if(-e $fname) {
+    print "File already exists.\n";
+    exit(1);
+}
+
+print "Writing to file.\n";
+# open($fh, "&gt;", $fname) or die $!;
+
+print $fh "This is a line of text.\n";
+print $fh "This is another line.\n";
+
+close($fh);
+
+print "Reading from file:\n";
+open($fh, "&lt;", $fname) or die $!;
+
+my @a = &lt;$fh&gt;;
+
+close($fh);
+my $i;
+for $i (@a) {
+    print "$i\n";
+}
+
+print "\nDeleting the file.\n\n";
+# unlink $fname;
+
+print "The directory contains:\n";
+
+my @b = &lt;*&gt;;
+for $i (@b) {
+    print "$i\n";
+}</pre>
+<P>
+<HR>
+<h3><A NAME="16">16. Going Further: References</A></h3>
+<p>References are relatively complicated. A beginner can probably do without them. So this chapter may also be skipped, until it is maybe needed later.
+<p>With Perl 5.0, in 1994 more advanced constructions like references and objects were added to the language.
+<p>A reference is a scalar-variables, that points to another variable. That other variable can be another scalars, an array, a hash, a larger data-structure or an object.
+<br>You can take a reference on an array, by writing a backslash in front of the sigil, like that:
+<pre>my $aref = \@a;</pre>
+<p>In a similar way you can take references on hashes ("<tt>\%h</tt>") or on other scalar variables ("<tt>\$a</tt>");
+<p>These references can then be passed to functions, keeping larger variables separated in the function array "<tt>@_</tt>".
+<p>To go back from a reference to the related variable, the reference has to be "dereferenced". This is done by writing the sigil of the related variable first, and then in curly brackets the name of the reference. Like this:
+<pre>my @a = @{$aref};</pre>
+<p>Yes, that can become quite ugly and complicated.
+So, here's an example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+sub printArguments {
+   my $scalar_var      = shift;
+   my $array_ref       = shift;
+
+   # Dereferencing the reference:
+   my @an_array = @{$array_ref};
+
+   print "$scalar_var\n";
+   my $i;
+   for $i (@an_array) {
+       print "$i\n";
+   }
+
+}
+
+my @a = qw(apple banana peach);
+my $aref = \@a;
+printArguments("Hello", $aref);</pre>
+<p>When you have a reference to an array (or to a hash), you can also access the elements of that array (or hash) directly through the reference without dereferencing it. This is done by using the "<tt>-&gt;</tt>"-operator. Another example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $i;
+
+# An array:
+my @a = qw(one two three);
+
+# A reference to that array:
+my $aref = \@a;
+
+# Dereferencing $aref:
+my @b = @{ $aref };
+
+# Output of @b:
+for $i (@b) {
+    print "$i\n";
+}
+print "\n";
+
+# Getting the number of elements via the reference:
+print $#{$aref} + 1;
+print "\n";
+
+# Elements can be accessed directly via the reference:
+print $aref-&gt;[0] . "\n"; 
+print $aref-&gt;[1] . "\n"; 
+print $aref-&gt;[2] . "\n"; 
+print "\n";
+
+# This is also an often used technique:
+# Managing an array, using a reference to an anymous array:
+my $aref2 = ["four", "five", "six"];
+print $aref2-&gt;[0] . "\n"; 
+print $aref2-&gt;[1] . "\n"; 
+print $aref2-&gt;[2] . "\n"; 
+print $#{$aref2} + 1;
+print "\n\n";
+
+# Same for hashes: A hash:
+my %h = (first  => "one",
+         second => "two",
+         third  => "three");
+
+# A reference to that hash:
+my $href = \%h;
+
+# Dereferencing $href:
+my %b = %{ $href };
+
+# Output of @b:
+for $i (keys(%b)) {
+    print "$i\t$b{$i}\n";
+}
+print "\n";
+
+# Elements can be accessed directly via the reference:
+print $href-&gt;{first} . "\n"; 
+print $href-&gt;{second} . "\n"; 
+print $href-&gt;{third} . "\n"; 
+print "\n";
+
+# Managing a hash, using a reference to an anymous hash:
+my $href2 = { fourth => "four",
+              fifth  => "five",
+              sixth  => "six" };
+
+print $href2-&gt;{fourth} . "\n"; 
+print $href2-&gt;{fifth} . "\n"; 
+print $href2-&gt;{sixth} . "\n";</pre>
+<p>As references are convenient to pass larger data structures to functions, modules often expect them as arguments to their functions.
+It's not difficult to use these functions though. If you want to pass a reference to an array instead of the array itself to a function, you just write for example
+<pre>dothis(\@a);</pre>
+<p>instead of
+<pre>dothis(@a);</pre>
+<p>The function "<tt>ref()</tt>" takes a reference as an argument, and returns a string "SCALAR", "ARRAY" or "HASH", if the reference points to a variable of such a type.
+<br>You could also call "<tt>ref(\@a)</tt>" to find out, if "<tt>@a</tt>" is an array, but you probably know already, because the sigil shows it.
+<p>It is also possible to take a reference on a function. As mentioned above, functions have this sigil "<tt>&amp;</tt>", so a reference to a function "<tt>wanted()</tt>" would be "<tt>\&amp;</tt>wanted". The function "<tt>find()</tt>" of the module "<tt>File::Find</tt>" expects such a reference to a function called "<tt>\&amp;</tt>wanted" as an argument. You can read more about this in "<tt>perldoc File::Find</tt>".
+<P>
+<HR>
+<h3><A NAME="17">17. Anonymous Arrays and Hashes. Arrays of Arrays (AoA), Hashes of Hashes (HoH)</A></h3>
+<p>The key to understanding these larger data structures are references. So please read the part about them first.
+<p>If you have an array "@a", then "@a" is the name of the array.
+<br>Suppose, you'd have an array without such a name. It would just look something like this: ("a", "b", "c"). Such an array exists in Perl, you just have to write it in square brackets: ["a", "b", "c"].
+<br>How can it be accessed? Well, with a reference pointing to it:
+<pre>my $aref = ["a", "b", "c"];
+print $aref-&gt;[1] . "\n";</pre> 
+<p>What is that good for? You can hold several of these anonymous arrays inside another array. That actually gives you multidimensional arrays (which you can't have otherwise in Perl).
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# A multidimensional array ("Array of Array"):
+my @a = (["First_one",  "First_two"],
+         ["Second_one", "Second_two"]);
+
+# Accessing single elements:
+print $a[0][1] . "\n";
+print $a[1][1] . "\n";
+
+print "\n";
+
+# If you want to loop through all elements, you have to
+# dereference the inner arrays:
+my ($i, $u);
+my @inner_array;
+for $i (@a) {
+    @inner_array = @{ $i };
+    for $u (@inner_array) {
+        print "$u\n";
+    }
+    # Or without the extra variable, like this:
+    for $u (@{ $i }) {
+        print "$u\n";
+    }
+}
+    
+print "\n";
+
+# A multidimensional hash ("Hash of Hash"):
+my %persons = ( nr1 =&gt; {name =&gt; "Bob",
+                        age  =&gt; 21},
+                nr2 =&gt; {name =&gt; "Richard",
+                        age  =&gt; 30} );
+
+print $persons{nr2}{name} . "\n";
+print "\n";
+
+# Output of the whole hash:
+for $i (keys(%persons)) {
+    for $u (keys(%{$persons{$i}})) {
+        print $persons{$i}{$u} . "\n";
+    }
+    print "\n";
+} 
+
+# As you see, this can get rather complicated and ugly quickly. 
+# To get an output of such data-structures in a more convenient way,
+# there's the module "Data::Dumper":
+
+use Data::Dumper;
+print Dumper(%persons);
+
+# Anonymous Hashes and Arrays can also be mixed (in every possible way,
+# actually):
+
+my %items = ( Bob     =&gt; ["House", "Car"],
+              Richard =&gt; ["Hut", "Bicycle"] );
+
+for $i (@{$items{Richard}}) {
+    print "$i\n";
+}
+print "\n";
+print Dumper(%items);</pre>
+<p>Maybe you can see, that it's not a big step from these larger data-structures to classes and objects anymore.
+<P>
+<HR>
+<h3><A NAME="18">18. Sorting "Lists of Lists" and Objects</A></h3>
+<p>Now we can add two more sorting methods used for larger data structures:
+<p>4. <u>Sorting "lists of lists" by an element inside one of the lists</u>:
+<pre>my @l = ([8, 2], [5, 1]);
+@l = sort {$a-&gt;[1] &lt;=&gt; $b-&gt;[1]} @l;
+
+# Output:
+my @inside_list;
+for my $i (@l) {
+   @inside_list = @{$i};
+   for my $u (@inside_list) {
+       print "$u\t";
+   }   
+   print "\n";
+}</pre>
+<p>This sorts by "element one" inside the lists, that is "2" and "1" here.
+<p>5. <u>Sorting lists of objects by an attribute inside the objects</u>:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+package ListElement {
+
+    sub new {
+        my $classname = shift;
+        my $self = {attribute =&gt; shift};
+        return bless($self, $classname);
+    }
+}
+
+sub printList {
+    my @l = @_;
+    for my $i (@l) {
+        print $i-&gt;{attribute} . "\n";
+    }
+    print "\n";
+}
+
+my @l = ();
+my @numbers = qw(3 2 5 7 1 8);
+my $i;
+my $le;
+for $i (@numbers) {
+    $le = ListElement-&gt;new($i);
+    push(@l, $le);
+} 
+printList(@l);
+
+@l = sort {$a-&gt;{attribute} &lt;=&gt; $b-&gt;{attribute}} @l;
+
+printList(@l);</pre>
+<P>
+<HR>
+<h3><A NAME="19">19. Object-Oriented Programming</A></h3>
+<p>Object-Oriented Programming in Perl is a topic of its own.
+<br>You can read about it on the next page of my little Perl series "<a href="perl2_oop.html">Perl Page #2: Object-Oriented Programming in Perl Made Easy</a>".
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<p><a href="index.html">Back to main-page</a>
+</body>
+</html>

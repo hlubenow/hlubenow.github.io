@@ -1,0 +1,621 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Perl,object,oriented,OOP,programming">
+   <meta name="Author" content="hlubenow2 {at-symbol} gmx.net">
+   <title>Perl Page #2: Object-Oriented Programming in Perl Made Easy</title>
+</head>
+<body>
+<H2>
+<img SRC="icopl.png" height=32 width=32>&nbsp;
+Perl Page #2: Object-Oriented Programming in Perl Made Easy</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.
+<p>Caution! This Text was written by a hobby-programmer for hobby-programmers, who want fast results in their Perl-scripts. 
+<br>The terminology of object-oriented programming may not have been used accurately enough for the needs of professional programmers or students of computer science, for example. 
+</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Introduction</A>
+<LI><A HREF="#2">Classes as Definitions of Containers</A>
+<LI><A HREF="#3">Instantiation of an Object</A>
+<LI><A HREF="#4">A first Example-Script</A>
+<LI><A HREF="#5">Passing of Arguments; Extension of the Example</A>
+<LI><A HREF="#6">Virtual Depiction of Real Life Items</A>
+<LI><A HREF="#7">Processing of Attributes</A>
+<LI><A HREF="#8">Hash-Syntax for Passing Arguments at Object-Instantiation</A>
+<LI><A HREF="#9">What "$self-&gt;{attribute}" really is</A>
+<LI><A HREF="#10">Arrays and Hashes as Attributes in a Class</A>
+<LI><A HREF="#11">Passing Objects to Functions</A>
+<LI><A HREF="#12">Inheritance</A>
+<LI><A HREF="#13">OOP-Syntax in Perl/Tk</A>
+<LI><A HREF="#14">Interaction of Objects and Class-Design</A>
+<LI><A HREF="#15">A Larger Example-Program</A>
+<LI><A HREF="#16">Further Reading</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. Introduction</A></h3>
+<p>Many programmers still seem to have difficulties using object-oriented programming (OOP) in Perl (Perl 5).
+<p>It's not that difficult though, if you know the purpose of all this, and when you concentrate on that purpose instead of getting lost in the details of the implementation.
+<p>The following text deals with Perl 5's built-in OOP. Some people use the module "Moose" instead, but this text is not about that.
+<p>Many programming-problems can be solved just with the following text. However, not all questions of OOP are covered, and maybe the terminology of object-oriented programming is not always used as accurately as it would be required for students of computer science, for example. 
+<br>Further reading would include "perldoc perlboot", "perldoc perltoot" or "perldoc perlootut".
+<br>There's also the book "Intermediate Perl" or its previous version "Learning Perl Objects, References, and Modules" (chapter 8 of this book seems to have been copied into "perldoc perlboot").
+<br>There's the even more detailed book "Object Oriented Perl".
+<HR>
+<h3><A NAME="2">2. Classes as Definitions of Containers</A></h3>
+<p>A class could be seen as a definition of a container, that holds variables and functions.
+<br>An Array, for example, is a container too, it can hold one or more variables (or in Perl 5 even other arrays or hashes).
+<p>Furthermore, a class can hold functions.
+<p>The variables inside a class are called "attributes", the functions inside a class are called "methods".
+<br>The main advantage is, that all attributes of the class are known inside the methods. They don't have to be passed to the methods as arguments.
+<HR>
+<h3><A NAME="3">3. Instantiation of an Object</A></h3>
+<p>Usually several arrays or hashes are used in a script.
+<br>Similarly, there can be several of these containers, whose contents are defined by a class. First, a class is defined, and then, there's an instruction in the script, that one of these containers, which are defined by the class, should be used now. 
+<br>After that instruction, the container is known inside the script under a given name. This kind of container is called "object", and, as mentioned above, several of these objects can be requested in a script. This process is called "instantiation": An object, that is an instance of the class, is requested.
+<HR>
+<h3><A NAME="4">4. A first Example-Script</A></h3>
+<p>So, how does a Perl-Script look like, in which a class is defined and in which an object of this class is instantiated afterwards? Here's an example:
+<pre>#!/usr/bin/perl
+
+# OOP-example-script 1
+
+use warnings;
+use strict;
+
+package Lamp;
+
+    sub new {
+        my $classname = shift;
+        my $self = {state =&gt; "off"};
+        return bless($self, $classname);
+    }
+
+    sub showState {
+        my $self = shift;
+        print $self-&gt;{state};
+        print "\n";
+    }
+
+package main;
+
+my $lamp = Lamp-&gt;new();
+$lamp-&gt;showState();</pre>
+<p>---
+<p>Please run the script once and notice (maybe with amazement), that it runs without complaints. 
+<p>How does it work? Step by step. The line:
+<pre>package Lamp;</pre>
+<p>is - for our purposes - the beginning of a class-definition, where the name of the class is "Lamp".
+<br>class-names usually start with a capital letter.
+<br>While writing the text of the methods inside a class, there should be indentations as shown, otherwise the script gets rather messy.
+<p>Every class has a method "<tt>new()</tt>". This method is called, when an object is instantiated.
+<br>We don't have to bother with the strange code in the method "<tt>new()</tt>" (I call it "class-magic"). In the end it means, when we call this method at object-instantiation, we get an object of the kind we want.
+<br>An exception is the line
+<pre>my $self = {state =&gt; "off"};</pre>
+<p>Inside the curly brackets, the attributes of the class are defined. Here's an attribute "state" with the value "off", for example.
+<p>After the method "<tt>new()</tt>", other methods of the class follow.
+<br>Here's a method "<tt>showState()</tt>".
+<br>Each method inside a class has "<tt>$self</tt>" as its first parameter. This is either expressed by this line at the beginning of the method:
+<pre>my $self = shift;</pre>
+<p>Or, if the method has several parameters, by a line like:
+<pre>my ($self, $second_parameter, $third_parameter) = @_;</pre>
+<p>With this "<tt>$self</tt>" as the first parameter, the method is declared as a part of the class, and that way, all the attributes of the classed are passed to the method.
+<br>Although the "<tt>shift()</tt>" in the line above means, that an argument is passed to the method, it is not the programmer, that passes this argument by calling the method. Instead, in this special case the argument "<tt>$self</tt>" is passed by an automatic mechanism.
+<p>
+<p>After that, the method can process the attributes. As shown, the attributes can be accessed with the syntax:
+<pre>$self-&gt;{state}</pre>
+<p>After the definition of the class is finished, either another class can be defined or the line
+<pre>package main;</pre>
+<p>takes the script back into its main namespace.
+<br>With the line
+<pre>my $lamp = Lamp-&gt;new();</pre>
+<p>an object of the class "Lamp" is instantiated. The method "new()" inside the class is called. After that, an object of the class "Lamp" can be accessed using the variable "$lamp".
+<p>With the line
+<pre>$lamp-&gt;showState();</pre>
+<p>the method "showState()" inside the $lamp-object is called. The code, that runs then, depends on the definition of this method inside the class "Lamp". So in this script, the value of the attribute "state" is printed.
+<p>By now, the following has been achieved:
+<ul>
+<li>A class has been defined, which has an attribute and a method.
+<li>An object of this class has been instantiated.
+<li>A method inside the object has been called.
+<li>The method can access all the attributes of the class.
+</ul>
+<p>Well, the syntax above is used in many Perl-books and -documents such as "perldoc perlobj".
+<br>But actually, a package can also be written inside curly brackets. That makes the code look much more like in other object-orientated languages such as C++ or Java. I'm gonna use the other syntax from now on:
+<pre>#!/usr/bin/perl
+
+# OOP-example-script 1
+
+use warnings;
+use strict;
+
+package Lamp {
+
+    sub new {
+        my $classname = shift;
+        my $self = {state =&gt; "off"};
+        return bless($self, $classname);
+    }
+
+    sub showState {
+        my $self = shift;
+        print $self-&gt;{state};
+        print "\n";
+    }
+}
+
+my $lamp = Lamp-&gt;new();
+$lamp-&gt;showState();</pre>
+<HR>
+<h3><A NAME="5">5. Passing of Arguments; Extension of the Example</A></h3>
+<p>Arguments can be passed to methods in classes, just like they would be passed to other (ordinary) functions.
+<br>This works also for the method "new()". By passing arguments to this method, objects with different attributes can be instantiated. 
+<p>Let's extend the "Lamp"-example a bit (similar to Weigend, Python ge-packt, second edition, 2005, S. 294 f.):
+<pre>#!/usr/bin/perl
+
+# OOP-example-script 2
+
+use warnings;
+use strict;
+
+package Lamp {
+
+    sub new {
+        my $classname = shift;
+        my $self = {name =&gt; shift,
+                    lightintensity =&gt; shift,
+                    state =&gt; "off"};
+        return bless($self, $classname);
+    }
+
+    sub switchOn {
+        my $self = shift;
+        $self-&gt;{state} = "on";
+        print "'" . $self-&gt;{name} . "' is on at " . $self-&gt;{lightintensity} . " Watt.\n";
+    }
+
+    sub switchOff {
+        my $self = shift;
+        $self-&gt;{state} = 0;
+        print "'" . $self-&gt;{name} . "' is off.\n";
+    }
+
+    sub newLightBulb {
+        my ($self, $light) = @_;
+        if ($self-&gt;{state} eq "on") {
+            print "Light bulb can not be changed. ";
+            print "First, '" . $self-&gt;{name} . "' has to be switched off.\n";
+        } else {
+            $self-&gt;{lightintensity} = $light;
+            print "Light bulb in '" . $self-&gt;{name} . "' has been changed. ";
+            print "The new bulb has $light Watt.\n";
+            $self-&gt;switchOn();
+        }
+    }
+}
+
+my $lamp1 = Lamp-&gt;new("First Lamp", 50);
+my $lamp2 = Lamp-&gt;new("Second Lamp", 40);
+$lamp1-&gt;switchOn();
+$lamp2-&gt;switchOn();
+$lamp2-&gt;newLightBulb(100);
+$lamp2-&gt;switchOff();
+$lamp2-&gt;newLightBulb(100);</pre>
+<p>---
+<p>There are two objects "$lamp1" und "$lamp2" here, which are both defined by the class "Lamp". While "$lamp1" has constantly 50 Watt, "$lamp2" is at first instantiated with the attribute "40 Watt", then the light intensity of "$lamp2" changes again by calling the method "newLightBulb()".
+<p>When the method "newLightBulb()" is called, an argument is passed to it, assigning a value to "$light" using the function "shift()" (which refers to the delivery-array "@_", if the function is called without arguments).
+"$light" is an ordinary variable here, which is only known inside this method, but not in the other methods of the class.
+<p>Inside methods, attributes can not only be read, but also be defined new, as shown for example in the line:
+<pre>$self-&gt;{state} = "on";</pre>
+<p>Furthermore, not only the attributes are known to the methods, but also the other methods of the class.
+For example, after the bulb has been changed, the method "newLightBulb()" calls the method "switchOn()" with the line
+<pre>$self-&gt;switchOn();</pre>
+<p>The method itself has called the other method, it wasn't called from outside.
+<p>Besides, methods can have return values, which are passed back with the keyword "return", just like other functions do.
+<HR>
+<h3><A NAME="6">6. Virtual Depiction of Real Life Items</A></h3>
+<p>The example-script above with the lamp ("OOP-example-script 2") shows, that objects, while holding variables and functions, are capable of depicting real life items inside a computer-program. That's especially, what makes object-oriented programming interesting for many people.
+In the example, certain properties of a real lamp, like its state (switched on/switched off), the light intensitiy of the bulb or the changing of the bulb are virtually represented.
+<p>The chapters above already show the basics of Perl's OOP. The rest of the text mainly covers certain details.
+<HR>
+<h3><A NAME="7">7. Processing of Attributes</A></h3>
+<p>As mentioned above, methods can access an attribute with the syntax
+<pre>$self-&gt;{attribute}</pre>
+<p>They can for example read its value or redefine it.
+<br>It's also possible to define the attribute inside the method for the first time. So this doesn't have to happen necessarily in "new()".
+<p>Attributes can also be defined in the method "new()" like this:
+<pre>...
+    sub new {
+        my $classname = shift;
+        my $self = {one  =&gt; 1};
+        $self-&gt;{two} = 2;
+        $self-&gt;{three} = 3;
+        return bless($self, $classname);
+    }
+...</pre>
+<HR>
+<h3><A NAME="8">8. Hash-Syntax for Passing Arguments at Object-Instantiation</A></h3>
+<p>A popular feature in OOP-scripts in Perl is to be able to pass pairs of values in hash-syntax ("key =&gt; value") to the method "new()" at object-instantiation and that default-values are defined in the class, if no values are passed.
+<br>This is achieved by extending the "class-magic" in the method "new()" as shown in the following example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# OOP-example-script 3
+
+package Lamp { 
+ 
+    sub new { 
+        my $classname = shift;
+        my $args = {@_}; 
+        my $self = { lightintensity =&gt; $args-&gt;{lightintensity} || 40,
+                     name     =&gt; $args-&gt;{name} || "Default lamp" }; 
+        return bless($self, $classname); 
+    }           
+
+    sub showLightIntensity {
+        my $self = shift;
+        print "'" . $self-&gt;{name} . "' has a light bulb with ";
+        print $self-&gt;{lightintensity} . " Watt.\n";
+    }
+}
+
+my $lamp = Lamp-&gt;new(lightintensity =&gt; 11);
+$lamp-&gt;showLightIntensity();</pre>
+<p><u>Note</u>: One thing to be kept in mind when using this construction is, that the expression
+<pre>this || that</pre>
+<p>evaluates to "<tt>that</tt>", if "<tt>this</tt>" is 0. So when you pass a light intensity of 0 to "<tt>-&gt;new()</tt>", the function will set the light intensity to the default value (which is 40 here). This may not be, what you wanted, and you have to take care of that yourself, if the problem is relevant to your program. Example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# OOP-example-script 3 (warning)
+
+package Lamp { 
+ 
+    sub new { 
+        my $classname = shift;
+        my $args = {@_}; 
+        if ($args-&gt;{lightintensity} == 0) {
+            print "\nWarning: Did you want 'lightintensity' == 0?\n\n";
+        }
+        my $self = { lightintensity =&gt; $args-&gt;{lightintensity} || 40,
+                     name     =&gt; $args-&gt;{name} || "Default lamp" }; 
+        return bless($self, $classname); 
+    }           
+
+    sub showLightIntensity {
+        my $self = shift;
+        print "'" . $self-&gt;{name} . "' has a light bulb with ";
+        print $self-&gt;{lightintensity} . " Watt.\n";
+    }
+}
+
+my $lamp = Lamp-&gt;new(lightintensity =&gt; 0);
+$lamp-&gt;showLightIntensity();</pre>
+<p>
+<HR>
+<h3><A NAME="9">9. What "$self-&gt;{attribute}" really is</A></h3>
+<p>As we've seen, attributes are stored in something, that is defined in the method "<tt>new()</tt>" with this line:
+<pre>my $self = {};</pre>
+<p>So what is that?
+In Perl, you can store the data of an array or a hash not only in a common named array or hash, like this:
+<pre>my @a = (10, 22);
+my %h = (a =&gt; 10, b =&gt; 20);</pre>
+<p>But to get a similar result, you can also store that data in an anonymous array or hash, and then point a reference to it:
+<pre>my $aref = [10, 22];
+my $href = {a =&gt; 10, b =&gt; 20};</pre>
+<p>As you can see, an anonymous array is indicated by square brackets [...].
+<br>And an anonymous hash is indicated by curly brackets {...}.
+<p>The data can then be accessed as shown here:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# Ordinary array:
+my @a = (10, 20);
+print $a[1] . "\n";
+
+# Anonymous array with array reference pointing to it:
+my $aref = [10, 20];
+print $aref-&gt;[1] . "\n";
+
+# Ordinary hash:
+my %h = (a =&gt; 10, b =&gt; 20);
+print $h{a} . "\n";
+
+# Anonymous hash with hash reference pointing to it:
+my $href = {a =&gt; 10, b =&gt; 20};
+print $href-&gt;{a} . "\n";
+
+# By the way: Number of elements minus 1:
+print $#a . "\n";
+print $#{$aref} . "\n";</pre>
+<p>So, the "<tt>$self</tt>" in classes is just that: A hash reference, pointing to an anonymous hash.
+<br>And the data inside that anonymous hash can be accessed through the reference.
+<p>
+<HR>
+<h3><A NAME="10">10. Arrays and Hashes as Attributes in a Class</A></h3>
+<p>Like in ordinary hashes, inside an anonymous hash not only scalar variables, but also other anonymous arrays and hashes can be stored. That's why you can also use that kind of data as attributes in a class.
+<p>Here's an example-script, how this can be done:
+<pre>#!/usr/bin/perl
+
+# OOP-example-script 4
+
+use warnings;
+use strict;
+
+package Bag {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        $self-&gt;{fruits} = ["Apple", "Banana"];
+        $self-&gt;{books} = {crime =&gt; "Christie",
+                          cooking =&gt; "Oliver"};
+        return bless($self, $classname);
+    }
+
+    sub showFruits {
+        my $self = shift;
+        my @fruits = @{$self-&gt;{fruits}};
+        my $i;
+        foreach $i (@fruits) {
+            print "$i\n";
+        }
+        print "\n";
+    }
+
+    sub showBooks {
+        my $self = shift;
+        print $self-&gt;{books}-&gt;{crime} . "\n";
+        print $self-&gt;{books}-&gt;{cooking} . "\n\n";
+        # Or:
+        my %books = %{$self-&gt;{books}};
+        my $i;
+        foreach $i (keys(%books)) {
+            print "$i\t" . $books{$i} . "\n";
+        }
+    }
+
+    sub defineThirdFruit {
+        my ($self, $thirdfruit) = @_;
+        $self-&gt;{fruits}[2] = $thirdfruit;
+        print $self-&gt;{fruits}[2] . "\n";
+    }
+
+    sub addBook {
+        my ($self, $category, $author) = @_;
+        $self-&gt;{books}{$category} = $author;
+        print $category . "\t" . $self-&gt;{books}{$category} . "\n";
+    }
+}
+
+my $bag = Bag-&gt;new();
+$bag-&gt;defineThirdFruit("Peach"); 
+$bag-&gt;addBook("psychology", "Freud");
+print "\n";
+$bag-&gt;showFruits();
+$bag-&gt;showBooks();</pre>
+<p>---
+<p>As shown in the methods "<tt>defineThirdFruit()</tt>" and "<tt>addBook()</tt>", the elements of (anonymous) arrays and hashes, that are attributes in a class, can be accessed using the following syntax:
+<pre>print $self-&gt;{fruits}[1] . "\n";
+
+print $self-&gt;{books}{crime} . "\n";</pre>
+<p>Actually, this is short for "<tt>$self-&gt;{fruits}-&gt;[1]</tt>" and "<tt>$self-&gt;{books}-&gt;{crime}</tt>".
+<br>And here's the explanation, what that is: As seen above, "<tt>$self</tt>" is a reference to an anonymous hash. This hash has a key called "<tt>fruits</tt>", and the corresponding value is an anonymous array. So "<tt>$self-&gt;{fruits}</tt>" is again a reference: A reference to the anonymous array inside the anonymous hash.
+<br>If this reference was called "<tt>$aref</tt>" instead of "<tt>$self-&gt;{fruits}</tt>", you'd have the same expression as in the chapter above, when accessing an element of the anonymous array:
+<pre>$aref-&gt;[1]</pre>
+<p>But because the reference is called "<tt>$self-&gt;{fruits}</tt>", you have this expression, when accessing an element of the anonymous array:
+<pre>$self-&gt;{fruits}-&gt;[1]</pre>
+<p>The same goes for hashes: If the hash reference was called "<tt>$href</tt>", you'd have "<tt>$href-&gt;{crime}</tt>", but as the reference is called "<tt>$self-&gt;{books}</tt>", it is "<tt>$self-&gt;{books}-&gt;{crime}</tt>".
+<hr width="30%">
+<p>When setting up a <tt>foreach</tt>-loop, you can't use references, because the <tt>foreach</tt>-loop only works on ordinary arrays.
+<br>That's why the array reference called "<tt>$self-&gt;{fruits}</tt>" has to be dereferenced, before the single array elements can be accessed in a loop. The method "<tt>showFruits()</tt>" demonstrates, how this can be done:
+<br>The term "<tt>@{...}</tt>" is put around the reference, and the result is assigned to an array-variable (here "<tt>@fruits</tt>"). So the whole dereferencing looks like this:
+<pre>my @fruits = @{$self-&gt;{fruits}};</pre>
+<p>After that, "<tt>@fruits</tt>" can be handled as an ordinary array and used in the <tt>foreach</tt>-loop.
+<p>In a similar way the hash-reference "<tt>$self-&gt;{books}</tt>" can be dereferenced, so that the elements of the hash can be accessed in the loop.
+<br>Like shown in the method "<tt>showBooks()</tt>, a hash is dereferenced by putting "<tt>%{...}</tt>" around the reference and assigning the result to a hash-variable (here "<tt>%books</tt>"). The whole dereferencing looks like this:
+<pre>my %books = %{$self-&gt;{books}};</pre>
+<p>After that, "<tt>%books</tt>" can be handled as an ordinary hash.
+<HR>
+<h3><A NAME="11">11. Passing Objects to Functions</A></h3>
+<p>Objects can be passed to functions easily without any problems.
+<p>That's a big advantage to other data-structures in Perl. You just pass the variable that is labeled with the name of the object to the function, and at once the object with all its attributes and methods can be accessed inside the function. Without having to dereference anything.
+If the data in your program is more complex, that's much clearer than passing references to larger "array of array" oder "hash of hash"-structures.
+Here's an example for passing an object:
+<pre>#!/usr/bin/perl
+
+# OOP-example-script 5
+
+use warnings;
+use strict;
+
+package Lamp {
+
+    sub new {
+        my $classname = shift;
+        my $self = {state =&gt; "off"};
+        return bless($self, $classname);
+    }
+
+    sub showState {
+        my $self = shift;
+        print $self-&gt;{state}. "\n";
+    }
+}
+
+sub showLampState {
+    my $l = shift;
+    $l-&gt;showState();
+}
+
+my $lamp = Lamp-&gt;new();
+showLampState($lamp);</pre>
+<p>---
+<p>In the same way, objects can also be passed to methods of other objects.
+<HR>
+<h3><A NAME="12">12. Inheritance</A></h3>
+<p>Suppose, you'd like to write a class, that's very similar to another class, that you've already written. Most attributes and methods are identical, the new class just differs in two or three methods. Then it would be useful, if the new class could just <b>take over</b> the other methods and attributes from the already existing class, so that in the new class you'd just have to write the differences between the classes.
+In OOP, this is achieved by socalled "inheritance". Here's an example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# OOP-example-script 6
+
+package Animal {
+
+    sub new {
+        my $classname = shift;
+        my $self  = {"name" =&gt; shift};
+        return bless($self, $classname);
+    }
+
+    sub startMoving {
+        my $self = shift;
+        print $self-&gt;{name} . " is walking.\n";
+    }
+
+    sub makeNoise {
+        my $self = shift;
+        print "Woof! Woof!\n";
+    }
+}
+
+package Cat {
+
+    use base 'Animal';
+
+    sub showName {
+        my $self = shift;
+        print $self-&gt;{'name'} . "\n";
+    }
+
+    sub makeNoise {
+        my $self = shift;
+        print "Meow!\n";
+    }
+}
+
+my $cat = Cat-&gt;new("Tibby");
+$cat-&gt;showName();
+$cat-&gt;startMoving();
+$cat-&gt;makeNoise();</pre>
+<p>---
+<p>With "use base ..." the child-class ("Cat") inherits all attributes and methods from the parent-class ("Animal"), here the attribute "name" and the methods "startMoving()" und "makeNoise()".
+<br>Obviously, at object-instantiation the argument "Tibby" is passed to the "new()"-method of "Animal" (which is a bit surprising to me).
+<br>The call "$cat-&gt;showName();" shows, that the "Cat"-object has inherited the attribute "name".
+<br>The method "makeNoise()" was inherited from "Animal", but was overwritten in "Cat" with another content.
+The call "$cat-&gt;makeNoise();" refers therefore to the overwritten method in the "Cat"-object.
+<p>Besides "use base ..." there's also "use parent ...". Furthermore there's an older construction of inheritance using the "@ISA"-array.
+If the syntax above isn't enough, further reading would be required. I haven't used inheritance that often yet.
+<HR>
+<h3><A NAME="13">13. OOP-Syntax in Perl/Tk</A></h3>
+<p>If you've become familiar with the above basics of Perl's traditional OOP, you'll also understand the syntax better, that is used in Perl-modules, written in OOP.
+Especially the commands, that are used in Perl/Tk to create graphical user-interfaces can be understood better.
+<br>A typical, minimal Perl/Tk-script (that creates a simple window with a tiny label "Hello") would look, for example, like this:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+my $mw = MainWindow-&gt;new();
+my $lab = $mw-&gt;Label(-text =&gt; "Hello");
+$lab-&gt;pack();
+$mw-&gt;MainLoop();</pre>
+<p>---
+<p>The Perl/Tk-commands use OOP-syntax. You could "catch" them without Tk with your own classes, and that way kind of emulate Tk without the functionality:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# OOP-example-script 7
+
+package MainWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        print "New MainWindow would have been created.\n";
+        return bless($self, $classname);
+    }
+
+    sub Label {
+        my $self = shift;
+        return Label-&gt;new(@_);
+    }
+
+    sub MainLoop {
+        my $self = shift;
+        print "Now the mainloop would run.\n";
+    }
+}
+
+package Label {
+
+    sub new {
+        my $classname = shift;
+        my $args = {@_}; 
+        my $self = { -text =&gt; $args-&gt;{-text} || "" };
+        print "New label-widget would have been created. ";
+        print "Its text would be '" . $self-&gt;{-text} . "'.\n";
+        return bless($self, $classname);
+    }
+
+    sub pack {
+        my $self = shift;
+        print "The label-widget would have been packed now.\n";
+    }
+}
+
+my $mw = MainWindow-&gt;new();
+my $lab = $mw-&gt;Label(-text =&gt; "Hello");
+$lab-&gt;pack();
+$mw-&gt;MainLoop();</pre>
+<p>---
+<p>So, if you know Perl's OOP, you'll also understand Perl/Tk (and other object-oriented modules) better.
+<HR>
+<h3><A NAME="14">14. Interaction of Objects and Class-Design</A></h3>
+<p>With OOP it is possible to write even large programs in Perl, that don't become a mess.
+<br>Typically, such a program is composed of several classes, while the main-namespace of the script just contains one or two commands: An object-instantiation and maybe a call to another method, that gets the program started.
+<br>The other objects are then instantiated inside the called class. This is called a "has a"-relation to these objects.
+<br>The art of OOP is to declare in a useful way, what the objects should represent and what the relations between the objects are. This is called "modelling" of classes, in a way it's almost like the work of a sculptor.
+<p>Classes should be enclosed in themselves. From outside, only methods should be called, but the attributes of a class shouldn't be accessed directly from outside. Objects can be understood as machines in software, that are "used" by other objects.
+If a person in the real world inserts a coin into a soft-drink machine, it just gets a drink. The user doesn't get in touch with the internal mechanisms of the machine. He doesn't know anything about it, and he doesn't have to know (and in this case that doesn't do any harm (- it may in other cases)).
+Objects should be just like that.
+<p>Objects should be enclosed in themselves, and they shouldn't know more about other object than they have to. It's not always easy, to keep that rule up. You're easily tempted to control the relations between several objects by a superior "all-knowing" object. Such a "God Object" should be avoided, if possible.
+<p>In large programs with graphical user-interfaces (GUI), it may be useful to separate the data-processing from the graphical representation of the data in several classes. This can be done with the concept called "Model View Controller (MVC)".
+<br>Ideally, with this it should be possible, to change the graphical Toolkit (like Tk, Gtk, Qt) by just changing the class "View". In real life, most programs only support one toolkit though.
+<P>
+<HR>
+<h3><A NAME="15">15. A Larger Example-Program</A></h3>
+<p>Here, at the end of the text, there's one more, a bit larger example-program. It shows several animated "Ball"-Objects in a graphical Tk-window:
+<p>
+<center><img SRC="tkballs.png" height=318 width=401></center>
+<p>Regarding object-oriented programming, only constructions were used, that have been explained in the text above.
+<br>The program can be found <a href="./tkballs.pl.txt">here</a>.
+<P>
+<HR>
+<h3><A NAME="16">16. Further Reading</A></h3>
+<p>My little series about Perl continues with "<a href="perl3_tk.html">Perl Page #3: Creating Window-Applications using Perl/Tk</a>".
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<br><center><a href="index.html">Back</a></center>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="C,Tips,Tipps,Tricks,Dennis,Ritchie,language,GNU,Compiler,gcc">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>Using gcc</title>
+</head>
+<body>
+<h2>Using gcc (the GNU C Compiler)</h2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">About gcc</A>
+<LI><A HREF="#2">Giving the Executable another Filename</A>
+<LI><A HREF="#3">Enabling Warnings</A>
+<LI><A HREF="#4">Setting the C-Dialect</A>
+<LI><A HREF="#5">Making the Executable Debuggable</A>
+<LI><A HREF="#6">Optimization of the Executable</A>
+<LI><A HREF="#7">Linking the Program against Libraries</A>
+<LI><A HREF="#8">Compilation from more than one Source-File</A>
+<LI><A HREF="#9">Using Object-Files for Compilation of Larger Applications</A>
+<LI><A HREF="#10">Writing a Makefile and Using "make"</A>
+<LI><A HREF="#11">Creating Shared Libraries for Linux Using "libtool"</A>
+<LI><A HREF="#12">A Short Example of Building Executables with "autoconf" and "automake"</A>
+<LI><A HREF="#13">Further Reading</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. About gcc</A></h3>
+<p><u>Preface (2021)</u>: This page was written many years ago.
+<p>"<a href="http://www.gnu.org/software/gcc/">gcc</a>" is the GNU project's open-source C-compiler.
+<p>It's freely available on Linux and also on Windows as part of the "<a href="http://en.wikipedia.org/wiki/MinGW">MinGW</a>"-project.
+<p>If you have some valid C-source-file called "hello.c" like:
+<pre>#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    puts("Hello World !");
+    return 0;
+}
+</pre>
+<p>you can run
+<pre>gcc hello.c</pre>
+<p>and gcc creates an executable called "a.out" in the current directory. On Linux, this can then be run doing
+<pre>./a.out</pre>
+<p>So far, so good.
+<P>
+<HR>
+<h3><A NAME="2">2. Giving the Executable another Filename</A></h3>
+<p>You can give the executable another filename than "a.out" with gcc's "-o"-option:
+<pre>gcc hello.c -o hello</pre>
+<P>
+<HR>
+<h3><A NAME="3">3. Enabling Warnings</A></h3>
+<p>If your code has severe mistakes, gcc aborts printing an error-message.
+<p>There may be other constructions in your code, gcc doesn't like very much, but don't make it abort. In this situation, gcc can print warnings, but this behaviour isn't enabled by default. You can use the "-Wall"-option to make gcc print warnings:
+<pre>gcc -Wall hello.c -o hello</pre>
+<p>You should write C-code in a way, gcc doesn't show warnings, so you should use "-Wall". Remember, what Brian W. Kernighan, one of the two authors of "The C Programming Language" said:
+<pre>Debugging is twice as hard as writing the code in the first place. Therefore, if you write
+the code as cleverly as possible, you are, by definition, not smart enough to debug it.</pre>
+<p>So you should leave as few mistakes for debugging as possible. "-Wall" helps finding some of them at compilation-time.
+<p>Additionally, you can use the "-Wextra"-option (previously just called "-W") for even more warnings:
+<pre>gcc -Wall -Wextra hello.c -o hello</pre>
+<P>
+<HR>
+<h3><A NAME="4">4. Setting the C-Dialect</A></h3>
+<p>Programming languages develop throughout the times. For C, the ANSI-committee has defined standards, what valid C-syntax is.
+<p>An often-used standard is ISO C90.
+<p>There is also ISO C99, but some of its new features haven't been received well by a lot of programmers, so several major compilers like "Microsoft Visual C++" or "Borland C++BuilderX" still don't support it.
+<p>In fact, gcc does support C99 to a certain extend (you can use the "-std=c99"-option for this), but if you want your code to be able to be compiled by the other compilers mentioned above as well, you should still write in ISO C90.
+<p>To make gcc check, if your code is ISO C90-compatible, you can use the option "-ansi -pedantic":
+<pre>gcc -Wall -Wextra -ansi -pedantic hello.c -o hello</pre>
+<P>
+<HR>
+<h3><A NAME="5">5. Making the Executable Debuggable</A></h3>
+<p>If you want to debug your program lateron, for example using "gdb", the GNU debugger, you need to write certain information into the executable at compilation-time, so gdb knows the source-code of your program for example.
+<p>gcc writes this information, if the "-g"-option is given:
+<pre>gcc -g -Wall -Wextra -ansi -pedantic hello.c -o hello</pre>
+<p>You can then run
+<pre>gdb hello</pre>
+<p>and type "list" there to see the result: gdb can print the source-code written into the executable.
+<P>
+<HR>
+<h3><A NAME="6">6. Optimization of the Executable</A></h3>
+<p>If your program runs fine and doesn't have any known bugs, you may want gcc to compile it to run even faster or to be smaller in size:
+<br>The gcc-options 
+<ul>
+<li>"-O1", "-O2" and "-O3" are used for more speed of the executable,
+<li>"-Os" is used for smaller executable-size.
+</ul>
+<P>
+<HR>
+<h3><A NAME="7">7. Linking the Program against Libraries</A></h3>
+<p>When you use the "#include"-directive, the program is linked against some library.
+<p>You can check the libraries used by an executable with the "ldd"-command. For example shows
+<pre>ldd ./hello</pre>
+<p>the libraries, an executable "hello" is linked against.
+<p>Some standard libraries like "libc.so.6" are recognized by "gcc" automatically. But the names of other libraries have to be passed to "gcc" manually.
+<br>If, for example, you want to use the math-library "libm.so.6" in a program "printsin.c", that prints the sinus of 45 degrees:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;
+
+int main(void)
+{
+    printf("%f\n", sin(45));
+    return 0;
+}</pre>
+<p>compilation with
+<pre>gcc -Wall -W -ansi -pedantic -o prsin printsin.c</pre>
+<p>doesn't work, because the math-library isn't found.
+You have to tell "gcc", that the program needs this library.
+<p>You can do that, using the "-l"-option:
+<p>Directly after the "-l", you have to pass the library-name: It's got to be just the part of the name between "lib" and ".so.6". So to link against "libm.so.6", it's just "-lm". Not more:
+<pre>gcc -Wall -W -ansi -pedantic -o prsin printsin.c -lm</pre>
+<p>compiles the program above.
+<p>When "-l" is used, "gcc" searches its default-path for the library.
+<br>Several directories like "/lib" and "/usr/lib" are in this path. That's why the compilation above already worked.
+<br>But you could ask "gcc" to search for a library in a certain other directory using the "-L"-option. Here's an example, but with "/usr/lib" again:
+<pre>gcc -Wall -W -ansi -pedantic -o prsin printsin.c -lm -L/usr/lib</pre>
+<p>To make "-L" work with any directory, you would have to do
+<pre>/sbin/ldconfig /path/to/my/directory</pre>
+<p>as "root" first to add the directory to the "ld-library-cache". Usually, this isn't necessary, because most libraries install themselves into default-directories, because they want to be found by programs.
+<p>Notice, that the options "-l" and "-L" have to be given <u>after</u> the file-names to compile (because they refer to the linking-process).
+<p>If you want to find out more about libraries, you can just read on or go straight <a href="#10">here</a>.
+<P>
+<HR>
+<h3><A NAME="8">8. Compilation from more than one Source-File</A></h3>
+<p>The code of larger C-programs is often separated into several source-files:
+<p>First, there is a ".c"-file containing the "main()"-function.
+<p>Then, there are one or more ".h"-files (header-file): In these file, there are the declarations of the program's functions and structs and also the "#define"-directives.
+<p>The ".c"-file with the "main()"-function contains "#include"-directives pointing to the ".h"-files, for example:
+<pre>#include "mine.h"</pre>
+<p>Notice, that quotation-marks are used in the "#include"-directive, if the header-file is in the same directory as the main ".c"-file.
+<br>If gcc shall search for the header-file in the default-path, the header-file's name is given in angle brackets ("&lt;&gt;") like in
+<pre>#include &lt;stdio.h&gt;</pre>
+<p>The functions declared in the ".h"-files are then written into ".c"-files with a name corresponding to that of the ".h"-files.
+<br>gcc has to be called with the names of the ".c"-files then.
+<p>Please take a look at this example with three files now (we are going to use this example for several purposes):
+<p>"hello.c" (1):
+<pre>#include &lt;stdio.h&gt;
+#include "mine.h"
+
+int main(void)
+{
+    puts(printhello());
+    return 0;
+}</pre>
+<p>"mine.h" (2):
+<pre>const char *printhello(void);</pre>
+<p>and "mine.c" (3):
+<pre>const char *printhello(void)
+{
+    return "Hello World !";
+}</pre>
+<p>These three files can be compiled together in a directory with
+<pre>gcc -Wall -Wextra -ansi -pedantic hello.c mine.c -o hello</pre>
+<P>
+<HR>
+<h3><A NAME="9">9. Using Object-Files for Compilation of Larger Applications</A></h3>
+<p>Compiling larger applications is rather time-consuming.
+So it would be rather painful, if the whole program had to be recompiled each time changes are made to only one or a few of many source-files.
+<p>Fortunately there's a solution for that: With the "-c"-option, gcc can produce ".o"-files (object-files) of ".c"-files.
+<p>".o"-files already contain machine-code, but they are not yet linked together to an executable.
+<p>So if you take the three files "hello.c", "mine.c" and "mine.h" from <a href="#8">above</a> and run
+<pre>gcc -c hello.c mine.c</pre>
+<p>on them, the files "hello.o" and "mine.o" are created.
+<p>If for example "hello.c" is changed during further development, "mine.o" can be used for the next compilation-process instead of "mine.c".
+<br>If there are a lot of ".c"-files, using ".o"-files instead makes compilation significantly faster.
+<P>
+<HR>
+<h3><A NAME="10">10. Writing a Makefile and Using "make"</A></h3>
+<p>04-19-2020
+<p>"make" is a GNU-tool for compiling larger applications. It reads in a file called "Makefile", that contains instructions in a certain format, and executes these instructions.
+<p>It would take too much time to recompile a whole project, when just small changes have been made to one or more source-files. Using "make" and a Makefile makes it possible, to just recompile the required files of a project. The rest of the project is relinked from already existing object-files (".o"), which contain previously compiled code. 
+<br>gcc's option "-c" makes it create just the ".o"-object-files. Another "<tt>gcc source.o</tt>" then creates the executable.
+<p>After reading the Makefile, "make" recognizes automatically, which source files have been changed and need recompiling, simply by checking the time signature of the source files (command "touch").
+<p>In a Makefile, you first declare what file should be compiled, followed by a colon. After the colon you declare the <b>object-files</b> (".o") that are needed to compile the executable.
+<br>In the next line, you press one "tab" (it has to be a "tab", four space characters won't work), then specify the "gcc"-command that is needed for compiling (including "<tt>-o [filename]</tt>").
+<p>You don't have to mention the header-files (".h") in the Makefile, because they are included in the source-files themselves.
+<br>Header-files contain the declarations of the used structures and functions. The declarations should be inside an "<tt>#ifndef</tt>-statement ("<tt>ifndef</tt>" for "if not defined"), to make sure, that the declarations are only imported once into the source-files: 
+<pre>#ifndef NAME
+#define NAME
+...
+...
+...
+#endif</pre>
+<p>Here's an example of a Makefile, two according ".c"-source-files and a ".h"-header-file.
+<pre>example: example1.o example2.o
+	gcc example1.o example2.o -o example
+
+clean:
+	rm ./*.o ./example</pre>
+<p>And the two according ".c"-files and the ".h"-file:
+<pre>#include &lt;stdio.h&gt;
+#include "example.h"
+
+/* example1.c */
+
+int main() {
+    int size = 10; 
+    int numbers[size];
+    int i;
+    for (i = 0; i &lt; size; i++) {
+        numbers[i] = i;
+    }
+    printIntArray(numbers, size);
+    int sum = sumNumbers(numbers, size);
+    printf("%d\n", sum);
+    return 0;
+}</pre>
+<p>---------------------------------------------------------
+<pre>#include &lt;stdio.h&gt;
+#include "example.h"
+
+/* example2.c */
+
+void printIntArray(int arr[], int size) {
+    int i;
+    printf("[");
+    for (i=0; i &lt; size; i++) {
+        printf("%d", arr[i]);
+        if (i &lt; size - 1) {
+            printf("%d", ", ");
+        }
+    }
+    printf("]\n");
+}
+
+int sumNumbers(int arr[], int size) {
+    int sum = 0;
+    int i;
+    for (i=0; i &lt; size; i++) {
+        sum += arr[i];
+    }
+    return sum;
+}</pre>
+<p>---------------------------------------------------------
+<pre>/* example.h */
+
+#ifndef EXAMPLE
+#define EXAMPLE
+
+void printIntArray(int arr[], int size);
+int sumNumbers(int arr[], int size);
+
+#endif</pre>
+<p>---------------------------------------------------------
+<p>This also works for C++. Here's the same example, translated to C++11:
+<pre>example: example1.o example2.o
+	g++ -std=c++11 example1.o example2.o -o example
+
+example1.o: example1.cpp
+	g++ -std=c++11 -c example1.cpp
+
+example2.o: example2.cpp
+	g++ -std=c++11 -c example2.cpp
+
+clean:
+	rm ./*.o ./example</pre>
+<p>---------------------------------------------------------
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include "example.h"
+
+// example1.cpp
+
+using namespace std;
+
+int main() {
+    
+    vector&lt;int&gt; numbers;
+    for (int i = 0; i &lt; 10; i++) {
+        numbers.push_back(i);
+    }
+    printIntVector(numbers);
+    int sum = sumNumbers(numbers);
+    cout &lt;&lt; sum &lt;&lt; endl;
+    return 0;
+}</pre>
+<p>---------------------------------------------------------
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include "example.h"
+
+// example2.cpp
+
+void printIntVector(vector&lt;int&gt; vec) {
+    int i;
+    int vecsize = vec.size();
+    cout &lt;&lt; "[";
+    for (i=0; i &lt; vecsize; i++) {
+        cout &lt;&lt; vec[i];
+        if (i &lt; vecsize - 1) {
+            cout &lt;&lt; ", ";
+        }
+    }
+    cout &lt;&lt; "]" &lt;&lt; endl;
+}
+
+int sumNumbers(vector&lt;int&gt; vec) {
+    int sum = 0;
+    for (auto i: vec) {
+        sum += i;
+    }
+    return sum;
+}
+</pre>
+<p>---------------------------------------------------------
+<pre>
+// example.h
+#ifndef EXAMPLE
+#define EXAMPLE
+
+using namespace std;
+
+void printIntVector(vector&lt;int&gt; vec);
+int sumNumbers(vector&lt;int&gt; vec);
+
+#endif
+</pre>
+<P>
+<HR>
+<h3><A NAME="11">11. Creating Shared Libraries for Linux Using "libtool"</A></h3>
+<p>With the just described usage of object-files, collections of functions can be created, that can be linked with several programs to executables.
+<p>One disadvantage of this way of reusing code is, that all functions of the object-file are linked into the executable at compilation-time.
+<br>If a program needs just one or a few of these functions, the size of the executable gets bigger than necessary.
+<p>To avoid this, programs can be linked against socalled libraries, that can be compiled from object-files (or directly from source-files).
+<br>There are:
+<ul>
+<li>"<a href="http://www.linux.org/docs/ldp/howto/Program-Library-HOWTO/static-libraries.html">Static libraries</a>" (".a"-files on Linux, "libm.a" for example): They are just one or more object-files, packed with the program "ar".
+<br>When a program is linked against such a "static library", the functions it uses are already known at compilation-time, so only this selection of functions is linked into the executable, making it smaller.
+<p>
+<li>"<a href="http://www.linux.org/docs/ldp/howto/Program-Library-HOWTO/shared-libraries.html">Shared libraries</a>" (".so"-files on Linux, for example "libc.so.6") (also called "<span style="color: blue">dynamically linked libraries</span>", ".DLL" on Windows):
+<br>The library-files stay separate from the executable, so the size of the executable stays small.
+The executable searches at runtime for the ".so"-file, loads it into memory, and calls the functions it needs from there.
+<br>If another program calls a function of this library too, it uses the library-copy that has already been loaded into memory. 
+<br>So memory-consumption is limited to just one copy of the library.
+</ul>
+<p>Especially shared libraries can also be used as socalled "<a href="http://www.linux.org/docs/ldp/howto/Program-Library-HOWTO/dl-libraries.html">dynamically loaded libraries</a>": That means, it is possible to implement into the main-program, when exactly the library shall be loaded into memory (see "man 3 dlopen" for details). 
+<p><u>Note</u>: Libraries contain already compiled code, so the library-developer can choose, if he wants to make the library's source-code available to the library-user (another programmer who wants to link his program against the library) or not.
+<hr width=50%>
+<p>So let's create a shared library for Linux from "mine.c", one of the three example-files "hello.c", "mine.c" and "mine.h" <a href="#8">above</a>, and then link "hello.c" against this library. What we're after is a library-file called "libmine.so.0".
+<p>It is possible to use "gcc" directly to create libraries, but it is quite difficult. Fortunately, there is a GNU shell-script (with over 7.000 lines of code) called
+<pre>libtool</pre>
+<p>that takes care of the complicated "gcc"-calls needed (see "info libtool" for its documentation).
+<p>So, having "hello.c", "mine.c" and "mine.h" in a directory, we do
+<pre>libtool --mode=compile gcc -c -Wall -W -ansi -pedantic mine.c</pre>
+<p>In the directory, the files "mine.o" and "mine.o" are created. Notice, doing
+<pre>ls -A</pre>
+<p>that a hidden directory called
+<pre>.libs</pre>
+<p>containing "mine.o" has also been created by "libtool".
+<p>Then we do
+<pre>libtool --mode=link gcc -Wall -W -ansi -pedantic -o libmine.la mine.lo -rpath /usr/lib</pre>
+<p>Now move to the ".libs"-directory ("cd .libs"): There you find several files with "libmine.so..." !
+<p>There are some more files in this directory, but we want to get rid of them, so do in the ".lib"-directory:
+<pre>rm libmine.a libmine.la libmine.lai mine.o</pre>
+<p>Ok, now only
+<pre>libmine.so
+libmine.so.0
+libmine.so.0.0.0</pre>
+<p>should be left there. Become "root" and copy those to "/usr/lib" ("cp * /usr/lib").
+<p>Become a normal user again and move back to the parent directory with "hello.c" in it. We only need "hello.c" and "mine.h" here now. So delete the rest doing
+<pre>rm -r .libs libmine.la mine.c mine.lo mine.o</pre>
+<p>Don't worry, that "mine.c" is deleted too, as you can always find its source-text <a href="#8">above</a> in this document.
+<p>Then we link "hello.c" agains our shared library "libmine.so.0" doing
+<pre>gcc -Wall -W -ansi -pedantic -o hello hello.c -lmine</pre>
+<p>The last option "-lmine" is also quite important. It has already been explained <a href="#7">above</a>.
+<p>Then our working executable "./hello" is created, that is linked against our library "libmine.so.0", as you can test with the "ldd"-command:
+<pre>ldd ./hello</pre>
+<p>After going through this example and testing the executable doing "./hello", you may want to delete the "mine"-library from your system again. To do that, do as "root":
+<pre>rm /usr/lib/libmine.so /usr/lib/libmine.so.0 /usr/lib/libmine.so.0.0.0</pre>
+<p>You could also place the library somewhere else than in "/usr/lib".
+To do that you would have to 
+<ul>
+<li>pass the directory's name with the "-rpath" option to the second "libtool"-invocation ("--mode=link") above and
+<li>run "/sbin/ldconfig" as root with the the directory's name as described <a href="#7">above</a>.
+</ul>
+<p>After that you could compile your executable with gcc's <a href="#7">"-l" and "-L"-options</a>.
+<br>But notice, that it wouldn't make much sense to install a shared library into a non-default-directory, because other programs on other systems may not find it then.
+<P>
+<HR>
+<h3><A NAME="12">12. A Short Example of Building Executables with "autoconf" and "automake"</A></h3>
+<p>Here's a short example of compiling <a href="#8">"hello.c", "mine.c" and "mine.h"</a>  with "autoconf" and "automake". If you have the three files in a directory, create the following two more files:
+<p>"Makefile.am" (1):
+<pre>bin_PROGRAMS = hello
+hello_SOURCES = hello.c mine.c</pre>
+<p>and "configure.in" (2):
+<pre>AC_INIT(hello.c)
+AM_INIT_AUTOMAKE(hello,0.1)
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_OUTPUT(Makefile)</pre>
+<p>Then, do:
+<pre>aclocal
+autoconf
+touch NEWS README AUTHORS ChangeLog
+automake -a</pre>
+<p>After that you can build the "hello"-executable with the commonly used commands:
+<pre>./configure
+make</pre>
+<P>
+<HR>
+<h3><A NAME="13">13. Further Reading</A></h3>
+<p>With the information provided here you should be able to understand <a href="https://www.gnu.org/software/autoconf/manual/autoconf.html">GNU's manual on development tools</a>.
+<br>&nbsp;
+<br><center><a href="index.html">Back</a></center>
+<hr width="70%">
+</body>
+</html>

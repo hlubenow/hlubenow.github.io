@@ -1,0 +1,1234 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="Pygame, Games, Python, Tutorial">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>Creating 2D Video Games with Pygame</title>
+</head>
+<body>
+<H2>
+Creating 2D Video Games with Pygame</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>
+<p>
+<p>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Introduction</A>
+<LI><A HREF="#2">Overview of a Video Games Program</A>
+<LI><A HREF="#3">Sprites</A>
+<LI><A HREF="#4">Transparent Pixels</A>
+<LI><A HREF="#5">How to Rebuild the Screen Each Frame to Create Animation</A>
+<LI><A HREF="#6">Python's "*args" mechanism</A>
+<LI><A HREF="#7">Keyboard and Joystick Input (Events)</A>
+<LI><A HREF="#8">Controlling the Speed</A>
+<LI><A HREF="#9">Collision Checks</A>
+<LI><A HREF="#10">The Game's Main Loop</A>
+<LI><A HREF="#11">Attribute "self.active" and Method "start"</A>
+<LI><A HREF="#12">A "Scene" (or "Level") Class</A>
+<LI><A HREF="#13">Sprite Class, Gamestate Class, Sprite-Initialization and an Example of it All</A>
+<LI><A HREF="#14">Plotting Huge Numbers of Pixels Using PixelArrays</A>
+<LI><A HREF="#15">Drawing Simple Shapes</A>
+<LI><A HREF="#16">Playing Effect Sounds (".wav")</A>
+<LI><A HREF="#17">Scrolling the Background</A>
+<LI><A HREF="#18">Physics Simulation with Pymunk</A>
+<LI><A HREF="#19">Further Pygame Tutorials</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. Introduction</A></h3>
+<p>Of all applications, video games have the highest requirements of the computer hardware.
+<br>It is also more difficult to write games than most other computer programs.
+<p>If you want to write a game in Python/Pygame, you should already know, how to write Python programs in general. You should know, how data processing with lists, dictionaries and functions work, and how to set up classes and objects. You should have a general idea of how input (from keyboard, joysticks or files) and output (to the screen, the soundcard or again to files) is done on a computer and how to make programs run as fast as possible.
+<br>You will have to set up a main loop, so it won't hurt, if you were already familiar with writing GUI-applications, because unlike console programs GUI-applications are also driven by a main loop.
+<br>And you should be prepared, that it's not so easy, to make funny looking objects on the screen behave exactly the way you want.
+<hr width=30%>
+<p>Pygame is a library (a set of modules), to write 2D video games in Python. Actually, 3D is also possible to a certain extent.
+<P>Pygame calls functions of the underlying C-library "SDL" (Simple Direct Layer).
+<br>For Perl, the modules "SDL", "SDL::Surface", "SDL::Events" and so on do something similar.
+<p>There is also another library called "SFML", which does similar things like "SDL". The documentation of SFML says, "You can think of it as an object oriented SDL". SFML can also be programmed in Python, using the bindings called "PySFML". To my surprise, PySFML is sometimes faster than Pygame, especially when it comes to rescaling images in real-time.
+<p>One advantage of Pygame over PySFML is, that it is easier to install and therefore more common. So it is easier to share a Python-script, that uses Pygame with others, than one, that uses PySFML. Not many people will know what SFML and PySFML is, so they probably haven't installed it.
+<p>In general, Python is not the fastest language. So speed may be an issue in Pygame-games sometimes. Pygame is probably not the choice of professional game programmers, they probably would write in C/C++ or even Assembly. Nevertheless often you can get decent results with Pygame too.
+<p>Also look for the directories "docs" and "examples" in the pygame-distribution. On my Linux-box, these directories were installed to:
+<pre>/usr/lib/python/site-packages/pygame/docs
+/usr/lib/python/site-packages/pygame/examples</pre>
+<p>This official documentation can be found online too, but it's good to have the examples directly available as scripts.
+<P>
+<HR>
+<h3><A NAME="2">2. Overview of a Video Games Program</A></h3>
+<p>What is needed in the program of a video game?
+<ul>
+<li>There has to be some window, into which graphics are drawn. The size of the window can be set. The pixel-resolution is defined by the system's resolution (?, needs checking).
+<p>
+<li>A background image is drawn into the window. The background can be changed. It is called "scrolling", if the whole background moves.
+<p>
+<li>On top of the background other objects are drawn. They can be moved around on the background. Such objects are called "sprites".
+<p>
+<li>To animate a sprite, an image is drawn at the sprite's position. In the next loop, the background is again drawn over the image, so the image is deleted. Then the image is redrawn again. Maybe, from loop to loop the image is also moved some pixels on the screen. If all of this is done quickly enough, there's the impression of movement.
+<p>
+<li>There are several sprites on the screen. It is checked, if they collide.
+<p>
+<li>The screen is updated in regular intervals. It would be more efficient, if you managed to update only the parts of the screen, that have changed. But in most cases you want to redraw the whole screen, starting with the background, then redrawing the sprites.
+<p>
+<li>In the program, there is an event loop. It processes events of input devices (keyboard, joysticks) and other events like sprite-collision.
+<br>The event loop works similar to loops of GUI-programs (graphical user interfaces), for example Tkinter-programs.
+<p>
+<li>There's a clock, that controls the overall speed of the program. It can also be used to measure time. Timers can be set, to raise events, processed by the event loop.
+<p>
+<li>A music mixer can be set up. Sounds can be loaded into memory and be played, when called by the event loop. Maybe some background music can also be played.
+</ul>
+<p>That's it, basically. There's a game logic, events from input devices, output onto the screen and to the soundcard.
+<p>Some more details about sprite animation:
+<br>Pygame uses socalled "surfaces". A surface is a rectangular area, onto which images are drawn. The size of the surface can be defined by the programmer. After the image is drawn, the surface is put over the background as a second layer. This is called "blitting", the term is
+<center>
+<pre>
+to blit.
+</pre>
+</center>
+<p>Which is an abbreviation of "Block Image Transfer".
+<p>It can be defined, where on the background the sprite surface shall be blitted.
+<br>As it's 2D, in the end the player doesn't notice, that there are several layers. To him, it looks like a single screen, where some action takes place.
+<br>The primary screen of the output window is represented by the "display"-object. It is also a surface. The game background can be drawn onto this screen, or a second surface can be layered above it (to separate the screen into areas for example). The surfaces of the sprites are then blitted onto the surface of the background.
+<P>
+<HR>
+<h3><A NAME="3">3. Sprites</A></h3>
+<p>For a sprite, you need a surface with the image, you want to show.
+<br>Pygame's Surface-class takes a tuple with the surface's size as its argument.
+<br>It is also useful to define a rectangle, the size of the surface, using the Rectangle-class. Arguments to this class are a tuple with the position coordinates and again a tuple with the surface's size.
+You can also use:
+<pre>rect = surface.get_rect()</pre>
+<p>But then, you have to define the position of the rectangle later (I think).
+<p>The rectangle then has attributes such as
+<pre>rect.size
+rect.topleft</pre>
+<p>for size and position of the rectangle (and therefore the sprite). "rect.size" is the same as "(rect.x, rect.y)".
+<br>You can draw the image you want to show onto the surface. It is also possible to load in jpg- or png-files for this purpose.
+<p>Up to now, some things were defined, but nothing is shown yet. That's why one tutorial said, sprites can be "spooky things that move but are not really there".
+<br>To draw the sprite, you have to blit them onto a visible surface, such as the screen:
+<pre>screen.blit(spritesurface, rect)</pre>
+<p>It would be possible to pass a tuple with the coordinates for the position, but it's better to use the rect for that.
+<p>At the beginning of the main loop (that is repeated many times each second), the main screen is either filled with a solid colour or with a background image. Then, you alter the position of the sprite's rect with "<tt>rect.x += 1</tt>", for example. Then you blit the sprite to the screen there. Then the main loop starts again. This is, how animation is done. Here's a minimal example (use Ctrl+c to break, there isn't event handling yet):
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+
+BLACK = (0, 0, 0)
+RED   = (255, 0, 0)
+
+pygame.init()
+screen = pygame.display.set_mode((800, 600))
+surface = pygame.Surface((20, 20))
+surface.fill(RED)
+rect = surface.get_rect()
+rect.topleft = (0, 300)
+while True:
+
+    # Clearing all sprites and rebuilding the screen:
+    screen.fill(BLACK)
+
+    if rect.x &lt; 600:
+        rect.x += 1
+    screen.blit(surface, rect)
+    pygame.display.flip()</pre>
+<p>It is also useful to put all of this into a Sprite object. The reason is, these Sprite objects can be put into groups (that is, added to Group objects). Often you want to check, if a sprite collides with one sprite of a group of other sprites (like a starship colliding with one of several asteroids or a ball colliding with one of several walls or bricks). Pygame comes with functions to do these kind of collision-checks for you, if you use classes, that inherit from Pygame's Sprite and Group classes.
+<br>To make this work, each Sprite object needs a variable "<tt>self.image</tt>", holding the sprite's surface (with its image drawn on top of it), and a variable "<tt>self.rect</tt>" to hold the rectangle with the sprite's coordinates.
+<br>Notice, that the sprite also exists at its position, when it's not drawn.
+<br>Usually, you just don't do a collision check on a sprite, that isn't visible at the moment.
+<p>It's intended, to inherit from the classes "Sprite" and "Group". You shouldn't just extend these classes a bit in classes like "MySprite" or "MyGroup". Instead you should create an extended Sprite and Group-class for every type of object on the screen. So there should be:
+<pre>class Alien(pygame.sprite.Sprite):
+...
+class AliensGroup(pygame.sprite.Group):
+...
+class Player(pygame.sprite.Sprite):
+...
+class PlayerGroup(pygame.sprite.Group):
+...
+class PlayerShot(pygame.sprite.Sprite):
+...
+class PlayerShotsGroup(pygame.sprite.Group):
+...</pre>
+<p>and so on. The "update"-methods can be used for the sprite movement. This already defines the structure of the game program.
+<p>Here's an example about it all. Unfortunately, a working example isn't that small (press 'q' to quit).
+It also requires some knowledge about inheritance in object orientated programming:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+from pygame.locals import *
+
+import os
+
+BLACK = (0, 0, 0)
+RED   = (255, 0, 0)
+GREY  = (127, 127, 127)
+
+class Main:
+
+    def __init__(self):
+
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "245, 40"
+        self.screen = pygame.display.set_mode((800, 600))
+        pygame.display.set_caption('Sprite Example')
+        pygame.init()
+        self.initSprites()
+        self.clock = pygame.time.Clock()
+        while True:
+            self.clock.tick(60)
+
+            # Clearing all sprites and rebuilding the screen:
+            self.screen.fill(BLACK)
+
+            if self.processEvents() == "quit":
+                return
+            self.player.checkCollisionWith(self.asteroids)
+            self.allSprites.update(self.screen, 1)
+            pygame.display.flip()
+
+    def processEvents(self):
+        pygame.event.pump()
+        pressed = pygame.key.get_pressed()
+        if pressed[K_q]:
+            quit()
+            return "quit"
+        return 0
+
+    def initSprites(self):
+        self.player = RoundShip(20, 20, 100, 306, RED)
+        self.asteroids = RoundAsteroidsGroup(RoundAsteroid(30, 30, 600, 100, GREY),
+                                             RoundAsteroid(30, 30, 500, 300, GREY))
+        self.allSprites = AllSpritesGroup(self.asteroids, self.player)
+
+class RoundShip(pygame.sprite.Sprite):
+
+    def __init__(self, width, height, x, y, colour):
+        pygame.sprite.Sprite.__init__(self)
+        self.surface = pygame.Surface((width, height))
+        pygame.draw.circle(self.surface, colour, (width // 2, height // 2), height // 2)
+        self.rect         = self.surface.get_rect()
+        self.rect.topleft = (x, y)
+        self.collided     = False
+
+    def checkCollisionWith(self, spritegroup):
+        if not self.collided:
+            if pygame.sprite.spritecollide(self, spritegroup, False):
+                print
+                print "Crash!"
+                print
+                self.collided = True
+
+    def update(self, screen, *args):
+        if not self.collided:
+            self.rect.x += args[0]
+        screen.blit(self.surface, self.rect)
+
+class RoundAsteroid(pygame.sprite.Sprite):
+
+    def __init__(self, width, height, x, y, colour):
+        pygame.sprite.Sprite.__init__(self)
+        self.surface = pygame.Surface((width, height))
+        pygame.draw.circle(self.surface, colour, (width // 2, height // 2), height // 2)
+        self.rect         = self.surface.get_rect()
+        self.rect.topleft = (x, y)
+
+    def update(self, screen, *args):
+        screen.blit(self.surface, self.rect)
+
+class RoundAsteroidsGroup(pygame.sprite.Group):
+
+    def __init__(self, *args):
+        pygame.sprite.Group.__init__(self, *args)
+
+    def update(self, screen):
+        for s in self.sprites():
+            s.update(screen)
+
+class AllSpritesGroup(pygame.sprite.Group):
+
+    def __init__(self, *args):
+        pygame.sprite.Group.__init__(self, *args)
+
+    def update(self, screen, *args):
+        for s in self.sprites():
+            s.update(screen, 1)
+
+if __name__ == '__main__':
+    Main()</pre>
+<p>Like Python dictionaries, Pygame Groups are not sorted. If you need a certain order of the sprites, define an attribute for it in the member's class. Then write a function using "group.sprites()" to get a list of the members. Then you can sort that list by the defined attribute. You know, like this:
+<pre>class MyObject:
+
+    def __init__(self, num):
+        self.num = num
+
+a = [MyObject(4), MyObject(1), MyObject(3), MyObject(2)]
+for i in a:
+    print i.num
+
+print
+
+# Sort list (in place) by object attribute:
+a.sort(key=lambda x: x.num, reverse=False)
+
+for i in a:
+    print i.num</pre>
+<br>If you tried to use ordinary lists instead of Pygame Groups, you'd have to write "<tt>for i in mygroup: ...</tt> " over and over again. Or you'd have to write your own "Groups" class, but that would be like reinventing the wheel.
+<br>It's a useful feature of Pygame Groups, that sprites can be automatically removed from them at collision. For example, in a Shoot'em up-game, when colliding with the player's shot, sprites can be removed from a group named "enemies_alive" and added to a group "enemies_explosions", that has different tasks (like showing an explosion).
+<P>
+<HR>
+<h3><A NAME="4">4. Transparent Pixels</A></h3>
+<p>Surfaces are in the shape of a rectangle. If they were fully drawn on top of each other, (usually black) borders would be visible. There are several methods to avoid that.
+<p>The first one is setting a "colorkey", like this:
+<pre>
+        LEFT_OUT_COLOR = (100, 100, 100)
+        self.surface = pygame.Surface((10, 10))
+        self.surface = self.surface.convert()
+        self.surface.set_colorkey(LEFT_OUT_COLOR)
+</pre>
+<p>After that, all pixels of that color are simply not blitted, when the surface is blitted onto the screen or onto another surface.
+<p>There's also the method "<tt>surface.convert_alpha()</tt>" instead of "<tt>.convert()</tt>, but I'm not so sure any more, what it does. I'll get back to that topic, when I have more information.
+<P>
+<HR>
+<h3><A NAME="5">5. How to Rebuild the Screen Each Frame to Create Animation</A></h3>
+<p>This is probably the most important chapter. Please read it carefully.
+<p>The main loop should rebuild the screen every frame.
+<p>So at the beginning of the main loop a background should be blitted onto the screen. The background is a Surface object. The surface can hold an image (loaded as jpg or png), or can be filled with a solid colour. The main class should hold the (pure) background surface in memory, to quickly blit it onto the screen at the beginning of the main loop.
+<pre>pygame.init()
+self.screen = pygame.display.set_mode((800, 600))
+self.background = pygame.Surface((800, 600))
+self.background.fill((200, 200, 200)) # white
+while True:
+    self.screen.blit(self.background, (0, 0))
+    ...
+    pygame.display.flip()</pre>
+<p>Now: The blit-method lets you define, on which surface to blit. You want your background to stay clean. So you should go on blitting the sprites onto the <b>screen</b>.
+<br>This is different from real life: When a painter puts a canvas in front of the wooden frame of an easel, he will paint onto the canvas. If he tried to paint on the wooden frame behind the canvas somehow, the paint wouldn't be visible on the canvas.
+<br>In Pygame on the other hand, when you blit a clean background onto the screen, and keep on blitting onto the screen afterwards, the blitted objects will be visible in front of the background. And won't smudge it. 
+<p>So that's how you build up your screen layer by layer in the main loop. And at the beginning of the next loop, it gets cleaned again by blitting the background on top again. And so on.
+<p>This should be the only blitting in the program. Don't try to blit or clean anything deep down in the subclasses.
+<p>Instead, this is what you should do:
+<ol>
+<li>Blit the background onto the screen, wiping its content (see above).
+<p>
+<li>Manage your sprites in groups, using two classes for each sprite, derived from the classes "pygame.sprite.Sprite" and "pygame.sprite.Group".
+<p>
+<li>Inside your sprite classes, use a Surface for the image called "self.image" and a Rect called "self.rect" for the sprite's position.
+<br>Use "<tt>self.rect.topleft = (100, 100)</tt>" to set the position of the sprite.
+<p>
+<li>From the main loop, call the group's "update" function, that calls the "update" functions of the sprites. The content of these functions has to be written by you. Use Python's "*args"-mechanism (described below) to manage different types of arguments, when the group calls the sprites' "update" functions.
+<br><b>Use the sprites' "update" functions to move "self.rect" to the positions, where you want the sprites to be shown</b>.
+<br>(This is a bit like a painter, who stands before his canvas and has the image, he wants to paint, already in mind, but hasn't painted anything yet.)
+<p>
+<li>After "update" has brought the sprites into position, call the group's "draw" function from the main loop. "draw" then blits the sprites to the screen.
+You can use a special group, that holds all the sprites. Ideally, the call
+<pre>self.allSprites.draw(self.screen)</pre>
+<p>should blit all the sprites of the program to the screen ("self.allSprites" being a group you defined, holding all your sprites). If "draw" doesn't do, what you wanted, rewrite it in your group class.
+<p>
+<li>Finally, call "pygame.display.flip()".
+</ol>
+<p>This should rebuild your screen each frame centralized from the main loop.
+<P>
+<HR>
+<h3><A NAME="6">6. Python's "*args" mechanism</A></h3>
+<p>In step 3 above, you should call the sprite group's "update" function. It then calls different "update" functions inside the sprite classes of its members. But what, if the sprites need different arguments to their "update" functions?
+<br>Then, "*args" can help. When you use "*args" as a function parameter, it takes, whatever arguments are passed to it, no matter, what type they are or how many of them there are. Inside the functions, the parameters can be accessed through "args", which is an ordinary Python list.
+<br>This example should make it clear:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+def takeDifferentArguments(*args):
+    print args[0]
+
+takeDifferentArguments(1, 2, 3)
+takeDifferentArguments(("x", 3), "Hello")</pre>
+<p>So you can pass a lot of different arguments with your call to the group's "update" function, and the sprites' "update" functions then can sort out, which of them they need.
+<P>
+<HR>
+<h3><A NAME="7">7. Keyboard and Joystick Input (Events)</A></h3>
+<p>What kind of keyboard I/O routine needs to be used in Pygame, depends on what kind of keyboard input you want to achieve:
+<ol type="a">
+<li>Getting just a single key press, and then wait, until the key is relased and another key is pressed (blocking I/O):
+<pre>for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+        pygame.quit()
+        return
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_q or if event.key == pygame.K_ESCAPE:
+            pygame.quit()
+            return
+        else:
+            return event.key
+</pre>
+<p>
+<li>Non-blocking keyboard input (method 1):
+<pre>pygame.event.pump()
+pressed = pygame.key.get_pressed()
+if pressed[K_q]:
+    pygame.quit()
+    return</pre>
+<p>
+<li>Non-blocking keyboard input with more control (method 2). A variable is set up, and it has to be checked each loop for "<tt>pygame.KEYDOWN</tt>" and "<tt>pygame.KEYUP</tt>" events:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+
+class Main:
+
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((800, 600))
+        self.keystates = {}
+        for i in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_q):
+            self.keystates[i] = False
+        self.running = True
+        while self.running:
+            if self.processEvents() == "quit":
+                self.running = False
+        pygame.quit()
+
+    def processEvents(self):
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                for i in self.keystates:
+                    if event.key == i:
+                        self.keystates[i] = True
+            if self.keystates[pygame.K_q]:
+                return "quit"
+
+            if event.type == pygame.KEYUP:
+                for i in self.keystates:
+                    if event.key == i:
+                        self.keystates[i] = False
+
+        # Same indentation level as "for event in ...":
+        for i in self.keystates:
+            if self.keystates[i]:
+                print i
+        return 0
+
+Main()</pre>
+<p>
+<li>
+<p>Getting text input from the keyboard in Pygame. Getting the ASCII code of a single letter at a time, and also recognizing 'shift' being pressed. In the calling function, the returned keycode can then be turned into a character using the "<tt>chr()</tt>" function:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+
+class Main:
+
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((800, 600))
+        self.running = True
+        while self.running:
+
+            result = self.getASCIICodeFromKeyboard()
+            if result["quit"]:
+                self.running = False
+
+            if result["keycode"] == pygame.K_LEFT:
+                print "Moved left."
+            elif result["keycode"] == pygame.K_RIGHT:
+                print "Moved right."
+            elif result["keycode"] == pygame.K_BACKSPACE:
+                print "'Backspace' pressed."
+            elif result["keycode"] == pygame.K_DELETE:
+                print "'Delete' key pressed."
+            elif result["keycode"] == pygame.K_HOME:
+                print "'Home' key pressed."
+            elif result["keycode"] == pygame.K_END:
+                print "'End' key pressed."
+            elif result["keycode"] == pygame.K_RETURN:
+                print "'Return' key pressed."
+            elif result["keycode"] == pygame.K_ESCAPE:
+                print "'Escape' key pressed."
+
+            elif result["keycode"] &gt; 31 and result["keycode"] &lt; 127:
+                print "'" + chr(result["keycode"]) + "' pressed."
+
+
+    def getASCIICodeFromKeyboard(self):
+
+        result = {"keycode" : 0, "quit": False}
+        shift_pressed  = False
+
+        if pygame.key.get_mods() &amp; (pygame.KMOD_SHIFT | pygame.KMOD_LSHIFT):
+            shift_pressed = True
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                result["quit"] = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    result["quit"] = True
+
+                a = event.key
+                # a-z to A-Z:
+                if event.key &gt;= 97 and event.key &lt;= 122 and shift_pressed:
+                    a -= 32
+                result["keycode"] = a
+
+        return result
+
+Main()</pre>
+</ol>
+<p>It is also possible to put events into the event queue yourself.
+<br>But when you want to do that, it may be a good idea to think of other ways to achieve what you want with just variables inside the main loop.
+<br>Anyway, "event.type" is just an integer. So you can get a suitable integer from pygame like this:
+<pre>my_etype = pygame.USEREVENT + 1</pre>
+<p>Then, you can get yourself an Event object
+<pre>my_event = pygame.event.Event(my_etype)</pre>
+<p>and throw it into the event queue:
+<pre>pygame.event.post(my_event)</pre>
+<p>When the loop reaches the construction above, the event is fetched from the queue, deleted from it and processed:
+<pre>for event in pygame.event.get():
+    if event.type == my_etype:
+        print "Event found."</pre>
+<p>The problem is, when you posted the event inside the loop, it will be posted each loop again. You have to set up a variable to take care of that, if you want the event to be processed only once. After you've set up that variable, you may realize, you don't need the event queue at all for your task.
+<p>If you want an event to be posted periodically into the queue - let's say once a second - there's another method:
+<pre>pygame.time.set_timer(my_etype, 1000)</pre>
+<p>You don't have to define an Event object and post it yourself then, the timer does it for you. The for-loop works just like above.
+<hr width="30%">
+<p>I can get simple input of my vintage Atari joystick (2 axes, one button) (connected to PC with a special DB9-parallel port interface) in Pygame like this:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+
+pygame.init()
+joystick = pygame.joystick.Joystick(0)
+joystick.init()
+joystickstate = {"left" : False, "right" : False, "up" : False, "down" : False}
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.JOYBUTTONDOWN:
+            print "Bang!"
+        if event.type == pygame.JOYAXISMOTION:
+
+            # Joystick pushed:
+            if event.axis == 0 and int(event.value) == -1:
+                joystickstate["left"] = True
+            if event.axis == 0 and int(event.value) == 1:
+                joystickstate["right"] = True
+            if event.axis == 1 and int(event.value) == -1:
+                joystickstate["up"] = True
+            if event.axis == 1 and int(event.value) == 1:
+                joystickstate["down"] = True
+
+            # Joystick released:
+            if event.axis == 0 and int(event.value) == 0:
+                joystickstate["left"] = False
+                joystickstate["right"] = False
+
+            if event.axis == 1 and int(event.value) == 0:
+                joystickstate["up"] = False
+                joystickstate["down"] = False
+
+    if joystickstate["left"]:
+        print "Going left."
+
+    if joystickstate["right"]:
+        print "Going right."
+
+    if joystickstate["up"]:
+        print "Going up."
+
+    if joystickstate["down"]:
+        print "Going down."</pre>
+<hr width="30%">
+<p>Here's the routine, I recently used to check the keyboard and the first joystick (working example):
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+
+JOYSTICK = True
+
+class Main:
+
+    def __init__(self):
+
+        self.keystates = {}
+        for i in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,
+                  pygame.K_q, pygame.K_ESCAPE):
+            self.keystates[i] = False
+
+        if JOYSTICK:
+            self.joystickstates = {}
+            for i in ("left", "right", "up", "down", "firing"):
+                self.joystickstates[i] = False
+
+        self.screen = pygame.display.set_mode((800, 600))
+        pygame.init()
+
+        if JOYSTICK:
+            self.joystick = pygame.joystick.Joystick(0)
+            self.joystick.init()
+        self.player = Player()
+        self.clock = pygame.time.Clock()
+
+        while True:
+            self.clock.tick(50)
+            if self.processEvents() == "quit":
+                print "Bye."
+                break
+            self.screen.fill((75, 75, 75))
+            pygame.display.flip()
+        pygame.quit()
+
+    def processEvents(self):
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.KEYDOWN:
+                for i in self.keystates:
+                    if event.key == i:
+                        self.keystates[i] = True
+
+            if event.type == pygame.KEYUP:
+                for i in self.keystates:
+                    if event.key == i:
+                        self.keystates[i] = False
+
+            if JOYSTICK:
+
+                if event.type == pygame.JOYBUTTONDOWN:
+                    self.joystickstates["firing"] = True
+
+                if event.type == pygame.JOYBUTTONUP:
+                    self.joystickstates["firing"] = False
+
+                if event.type == pygame.JOYAXISMOTION:
+
+                    # Joystick pushed:
+                    if event.axis == 0 and int(event.value) == -1:
+                        self.joystickstates["left"] = True
+                    if event.axis == 0 and int(event.value) == 1:
+                        self.joystickstates["right"] = True
+                    if event.axis == 1 and int(event.value) == -1:
+                        self.joystickstates["up"] = True
+                    if event.axis == 1 and int(event.value) == 1:
+                        self.joystickstates["down"] = True
+
+                    # Joystick released:
+                    if event.axis == 0 and int(event.value) == 0:
+                        self.joystickstates["left"] = False
+                        self.joystickstates["right"] = False
+
+                    if event.axis == 1 and int(event.value) == 0:
+                        self.joystickstates["up"] = False
+                        self.joystickstates["down"] = False
+
+        # Same indentation level as "for event in pygame.event.get()":
+        if self.keystates[pygame.K_q] or self.keystates[pygame.K_ESCAPE]:
+            return "quit"
+        if self.keystates[pygame.K_LEFT]:
+            self.player.move("left")
+        if self.keystates[pygame.K_RIGHT]:
+            self.player.move("right")
+        if self.keystates[pygame.K_UP]:
+            self.player.move("up")
+        if self.keystates[pygame.K_DOWN]:
+            self.player.move("down")
+
+        if JOYSTICK:
+            if self.joystickstates["firing"]:
+                self.player.firing()
+            # In the original, direction names were a bit different,
+            # otherwise I probably would have used a for-loop:
+            if self.joystickstates["left"]:
+                self.player.move("left")
+            if self.joystickstates["right"]:
+                self.player.move("right")
+            if self.joystickstates["up"]:
+                self.player.move("up")
+            if self.joystickstates["down"]:
+                self.player.move("down")
+
+        return 0
+
+class Player:
+
+    def __init__(self):
+        pass
+
+    def move(self, movement):
+
+        print movement
+
+        if movement == "left":
+            pass
+        if movement == "right":
+            pass
+        if movement == "up":
+            pass
+        if movement == "down":
+            pass
+
+    def firing(self):
+        print "fire"
+
+Main()</pre>
+<P>
+<HR>
+<h3><A NAME="8">8. Controlling the Speed</A></h3>
+<p>The general speed of the application is controlled by the clock like this:
+<pre>self.clock = pygame.time.Clock()
+while True:
+    self.clock.tick(60)
+    ...</pre>
+<p>This limits the game to 60 frames per second (fps).
+<br>That's good, but it's not enough. Because some objects on the screen are supposed to move faster (or slower) than others.
+<br>The function "<tt>pygame.time.get_ticks()</tt>" returns the number of milliseconds that have passed, since the application started. With this, you can set up a delay time in a certain function like this:
+<pre>#!/usr/bin/python
+import pygame
+...
+SPEEDSETTING = 50
+...
+self.starship = Spaceship(delaytime = SPEEDSETTING * 2)
+
+# Main loop:
+while True:
+    self.timer = pygame.time.get_ticks()
+    # Mainloop's timer is passed to the parameter "currenttime" of the class' update method:
+    self.starship.move(currenttime = self.timer)
+    self.starship.update(self.screen)
+    pygame.display.flip()
+
+class Spaceship(pygame.sprite.Sprite):
+
+    def __init__(self, delaytime):
+        pygame.sprite.Sprite.__init__(self)
+        # The class has its own timer, that is different from main loop's timer:
+        self.timer        = pygame.time.get_ticks()
+        self.delaytime    = delaytime
+        self.surface      = pygame.Surface((100, 100))
+        self.rect         = self.surface.get_rect()
+        self.rect.topleft = (100, 100)
+
+    def move(self, currenttime):
+
+        if currenttime - self.timer &le; self.delaytime:
+            return
+
+        # Doing something slowed down:
+        self.rect.x += 1
+        ...
+        # This line is necessary at the end to make it work:
+        # Originally it was : self.timer += self.delaytime
+        # but I think the following is correct:
+        self.timer = currenttime
+
+    def update(self, surface):
+        surface.blit(self.surface, self.rect)</pre>
+<p>In the documents about this, I originally found, that the last line should be
+<pre>        self.timer += self.delaytime</pre>
+<p>but now I think, that's not sufficient, but has to be
+<pre>        self.timer = currenttime</pre>
+<p>So the timer of the class is updated by the timer of the main loop, each time the delaytime has been reached.
+<p>It's a good idea to use a global variable, to which all "<tt>self.delaytime</tt>" variables relate, like "<tt>SPEEDSETTING</tt>" in the example above. This way, the speed of all objects can be set in relation to one global application speed.
+<p>As "<tt>pygame.time.get_ticks()</tt>" works on the basis of milliseconds, using this method should even make the game run at the same speed on different computers with different processor capabilities.
+<br>That's pretty cool, and that method of controlling the objects' speed is something you need to fully master, if you want to successfully write games in Pygame.
+<p>You can print the "fps-rate" ("frames per second") with:
+<pre>print self.clock.get_fps()</pre>
+<p>Sometimes, you can also just count down a variable, and when it's zero, take the sprite from a group using "group.remove(sprite)". When all sprites in the group are drawn in the main loop, but this sprite has been removed, it is not drawn anymore.
+<br>Well, if you remove the sprite from the group of all sprites, and it respawns later, it's kind of difficult to get it back into that group (as the sprite itself doesn't know groups, it's not member of any more).
+<P>
+<HR>
+<h3><A NAME="9">9. Collision Checks</A></h3>
+<ol>
+<li>
+<p>To check, if two sprites collide, you can use:
+<pre>if pygame.sprite.collide_rect(sprite1, sprite2):
+    ...</pre>
+<p>Remember, that the forms of the sprites are not limited to an 8x8 matrix.
+<br>Instead, if you have a sprite of let's say a "lasershot" with a size of just 2x8 pixels, the rectangle collision check in Pygame is rather precise.
+<p>That's all fine and useful, but often, you still want more.
+<li>To check, if a sprites collides with any member of a sprite group, you can do:
+<pre>hit_list = pygame.sprite.spritecollide(sprite, group, False)</pre>
+<p>"hit_list" is a list of the sprites in the group, that collided with the given sprite. You can then check, if it's empty and so on.
+<br>If you set the last argument to the function to "<tt>True</tt>", the collided sprites in the groups are removed from all their groups. Probably, they're then also not drawn any more, and that may be what you want. You can add them then to a special sprite group of "bodies" or "explosions" to show an explosion for some time. Set a counter, and if it's at zero, remove the sprites from the "explosions" group too.
+<li>To check, if any member of a sprite group collides with any member of a second sprite group, you can do:
+<pre>hit_dictionary = pygame.sprite.groupcollide(group1, group2, False, False)</pre>
+<p>"hit_dictionary" is a dictionary with the collided sprites of group1 as keys, and the collided sprites of group2 as values.
+<br>The bool arguments to the function again define, if collided sprites are automatically removed from their groups.
+</ol>
+<p>It is a good idea, to do collision checks in a function in the main class. It has access to all required sprites and groups.
+<P>
+<HR>
+<h3><A NAME="10">10. The Game's Main Loop</A></h3>
+<p>Probably the most difficult part of writing games is keeping in mind, what the game loop will do, when it reaches the code.
+<p>When writing simple procedural code like
+<pre>a = 1
+print a</pre>
+<p>each line is processed one by one, then the program ends. This doesn't work in (window-) programs with GUIs ("Graphical User Interfaces") though, because several things have to be taken care of at once: User-input has to be checked, buttons need to wait for user-action, the windows and their contents have to be displayed and so on.
+<br>It's just the same with games:
+<ul>
+<li>Sprite movement,
+<li>sprite changes,
+<li>collision checks,
+<li>background changes,
+<li>screen update,
+<li>sound,
+<li>user input,
+<li>calculations:
+</ul>
+<p>Everything has to be processed simultaneously. 
+<br>Therefore, a main loop is used. But in games, the loop is even more difficult to handle than in GUI-programs. The later provide socalled "widgets" (like a button), that wait for the user, and when they are activated (clicked, for example), functions defined by the programmer are called.
+<br>But games just use an ordinary loop like
+<pre>while True:
+    ...</pre>
+<p>that runs through every function automatically all the time. If it's one time around, it is called a "frame", I guess. There can be 40 or 50 frames per second (fps), for example.
+<br>So when you write a function of a game, you have to keep in mind, that it won't just be called when you want it, but also thousands of times per seconds, when you don't want it.
+<br>So instead of explicitely calling a function once like in procedural or in GUI-programs, the loop of a game enters the functions automatically, and you have to prevent it from executing their code, if you don't want that.
+<br>This is be done by setting up a lot of variables.
+<p>It all becomes easier, when you write one class for every object on the screen (inherited by "pygame.sprite.Sprite"), and set up the main loop as described <a href="#4">above</a>. Then you know, that the loop enters the functions "update" and "draw" once each frame. And the conditions, when the loop shall not enter the functions but move on, are all handled inside the class.
+<br>Preventing the main loop from executing certain functions can then also be achieved, by simply removing a sprite from a certain group.
+<P>
+<HR>
+<h3><A NAME="11">11. Attribute "self.active" and Method "start"</A></h3>
+<p>It seems, I often use the attribute "self.active" and a method "start" in my classes for sprites.
+<p>This situation occurs, when a sprite isn't shown right from the start of the level, but lateron during the game. For example, when the player shoots.
+<br>The method "start" is useful, to give the sprite its initial position. Also the attribute "self.active" can be set to "True" there.
+<p>The method "start" can be called from the main class, but only once at certain events, that is, when the sprite is to appear.
+<br>Afterwards, the main loop calls the function "update" continously, that is once per frame. You can then block it from the function by checking the "self.active" variable. Further down in the function, there can be the condition to set it inactive:
+<pre>def update(self):
+    if not self.active:
+        return
+    ...
+    if ... :
+        self.active = False</pre>
+<p>But "self.active" can also be set inactive by other events like a collision.
+<p>This is not part of the Pygame documentation, this is just how I do it. But it seems to me, it could be some kind of a more general concept.
+<P>
+<HR>
+<h3><A NAME="12">12. A "Scene" (or "Level") Class</A></h3>
+<p>In the short examples of the pygame documentation, at some time there's just the main loop like:
+<pre>while True:
+....</pre>
+<p>But what, if you have more than one level or game screens (which is, what most games have)? Then still the functions for the levels still have to be called somehow from that main loop.
+<p>In smaller games this can be done like this:
+<pre>mainScreen = True
+startGame = False
+gameOver = False
+
+while True:
+
+    if mainScreen:
+        ...
+        if ... :
+            startGame = True
+            mainScreen = False
+
+    elif startGame:
+        ...
+        if ... :
+            startGame = False
+            gameOver = True
+
+    elif gameOver:
+        ...</pre>
+<p>I have to admit, that looks quite clean.
+<br>But maybe you could create a class for each level. So the main loop remains like above, but at this highest level it just calls "run"-methods of several classes (one for each scenery or game level) and processes a return value of each class.
+So I suggest something like this:
+<pre>class Main:
+
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((800, 600))
+        self.scenes = []
+            self.append(Scene1(self.screen, ...))
+            self.append(Scene2(self.screen, ...))
+            self.append(Scene3(self.screen, ...))
+        self.running = True
+
+        # Main loop:
+        while self.running:
+            res = self.scenes[0].run()
+            if res == "quit":
+                self.running = False
+            res = self.scenes[1].run()
+            ...
+
+class Scene1:
+
+    def __init__(self, screen):
+        self.screen = screen
+        self.scene_finished = False
+        while not self.scene_finished:
+            res = self.processEvents()
+            if res in ("quit", "go_on"):
+                return res
+            ...
+            pygame.display.flip()
+        return "go_on"
+
+    def processEvents(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+            pygame.quit()
+            return "quit"
+            if event.type == pygame.KEYDOWN:
+                ...
+        return 0
+
+class Scene2:
+
+    def __init__(self, screen):
+        self.screen = screen
+        self.scene_finished = False
+        while not self.scene_finished:
+            res = self.processEvents()
+            if res in ("quit", "go_on"):
+                return res
+            ...
+            pygame.display.flip()
+        if ... :
+            return "game_won"
+        else:
+            return "game_over"
+
+    def processEvents(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+            pygame.quit()
+            return "quit"
+            if event.type == pygame.KEYDOWN:
+                ...
+        return 0
+...</pre>
+<p>That way, each scene is completely separated and can have completely different settings. The main loop always stays inside the current scene object.
+The programmer can concentrate on that scene and doesn't have to worry about the main loop wandering around somewhere else.
+<p>On the other hand, some things have to be repeated in the Scene-classes, "initSprites" for example. Also make sure, you pass the clock object of the Main class to the Scene classes and call "self.clock.tick(FPS)" in the loop of the scene classes again.
+<P>
+<HR>
+<h3><A NAME="13">13. Sprite Class, Gamestate Class, Sprite-Initialization and an Example of it All</A></h3>
+<p>When you create sprites in Pygame, you're supposed to inherit from Pygame's "Sprite" class. But you still have to write a lot of functionality yourself. So it's probably a good idea to write a general Sprite class of your own, from which your other, more specific sprite classes inherit.
+<br>Such a general class should have the following features:
+<ul>
+<li>Hold the surface currently to be displayed to show the sprite.
+<li>Hold the rectangle (pygame.Rect) according to the surface, to represent its current position on the screen.
+<li>Make it possible to move the sprite to a certain position on the screen.
+<li>Hold a list of several surfaces for animation. So the current surface can be selected from that list.
+<li>Hold a function "<tt>self.update()</tt>", which makes it possible to blit the current surface to the main screen (or to another surface).
+<li>Take basic care of the timing, by holding "<tt>self.timer</tt>", "<tt>self.delaytime</tt>" and "<tt>self.resetTimer()</tt>".
+<li>Store the initial position of the sprite, so it can be reset to its initial settings.
+</ul>
+<p>An example of such a class and how it may be used in the larger context of a program is shown below.
+<p>In the example, there will also be a class "<tt>Gamestate</tt>". It is useful to store game related variables, like how many quests the player has accomplished and how many lives are left. It can also hold a variable "<tt>self.state</tt>", to store, in which state the game is in. That is, which level the game is running, or if it already shows the "Game Over" screen. This variable can be used in the main loop to control, which game screen is shown.
+<br>Once per frame, early in the main loop, a function "<tt>self.checkGamestate()</tt>" should be called to check conditions, if this variable has to be changed, so that the game displays a different game screen.
+<p>The function "<tt>self.initSprites()</tt>" should be called only once, before the main loop. It should generate all sprites used in the game before the game starts. So all sprites exist from the beginning, but only the ones used in the current level (or game screen) are blitted to the screen.
+To restart a level - for example, when the player has died, but has another life - all sprites of the level are reset to their initial positions and states. It's better to reuse the same sprites, that were created in the beginning, than to recreate the sprites, each time the level is restarted. Because that would cost more time and memory, so it wouldn't be good programming practice.
+<br>Reusing the same sprites also means, that you must not remove them from all groups, when they are not needed any more in the level. Because when the level is restarted, they are needed again. So you have to collect the unused sprites in special groups, that can be called "DestroyedStarshipsGroup" for example. When the level is restarted, they can then be reactivated, by removing them from these groups and adding them to the ordinary groups (like "StarshipsGroup") again.
+<p>So here's an example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+from pygame.locals import *
+
+FPS          = 60
+SPEEDSETTING = 75
+
+class MySprite(pygame.sprite.Sprite):
+
+    def __init__(self, name, spritenr, delaytime, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.name           = name
+        self.spritenr       = spritenr
+        self.surfaces       = self.createSurfaces()
+        self.surfaceind     = 0
+        self.timer          = pygame.time.get_ticks()
+        self.delaytime      = delaytime
+        self.init_position  = (x, y)
+        self.moveTo(x, y, 0)
+
+    def reset(self):
+        self.moveTo(self.init_position[0], self.init_position[1], 0)
+        self.resetTimer()
+
+    def resetTimer(self):
+        self.timer = pygame.time.get_ticks()
+
+    def changeSurface(self, surfaceind):
+        self.moveTo(self.rect.left, self.rect.top, surfaceind)
+
+    def moveTo(self, x, y, surfaceind):
+        self.surfaceind   = surfaceind
+        self.surface      = self.surfaces[self.surfaceind]
+        self.rect         = self.surface.get_rect()
+        self.rect.topleft = (x, y)
+
+    def update(self, surface):
+        surface.blit(self.surface, self.rect)
+
+    def createSurfaces(self):
+        # Load images and put them on surfaces.
+        # Then put these into a list:
+        surfaces = []
+        surface = pygame.image.load(...)
+        # Don't forget this important step:
+        surface = surface.convert_alpha()
+        surfaces.append(surface)
+        return surfaces
+
+
+class Starship(MySprite):
+
+    def __init__(self, imagedata, name, spritenr, delaytime, x, y):
+        MySprite.__init__(self, imagedata, name, spritenr, delaytime, x, y)
+        self.x = x
+        self.y = y
+
+    def move(self, keystates, currenttime):
+
+        if currenttime - self.timer &le; self.delaytime:
+            return
+
+        if keystates[K_LEFT]:
+            self.move_left()
+
+        if keystates[K_RIGHT]:
+            self.move_right()
+
+        self.timer += self.delaytime
+
+    def move_left(self):
+        self.x -= 1
+        self.moveTo(self.x, self.y, self.surfaceind)
+
+    def move_right(self):
+        ....
+
+
+class StarshipsGroup(pygame.sprite.Group):
+
+    def __init__(self, *args):
+        pygame.sprite.Group.__init__(self, *args)
+
+    def update(self, surface):
+        for s in self.sprites():
+            s.update(surface)
+
+
+class Gamestate:
+
+    def __init__(self):
+        self.state = "level_1"
+
+class Main:
+
+    def __init__(self):
+        pygame.init()
+        self.screen    = pygame.display.set_mode( ... )
+        self.clock     = pygame.time.Clock()
+        self.running   = True
+        self.gamestate = Gamestate()
+        self.keystates = {K_LEFT : False, K_RIGHT: False}
+        self.initSprites()
+
+        while self.running:
+            self.clock.tick(FPS)
+            self.timer = pygame.time.get_ticks()
+
+            self.checkGamestate()
+
+            # Changes "self.keystates":
+            self.processEvents()
+
+            if self.gamestate.state == "intro":
+                ....
+
+            if self.gamestate.state == "level_1":
+                self.starship.move(self.keystates, self.timer)
+                self.starships.update(self.screen)
+                pygame.display.flip()
+
+            if self.gamestate.state == "game_over":
+                ....
+
+        # Main loop over:
+        pygame.quit()
+
+    def initSprites(self):
+
+        self.starship = Starship("apollo", 1, SPEEDSETTING, 100, 100)
+        self.starships = StarshipsGroup()
+        self.starships.add(self.starship)
+
+    def checkGamestate(self):
+        # Checks conditions for changing "self.gamestate.state".
+        ....
+
+    def processEvents(self):
+        for event in pygame.event.get():
+            ....</pre>
+<p>If this makes sense to you, you already have an idea, how to program in Pygame.
+<P>
+<HR>
+<h3><A NAME="14">14. Plotting Huge Numbers of Pixels Using PixelArrays</A></h3>
+<p>With screen resolutions like "1920x1080", today's pixels are extremely small.
+<br>Of course you can calculate and plot little squares of n x n pixels, that you can see as one point then.
+<br>It probably wouldn't be fast enough to plot whole sceneries for a game. But you can plot on pygame Surfaces at initializiation and use these surfaces in sprites.
+This can be done like this:
+<pre>...
+surface = pygame.Surface((20, 30))
+pxarray = pygame.PixelArray(surface)
+black = (0, 0, 0)
+for i in range(0, 20):
+    pxarray[i][i] = black
+del pxarray
+...</pre>
+<p>The PixelArray-object is designed to quickly plot a huge number of pixels onto the surface (for rendering mathematical graphs and such). Therefore it locks the surface while plotting. 
+To unlock the surface (for blitting and so on), you have to delete the PixelArray-object (with "del pxarray"), when plotting is finished. In recent Pygame you call "pxarray.close()" instead.
+<p>If you want to plot in larger pixels, in squares of 3x3 for example to get an Amiga-type resolution, you should consider (instead of using a PixelArray) making a 3x3-surface, filling it in a color with "<tt>.fill()</tt>" and moving it around with its according Rect-object.
+<P>
+<HR>
+<h3><A NAME="15">15. Drawing Simple Shapes</A></h3>
+<p>If you just want to draw simple shapes like lines, circles, polygons and such, you don't have to create a PixelArray.
+For example, if you want to simulate lower resolutions and want to use small rectangles as low-res pixels, you can just use the routines to draw rectangles.
+<br>Here's an example what can be done by drawing lines:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+from pygame.locals import *
+import os
+
+BLACK = (0, 0, 0)
+WHITE = (200, 200, 200)
+
+pygame.init()
+os.environ['SDL_VIDEO_WINDOW_POS'] = "240, 40"
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Some Lines")
+clock = pygame.time.Clock()
+
+surface      = pygame.Surface((800, 600))
+rect         = surface.get_rect()
+rect.topleft = (0, 0)
+linesize     = 1
+
+for i in range(100, 550, 10):
+    pygame.draw.line(surface, WHITE, (160, i + 50), (475 - i + 100, 0), linesize)
+    pygame.draw.line(surface, WHITE, (475 - i + 100, 0), (640, 600 - i), linesize)
+    pygame.draw.line(surface, WHITE, (640, 600 - i), (i + 160, 600), linesize)
+    pygame.draw.line(surface, WHITE, (i + 160, 600), (160, i + 50), linesize)
+
+while True:
+    clock.tick(60)
+    pygame.event.pump()
+    pressed = pygame.key.get_pressed()
+    if pressed[K_q]:
+        pygame.quit()
+        break
+    screen.fill(BLACK)
+    screen.blit(surface, rect)
+    pygame.display.flip()</pre>
+<p>Sometimes it's also possible to use the "<tt>fill</tt>"-method combined with a "Rect"-object for drawing rectangles onto a surface. That may even be faster than "<tt>pygame.draw.rect()</tt>".
+<P>
+<HR>
+<h3><A NAME="16">16. Playing Effect Sounds (".wav")</A></h3>
+<p>Playing ".wav"-files as effect sounds in Pygame, is relatively straightforward.
+<br>When initializing the game, create a hash "<tt>self.sounds</tt>" once, and fill it with pygame.mixer.Sound objects:
+<pre>self.sounds = {}
+self.sounds["crash"] = pygame.mixer.Sound("filename_for_crash.wav")</pre>
+<p>Remember, not to do the initialization repeatedly, especially not in the main loop (which would be executed like 50 times per second, which would be really bad).
+<p>When an event occurs in the main loop, so that the sound should be heard, just use the Sound objects "<tt>.play()</tt>" method:
+<pre>if event:
+    self.sounds["crash"].play()</pre>
+<p>Easy. In earlier versions of Pygame, you maybe must have initialized the mixer object first, but that does "<tt>pygame.init()</tt>" for you now.
+<br>What you should do just before "<tt>pygame.init()</tt>", is to set a reasonable sound buffer size. If the sound buffer is too small, you'll get unpleasant crackling noises. If it's too big, you'll get "latency", that means, all sounds are played with an audible delay.
+The following command would set the sound buffer to 512K (<i>or is it bytes?</i>), which is quite small. But it's ok, if your sound files are rather small (like mono beeping noises of 8-bit computers for example):
+<pre>pygame.mixer.pre_init(44100, -16, 1, 512)
+pygame.init()</pre>
+<P>
+<HR>
+<h3><A NAME="17">17. Scrolling the Background</A></h3>
+<p>In 2D games, often the background is scrolled, while the player avatar is animated on a spot, giving the illusion of movement.
+<br>That is quite a nice effect, that is found in many classic games such as "River Raid" or "Dropzone" on the Atari 800 XL. Or "Giana Sisters", "Turrican", "Hybris", "Silkworm" or "Katakis" on the Amiga 500.
+<p>To make the background scroll, there has to be a scenery, that is larger than the screen. And a smaller, visible part of the scenery. This part is usually called a "viewport".
+<p>In Pygame, the key to achieve smooth scrolling of the background is in my opinion the possibility to pass a third argument to the "<tt>.blit()</tt>" function of surfaces. That third argument defines, what area of a surface is blitted. So the corresponding code would look something like this:
+<pre>
+    self.screen         = ...
+    self.scenerysurface = pygame.Surface((8192, 1024))
+    self.arearect       = pygame.Rect((1024, 0), (640, 480))
+    self.screen.blit(self.scenerysurface, (0, 0), self.arearect)
+</pre>
+<p>That would blit just a part of 640x480 pixels of the whole scenery surface to the main screen at position (0, 0). The blitted pixels are located in the scenery surface at position (1024, 0).
+<br>By moving the area rectangle:
+<pre>
+    self.arearect.topleft = (1664, 0)
+</pre>
+<p>and blitting just the selected part of the scenery surface to the main screen, the scrolling of the background is created.
+<p>The scenery surface, that is much larger than the visible screen, can be prepared once before the main loop starts. After that, it mustn't be changed. Just parts of it have to be extracted like shown above and blitted to the main screen. Other objects, like for example the player avatar, have to be blitted onto the main screen afterwards. Not onto the scenery surface.
+<p>To show in practice, how this can be done, I wrote an example script. But as it's a bit too large for this site, I put it onto <a href="https://github.com/hlubenow/pygame_experiments/tree/main/scrolling_background.py">my Github page</a>. I put several smaller Pygame scripts into one Github project called "pygame_experiments", so to get the example script, you'd have to download the whole package (as a .zip-file) on the <a href="https://github.com/hlubenow/pygame_experiments">main project page</a>. Click on the green "Code" button and select "Download ZIP". Don't worry, the file's not big, it just contains a few small Python scripts.
+<P>
+<HR>
+<h3><A NAME="18">18. Physics Simulation with Pymunk</A></h3>
+<p>There's a library which makes the simulation of physics (like for example gravity) in a video game easier. It is called "Pymunk" (as it's based on the library "Chipmunk").
+Here's an example from a tutorial:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import pygame
+from pygame.locals import *
+import pymunk
+import pymunk.pygame_util
+import os
+
+GRAY = (220, 220, 220)
+
+os.environ['SDL_VIDEO_WINDOW_POS'] = "300, 200"
+pygame.init()
+screen = pygame.display.set_mode((640, 240))
+pygame.display.set_caption("Bouncing Ball")
+clock = pygame.time.Clock()
+draw_options = pymunk.pygame_util.DrawOptions(screen)
+
+space = pymunk.Space()
+space.gravity = (0, -900)
+
+b0 = space.static_body
+segment = pymunk.Segment(b0, (0, 0), (640, 0), 4)
+segment.elasticity = 1
+
+body = pymunk.Body(mass = 1, moment = 10)
+body.position = (300, 200)
+
+circle = pymunk.Circle(body, radius = 30)
+circle.elasticity = 0.95
+space.add(body, circle, segment)
+clock = pygame.time.Clock()
+
+while True:
+    clock.tick(60)
+    pygame.event.pump()
+    pressed = pygame.key.get_pressed()
+    if pressed[K_q]:
+        pygame.quit()
+        break
+    screen.fill(GRAY)
+    space.debug_draw(draw_options)
+    pygame.display.flip()
+    space.step(0.01)</pre>
+<P>
+<HR>
+<h3><A NAME="19">19. Further Pygame Tutorials</A></h3>
+<p>
+<ul>
+<li><a href="https://www.youtube.com/c/DaFluffyPotato/videos">DaFluffyPotato's Youtube Channel</a> (has video tutorials on many advanced Pygame subjects) 
+</ul>
+<hr width=70%>
+<br><center><a href="index.html">Back to the main page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>

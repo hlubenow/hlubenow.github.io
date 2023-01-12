@@ -1,0 +1,289 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Perl,object,oriented,OOP,programming">
+   <meta name="Author" content="hlubenow2 {at-symbol} gmx.net">
+   <title>Perl Page #4: Programming Patterns</title>
+</head>
+<body>
+<H2>
+<img SRC="icopl.png" height=32 width=32>&nbsp;
+Perl Page #4: Programming Patterns
+</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.
+</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Page Description</A>
+<LI><A HREF="#2">Declaring Multiple Variables in One Line</A>
+<LI><A HREF="#3">Using "qw()" to quickly build Lists</A>
+<LI><A HREF="#4">Cycling through the Element-Numbers of a List</A>
+<LI><A HREF="#5">Check, if a String Contains Only Digits</A>
+<LI><A HREF="#6">Contents and Length of the List "@ARGV"</A>
+<LI><A HREF="#7">Using the shift-Function to Access the Arguments inside Functions</A>
+<LI><A HREF="#8">Passing Lists or Hashes to Functions as References</A>
+<LI><A HREF="#9">Multi-Line Comments</A>
+<LI><A HREF="#10">Handling Longer Strings. Socalled "Here-Documents"</A>
+<LI><A HREF="#11">Variables inside Regular Expressions: \Q and \E </A>
+<LI><A HREF="#12">"__DATA__" or "__END__"</A>
+<LI><A HREF="#13">sort, lc and uc don't work in place</A>
+<LI><A HREF="#14">Data::Dumper</A>
+<LI><A HREF="#15">Further Reading</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. Page Description</A></h3>
+<p>This site lists recurring questions and patterns, when programming Perl, especially in an object-oriented way as described on my other page.
+<br>It addresses people who already know the basics of Perl-programming.
+<P>
+<HR>
+<h3><A NAME="2">2. Declaring Multiple Variables in One Line</A></h3>
+<p>If you want to declare multiple "my"-variables in one line, separate them with commata and put round brackets around them:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my ($i, $u, @a, @b);</pre>
+<p>If you want to declare global variables, use this line:
+<pre>use vars qw($i $u @a @b);</pre>
+<P>
+<HR>
+<h3><A NAME="3">3. Using "qw()" to quickly build Lists</A></h3>
+<p>You can use the qw-operator to quickly build a list from elements. The elements have to be written without quotation marks and have to be separated by space characters:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my @a = qw(Hello good World);
+for my $i (@a) {
+    print "$i\n";
+}</pre>
+<P>
+<HR>
+<h3><A NAME="4">4. Cycling through the Element-Numbers of a List</A></h3>
+<p>To cycle through the element-numbers of a list, you can use this pattern:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my @a = qw(Hello good World);
+for my $i (0 .. $#a) {
+    print "$i \t $a[$i] \n";
+}</pre>
+<p>Notice, that "<tt>$#a</tt>" is the "number of elements of @a minus 1". For whatever reason they build that into Perl.
+<P>
+<HR>
+<h3><A NAME="5">5. Check, if a String Contains Only Digits</A></h3>
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $a = "214314";
+
+if ($a =~ /\D/) {
+    print "Contains something else than digits.\n";
+} else {
+    print "Only digits. String contains a number.\n";
+}</pre>
+<P>
+<HR>
+<h3><A NAME="6">6. Contents and Length of the List "@ARGV"</A></h3>
+<p>"@ARGV" is the list, that contains the options, passed to the Perl-script on the command-line.
+<p>"@ARGV" doesn't contain the name of the script as the first element (as Python's "sys.argv" does). Therefore, "$#ARGV" is -1, if the user didn't pass any option to the script.
+<P>
+<HR>
+<h3><A NAME="7">7. Using the shift-Function to Access the Arguments inside Functions</A></h3>
+<p>In Perl, there are five functions to add elements to lists or withdraw elements from them:
+<ol>
+<li>push: Adds an element at the end of the list.
+<li>pop: Withdraws an element at the end of the list and returns it.
+<li>shift: Withdraws an element at the beginning of the list and returns it.
+<li>unshift: Adds an element at the beginning of the list.
+<li>splice: Manipulates elements inside the list.
+</ol>
+<p>When you call a function, in Perl all arguments are automatically passed in a single list called "@_":
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+sub myFunction {
+    for my $i (@_) {
+        print "$i\n";
+    }
+}
+
+myFunction("Hello", "World");</pre>
+<p>If you want to assign variable-names to the arguments, you have to get them from this special array. If the shift-function is called without any parameter, Perl assumes, that the array "@_" is meant. So you can extract the arguments inside the function like this:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+sub myFunction {
+    # Short for "my $a = shift(@_);":
+    my $a = shift;
+    my $b = shift;
+    print "$a\n";
+    print "$b\n";
+}
+
+myFunction("Hello", "World");</pre>
+<P>
+<HR>
+<h3><A NAME="8">8. Passing Lists or Hashes to Functions as References</A></h3>
+<p>At first sight, the mechanism explained above makes it difficult to pass scalar variables and lists or hashes to functions at the same time.
+<br>If you know, that the first element of "@_" represents a scalar variable, and the rest of "@_" represents a list, you could shift the first element of "@_" away and assign the rest to a list-variable.
+<p>But there's a more elegant solution: You can pass references to lists or hashes to the function and dereference them in a single line. Here's an example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+sub myFunction {
+    my $a = shift;
+    my @b = @{shift(@_)};
+    for my $i (@b) {
+        print "$i\n";
+    }
+}
+my $a = "test";
+my @b = ("Hello", "World");
+myFunction($a, \@b);</pre>
+<p>The line of the dereferencing
+<pre>my @b = @{shift(@_)};</pre>
+<p>may look a bit ugly, but it's rather straight-forward:
+<br>"shift(@_)" extracts the list-reference from "@_", then "@{listref}" dereferences it. The variable "@b" is assigned to the resulting list.
+<P>
+<HR>
+<h3><A NAME="9">9. Multi-Line Comments</A></h3>
+<p>The best practice for creating multi-line comments is probably this one:
+<pre>=begin comment
+
+    This is a comment, that is longer than one line.
+    Such comments are for example used to describe
+    the features of a program at the beginning of the code.
+
+=end comment
+
+=cut</pre>
+<P>
+<HR>
+<h3><A NAME="10">10. Handling Longer Strings. Socalled "Here-Documents"</A></h3>
+<p>It may be useful to put longer strings, that contain a lot of quotation marks, inside q() or qq().
+<br>q( ... ) is similar to ' ... ',
+<br>qq( ... ) is similar to " ... ".
+<br>Example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $string = qq(This is one of Perl's features for long strings.
+The string is longer than one line and contains "quotation marks".
+But you don't need to write backslashes in front of them.
+If you use qq(), there also is \t interpolation.\n);
+
+print $string;</pre>
+<p>You can also use socalled "here-documents" in Perl.
+<br>To do that, you define a variable with "&lt;&lt;" and then a sequence of characters, like "END_MESSAGE" or "HERE" for example. After that, the following characters are defined as a string, which ends at another occurrence of the defined sequence of characters:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $message = &lt;&lt;'END_MESSAGE';
+This is another string,
+that is longer than one line.
+END_MESSAGE
+     
+print $message;</pre>
+<p>For comments, it still may be best to use "<tt>#</tt>" before each line.
+<P>
+<HR>
+<h3><A NAME="11">11. Variables inside Regular Expressions: \Q and \E </A></h3>
+<p>You can use scalar variables within regular expressions.
+<br>But if you just use something like
+<pre>if ($a =~ /$b/) {...}</pre>
+<p>variable <tt>$b</tt> will be interpolated. That means, if <tt>$b</tt> contains characters, that have a special meaning in regular expressions (such as "*", "." or "!") they will be interpreted with that meaning. 
+<br>That may not be, what you want, if you literally want to search for "Hello, there!" for example. To suppress the interpolation of <tt>$b</tt>, you have to put it between "\Q" and "\E" inside the regular expressions (which may seem a bit strange at first, but you'll get used to it). Here's an example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $a = "House";
+my $b = "^H";
+
+if ($a =~ /$b/) {
+    print "String starts with a \"H\".\n";
+}
+
+if ($a =~ /\Q$b\E/) {
+    print "'^H' found in string.\n";
+} else {
+    print "Substring '^H' not found in string.\n";
+}</pre>
+<P>
+<HR>
+<h3><A NAME="12">12. "__DATA__" or "__END__"</A></h3>
+<p>Text after the word "__DATA__" or the word "__END__" is ignored as Perl-code (so that the words indicate the end of the actual script), but can be read in as data, using the built-in filehandle called "DATA":
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my @a = &lt;DATA&gt;;
+for my $i (@a) {
+    print $i;
+}
+close(DATA);
+
+__END__
+This is one of Perl's features for data, such as long strings.
+The data consists of several lines, that can be read into a list.
+It can be processed afterwards.</pre>
+<P>
+<HR>
+<h3><A NAME="13">13. sort, lc and uc don't work in place</A></h3>
+<p>Functions like sort, lc (lowercase) and uc (uppercase) don't work in place. So you have to reassign the variable like in:
+<pre>@a = sort(@a);</pre>
+<P>
+<HR>
+<h3><A NAME="14">14. Data::Dumper</A></h3>
+<p>The module "Data::Dumper" is used to print the contents of more complex data-structures, such as "Lists of Lists", "Hashes of Hashes" (HoH) and such:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Data::Dumper;
+
+my %h = ( a =&gt; ["z", "x", "y"],
+          b =&gt; "test",
+          c =&gt; { d =&gt; 1,
+                 e =&gt; 2,
+                 f =&gt; 3 } );
+
+print Dumper(\%h);</pre>
+<p>"Dumper" is imported into the script's namespace. It is called with a reference to the variable to be printed (otherwise it would see the parts inside the variable as separated variables).
+<p>"Data::Dumper" can also be used to print the contents of objects.
+<P>
+<HR>
+<h3><A NAME="15">15. Further Reading</A></h3>
+<p>My little series about Perl continues with "<a href="perl5_tricks.html">Perl Page #5: Tips and Tricks</a>".
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<br><center><a href="index.html">Back</a></center>
+</body>
+</html>

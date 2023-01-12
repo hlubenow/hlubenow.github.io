@@ -1,0 +1,625 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Perl,objektorientiert,OOP,Programmierung">
+   <meta name="Author" content="hlubenow2 {at-symbol} gmx.net">
+   <title>Perl Seite #2: Objektorientierte Programmierung in Perl leicht gemacht</title>
+</head>
+<body>
+<H2>
+<img SRC="icopl.png" height=32 width=32>&nbsp;
+Perl Seite #2: Objektorientierte Programmierung in Perl leicht gemacht</H2>
+<p>
+<hr width="70%">
+<p>
+<a href="perloop.html">English Version</a>
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>Jede Anwendung der
+hier beschriebenen Hinweise und Tips erfolgt ausschlie&szlig;lich auf eigene
+Gefahr. Keine Haftung f&uuml;r die Richtigkeit der Darstellung. Jegliche
+Haftung f&uuml;r irgendwelche Sch&auml;den aufgrund dieses Textes ist ausgeschlossen.
+<p>Achtung! Dieser Text wurde von einem Hobbyprogrammierer f&uuml;r Hobbyprogrammierer erstellt, die schnell zu lauff&auml;higen Skripten gelangen m&ouml;chten. 
+<br>Den Anspr&uuml;chen von Profi-Programmierern oder Informatikstudenten k&ouml;nnte der Text, insbesondere im Hinblick auf eine wissenschaftlich exakte Verwendung der Begriffe der Objektorientierten Programmierung, m&ouml;glicherweise nicht gen&uuml;gen.
+</font></font></b>
+<hr width="70%">
+<P>
+<h3>Inhalt:</h3>
+<OL>
+<LI><A HREF="#1">1. Einleitung</A>
+<LI><A HREF="#2">Klassen als Definitionen von Containern</A>
+<LI><A HREF="#3">Instantiierung eines Objekts</A>
+<LI><A HREF="#4">Ein erstes Beispiel-Skript</A>
+<LI><A HREF="#5">&Uuml;bergabe von Argumenten; Ausweitung des Beispiels</A>
+<LI><A HREF="#6">Virtuelle Abbildung von realen Gegenst&auml;nden</A>
+<LI><A HREF="#7">Verarbeitung von Attributen</A>
+<LI><A HREF="#8">Hashsyntax bei der Argument&uuml;bergabe im Rahmen der Objektinstantiierung</A>
+<LI><A HREF="#9">Was "$self-&gt;{attribute}" eigentlich bedeutet</A>
+<LI><A HREF="#10">Arrays und Hashes als Attribute in einer Klasse</A>
+<LI><A HREF="#11">&Uuml;bergabe von Objekten an Funktionen</A>
+<LI><A HREF="#12">Vererbung</A>
+<LI><A HREF="#13">OOP-Syntax in Perl/Tk</A>
+<LI><A HREF="#14">Interaktion von Objekten und Klassendesign</A>
+<LI><A HREF="#15">Ein l&auml;ngeres Programmbeispiel</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. Einleitung</A></h3>
+<p>Objektorientierte Programmierung (OOP) scheint in Perl (Perl 5) f&uuml;r viele Programmierer immer noch nicht leicht zu verstehen zu sein, so da&szlig; sie lieber vermeiden, Perl-Skripte auf diese Weise zu schreiben. 
+<p>Dabei ist es gar nicht so schwer, wenn man wei&szlig;, wohin das alles am Ende f&uuml;hren soll und man sich auf dieses Ziel konzentriert, anstatt sich in Einzelheiten der Implementierung zu verlieren.
+<p>Im folgenden geht es um die in Perl 5 eingebaute M&ouml;glichkeit zur OOP. Manche verwenden stattdessen das Modul "<a href="https://metacpan.org/pod/Moose">Moose</a>", um das es hier jedoch nicht geht. 
+<p>Mit der folgenden Darstellung kann man viele Problemstellungen l&ouml;sen. Dennoch werden nicht alle Fragen der OOP behandelt und m&ouml;glicherweise werden die OOP-Begriffe z.B. f&uuml;r die Anspr&uuml;che von Informatikstudenten nicht immer pr&auml;zise genug verwendet.
+<br>Weiterf&uuml;hrende Texte w&auml;ren z.B. "perldoc perlboot", "perldoc perltoot" oder "<a href="http://perldoc.perl.org/perlootut.html">perldoc perlootut</a>".
+<br>Eine fundierte, aber eben nicht so schnell durchzuarbeitende Gesamtdarstellung bietet das Buch "<a href="http://shop.oreilly.com/product/0636920012689.do">Intermediate Perl</a>" oder dessen vorherige Version "<a href="http://shop.oreilly.com/product/9780596004781.do">Learning Perl Objects, References, and Modules</a>" (Kapitel 8 dieses Buches scheint mit "perldoc perlboot" identisch zu sein).
+<br>Weiterhin gibt es das noch ausf&uuml;hrlichere Buch "<a href="http://www.amazon.de/Object-Oriented-Perl-Comprehensive-Programming/dp/1884777791">Object Oriented Perl</a>", in der deutschen &Uuml;bersetzung "<a href="http://www.amazon.de/Objektorientiert-Programmieren-Konzepte-Techniken-Programmers/dp/3827318122">Objektorientiert Programmieren mit Perl</a>".
+<p>Einen &auml;hnlich praxisorientierten Ansatz wie auf dieser Seite findet man noch <a href="https://www.perl.com/article/25/2013/5/20/Old-School-Object-Oriented-Perl/">hier</a>.
+<HR>
+<h3><A NAME="2">2. Klassen als Definitionen von Containern</A></h3>
+<p>Eine Klasse kann man im Prinzip als Definition eines Containers verstehen, eines Containers, der Variablen und Funktionen enth&auml;lt.
+<br>Ein Array ist auch ein Container, es kann eine oder mehrere Variablen speichern (oder in Perl 5 z.B. auch andere Arrays).
+<br>Eine Klasse kann dar&uuml;ber hinaus auch Funktionen enthalten.
+<br>Die in einer Klasse enthaltenen Variablen nennt man "Attribute", die in der Klasse enthaltenen Funktionen nennt man "Methoden".
+<br>Der Vorteil daran ist insbesondere, da&szlig; in den Methoden alle Attribute der Klasse bekannt sind. Man mu&szlig; diese den Methoden nicht erst als Argumente &uuml;bergeben.
+<HR>
+<h3><A NAME="3">3. Instantiierung eines Objekts</A></h3>
+<p>In einem Skript benutzt man meist nicht nur ein einziges Array oder einen einzigen Hash, sondern mehrere davon. Genauso kann man auch von den Containern, deren Inhalt durch die Klasse definiert wird, mehrere in einem Skript verwenden. Man definiert erst eine Klasse und gibt dann im Skript die Anweisung, da&szlig; man nun einen dieser Container, dessen Inhalt durch die Klasse definiert wird, verwenden m&ouml;chte.
+<br>Daraufhin steht einem ein solcher Container unter dem gew&uuml;nschten Namen zur Verf&uuml;gung. Diesen Container nennt man "Objekt", und wie gesagt kann man mehrere dieser Objekte anfordern. Man spricht insoweit von "Instantiierung", man fordert also ein Objekt, das hei&szlig;t eine Instanz der Klasse, an.
+<HR>
+<h3><A NAME="4">4. Ein erstes Beispiel-Skript</A></h3>
+<p>Wie sieht also nun ein Perl-Skript aus, in dem eine Klasse definiert wird, und in dem anschlie&szlig;end ein Objekt dieser Klasse instantiiert wird? Hier ein Beispiel:
+<pre>#!/usr/bin/perl
+
+# OOP-Beispielskript 1
+
+use warnings;
+use strict;
+
+package Lamp;
+
+    sub new {
+        my $classname = shift;
+        my $self = {state =&gt; "off"};
+        return bless($self, $classname);
+    }
+
+    sub showState {
+        my $self = shift;
+        print $self-&gt;{state};
+        print "\n";
+    }
+
+package main;
+
+my $lamp = Lamp-&gt;new();
+$lamp-&gt;showState();</pre>
+<p>---
+<p>Bitte einmal das Skript ausf&uuml;hren und (gegebenenfalls mit Verwunderung) feststellen, da&szlig; es ohne Beanstandung l&auml;uft.
+<p>Wie geht das? Eins nach dem anderen: Die Zeile
+<pre>package Lamp;</pre>
+<p>sagt - f&uuml;r unsere Zwecke - da&szlig; nun eine Klassendefinition folgt und der Name der Klasse "Lamp" sein soll.
+<br>Klassennamen schreibt man &uuml;blicherweise gro&szlig;.
+<br>Beim Schreiben sollte man den Text der Methoden innerhalb der Klassendefinition wie gezeigt einr&uuml;cken, sonst wird das Skript schnell un&uuml;bersichtlich.
+<p>Die Methode "<tt>new()</tt>" ist in jeder Klasse vorhanden. Sie wird ausgef&uuml;hrt, wenn ein Objekt instantiiert wird.
+<br>Der seltsame Code in der Methode "<tt>new()</tt>" braucht uns nicht zu interessieren (ich nenne das "Klassenmagie"). Entscheidend ist, da&szlig; wir, wenn wir bei der Objektinstantiierung diese Methode aufrufen, ein Objekt in der Form erhalten, wie wir es haben wollen.
+<br>Eine Ausnahme davon ist die Zeile
+<pre>my $self = {state =&gt; "off"};</pre>
+<p>Zwischen den geschweiften Klammern werden die Attribute der Klasse angegeben. Hier haben wir ein Attribut "state" mit dem Wert "off".
+<p>Nach der Methode "<tt>new()</tt>" folgen die weiteren Methoden, also die weiteren Funktionen innerhalb der Klasse.
+<br>Hier haben wir eine Methode "<tt>showState()</tt>".
+<br>Jede Methode in einer Klasse hat "<tt>$self</tt>" als ersten Parameter. Dies wird entweder durch folgende Zeile am Anfang der Methode ausgedr&uuml;ckt: 
+<pre>my $self = shift;</pre>
+<p>Oder aber, wenn die Methode mehrere Parameter hat, durch eine Zeile wie:
+<pre>my ($self, $second_parameter, $third_parameter) = @_;</pre>
+<p>Durch "<tt>$self</tt>" als ersten Parameter wird angezeigt, da&szlig; die Methode zur Klasse geh&ouml;rt, und auf diese Weise werden der Methode die Attribute der Klasse zur Verf&uuml;gung gestellt.
+<br>Obwohl das "<tt>shift()</tt>" in der Zeile oben darauf hindeutet, da&szlig; der Methode ein Argument &uuml;bergeben wurde, ist es nicht der Benutzer, der dieses Argument mit dem Funktionsaufruf &uuml;bergibt. Vielmehr wird in diesem speziellen Fall "<tt>$self</tt>" durch einen automatischen Mechanismus &uuml;bergeben.
+<p>Sodann kann die Methode die Attribute verarbeiten. Wie gezeigt, hat man innerhalb einer Methode mit der Syntax
+<pre>$self-&gt;{state}</pre>
+<p>Zugriff auf die Attribute.
+<p>Nachdem die Klassendefinition abgeschlossen ist, definiert man entweder eine weitere Klasse, oder man kehrt mit
+<pre>package main;</pre>
+<p>in den gew&ouml;hnlichen Befehlsbereich (Namensraum) des Skripts zur&uuml;ck.
+<br>Mit der Zeile
+<pre>my $lamp = Lamp-&gt;new();</pre>
+<p>wird dann ein Objekt der Klasse "Lamp" instantiiert. Die Methode "new()" innerhalb der Klasse wird ausgef&uuml;hrt, und anschlie&szlig;end steht in der Variablen "$lamp" ein Objekt der Klasse "Lamp" zur Verf&uuml;gung.
+<p>Mit der Zeile
+<pre>$lamp-&gt;showState();</pre>
+<p>wird dann die Methode "showState()" in dem $lamp-Objekt aufgerufen. Was daraufhin ausgef&uuml;hrt wird, richtet sich nach der Definition dieser Methode in der Klasse "Lamp". In diesem Skript wird also der Wert des Attributs "state" mit Hilfe von "print" ausgegeben.
+<p>Nun haben wir also folgendes erreicht:
+<ul>
+<li>Wir haben eine Klasse definiert, die ein Attribut und eine Methode enth&auml;lt.
+<li>Wir haben ein Objekt dieser Klasse instantiiert.
+<li>Wir haben die Methode in dem Objekt aufgerufen.
+<li>Die Methode kann auf alle Attribute in der Klasse zugreifen.
+</ul>
+<p>Die obige Syntax wird in zahlreichen Perl-B&uuml;chern und -dokumenten wie z.B. "perldoc perlobj" verwendet.
+<br>Aber tats&auml;chlich lassen sich Klassen ("Packages") auch einfach zwischen geschweifte Klammern schreiben. Dadurch &auml;hnelt der Code viel mehr anderen objektorientierten Sprachen wie C++ oder Java.
+Ich werde daher ab jetzt diese andere Syntax verwenden:
+<pre>#!/usr/bin/perl
+
+# OOP-Beispielskript 1
+
+use warnings;
+use strict;
+
+package Lamp {
+
+    sub new {
+        my $classname = shift;
+        my $self = {state =&gt; "off"};
+        return bless($self, $classname);
+    }
+
+    sub showState {
+        my $self = shift;
+        print $self-&gt;{state};
+        print "\n";
+    }
+}
+
+my $lamp = Lamp-&gt;new();
+$lamp-&gt;showState();</pre>
+<HR>
+<h3><A NAME="5">5. &Uuml;bergabe von Argumenten; Ausweitung des Beispiels</A></h3>
+<p>Wie anderen Funktionen auch, kann man den Methoden in einer Klasse beim Aufruf Argumente &uuml;bergeben.
+<br>Dies gilt auch f&uuml;r die Methode "new()". Indem man dieser Methode Argumente &uuml;bergibt, kann man Objekte instantiieren, die unterschiedliche Attribute haben.
+<p>Wir erweitern das Lampenbeispiel ein wenig (vgl. Weigend, Python ge-packt, 2. Auflage, 2005, S. 294 f.):
+<pre>#!/usr/bin/perl
+
+# OOP-example-script 2
+
+use warnings;
+use strict;
+
+package Lamp {
+
+    sub new {
+        my $classname = shift;
+        my $self = {name =&gt; shift,
+                    lightintensity =&gt; shift,
+                    state =&gt; "off"};
+        return bless($self, $classname);
+    }
+
+    sub switchOn {
+        my $self = shift;
+        $self-&gt;{state} = "on";
+        print "'" . $self-&gt;{name} . "' is on at " . $self-&gt;{lightintensity} . " Watt.\n";
+    }
+
+    sub switchOff {
+        my $self = shift;
+        $self-&gt;{state} = "off";
+        print "'" . $self-&gt;{name} . "' is off.\n";
+    }
+
+    sub newLightBulb {
+        my ($self, $light) = @_;
+        if ($self-&gt;{state} eq "on") {
+            print "Light bulb can not be changed. ";
+            print "First, '" . $self-&gt;{name} . "' has to be switched off.\n";
+        } else {
+            $self-&gt;{lightintensity} = $light;
+            print "Light bulb in '" . $self-&gt;{name} . "' has been changed. ";
+            print "The new bulb has $light Watt.\n";
+            $self-&gt;switchOn();
+        }
+    }
+}
+
+my $lamp1 = Lamp-&gt;new("First Lamp", 50);
+my $lamp2 = Lamp-&gt;new("Second Lamp", 40);
+$lamp1-&gt;switchOn();
+$lamp2-&gt;switchOn();
+$lamp2-&gt;newLightBulb(100);
+$lamp2-&gt;switchOff();
+$lamp2-&gt;newLightBulb(100);</pre>
+<p>---
+<p>Es gibt hier also zwei Objekte "$lamp1" und "$lamp2", die beide durch die Klasse "Lamp" definiert werden. W&auml;hrend "$lamp1" jedoch konstant 50 Watt hat, wird "$lamp2" zun&auml;chst mit dem Attribut "40 Watt" instantiiert, danach ver&auml;ndert sich die Wattzahl von "$lamp2" nochmals durch Aufruf der Methode "neueBirne()".
+<p>Auch der Methode "newLightBulb()" wird beim Aufruf ein Argument &uuml;bergeben. Dieses wird mit Hilfe der Funktion "shift()" (die sich ohne Argument bekanntlich auf das &Uuml;bergabearray "@_" bezieht) der Variablen "$light" zugeordnet. "$light" ist hier eine herk&ouml;mmliche Variable, die nur innerhalb dieser Methode bekannt ist, aber nicht in den anderen Methoden der Klasse.
+<p>In den Methoden k&ouml;nnen die Attribute nicht nur gelesen, sondern auch neu definiert werden, wie z.B. die Zeile
+<pre>$self-&gt;{state} = "on";</pre>
+zeigt.
+<p>Au&szlig;erdem sind den Methoden nicht nur die Attribute bekannt, sondern auch die anderen Methoden der Klasse. So ruft die Methode "newLightBulb()" hier nach Wechseln der Birne die Methode "switchOn()" durch die Zeile
+<pre>$self-&gt;switchOn();</pre>
+selbst auf (also ohne da&szlig; dieser Aufruf von au&szlig;en gekommen w&auml;re).
+<p>Im &uuml;brigen k&ouml;nnen Methoden auch R&uuml;ckgabewerte haben, die ebenso wie in anderen Funktionen mit "return" zur&uuml;ckgegeben werden.
+<HR>
+<h3><A NAME="6">6. Virtuelle Abbildung von realen Gegenst&auml;nden</A></h3>
+<p>Das obige Beispielskript mit der Lampe ("OOP-Beispielskript 2") zeigt, da&szlig; Objekte, indem sie Variablen und Funktion enthalten, geeignet sind, in der Realit&auml;t existierende Gegenst&auml;nde innerhalb eines Computerprogramms abzubilden. Dies macht einen wesentlichen Reiz der Objektorientierten Programmierung aus.
+So werden in dem Beispiel bestimmte Eigenschaften einer Lampe, also ihr Zustand (eingeschaltet/ausgeschaltet), die Wattzahl der in ihr befindlichen Gl&uuml;hlampe und das Wechseln der Gl&uuml;hlampe virtuell abgebildet.
+<p>Im Grunde enthalten die obigen Abschnitte bereits die wesentlichen Grundlagen von Perls OOP. Der Rest des Textes bezieht sich mehr oder weniger auf Einzelfragen.
+<HR>
+<h3><A NAME="7">7. Verarbeitung von Attributen</A></h3>
+<p>Wie oben bereits gesagt, k&ouml;nnen Methoden auf ein Attribut mit der Syntax
+<pre>$self-&gt;{attribut}</pre>
+<p>zugreifen, also z.B. den Wert auslesen oder das Attribut ver&auml;ndern.
+<br>Es ist auch in einer Methode m&ouml;glich, ein Attribut erstmals zu definieren, das mu&szlig; also nicht zwingend in "new()" geschehen.
+<p>Auch in der Methode "new()" kann man die Attribute etwa so definieren:
+<pre>...
+    sub new {
+        my $classname = shift;
+        my $self = {one  =&gt; 1};
+        $self-&gt;{two} = 2;
+        $self-&gt;{three} = 3;
+        return bless($self, $classname);
+    }
+...</pre>
+<HR>
+<h3><A NAME="8">8. Hashsyntax bei der Argument&uuml;bergabe im Rahmen der Objektinstantiierung</A></h3>
+<p>Es ist recht beliebt, da&szlig; man bei der Objektinstantiierung der Methode "new()" Wertepaare in der Hashsyntax ("Schl&uuml;ssel =&gt; Wert") &uuml;bergeben kann, und da&szlig; in der Klasse Standardwerte definiert sind, falls kein Wertepaar &uuml;bergeben wird. Dies erreicht man, indem die "Klassenmagie" in der Methode "new()" wie in dem folgenden Beispiel erweitert wird:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# OOP-Beispielskript 3
+
+package Lamp { 
+ 
+    sub new { 
+        my $classname = shift;
+        my $args = {@_}; 
+        my $self = { wattzahl =&gt; $args-&gt;{wattzahl} || 40,
+                     name     =&gt; $args-&gt;{name} || "Standardlampe" }; 
+        return bless($self, $classname); 
+    }           
+
+    sub zeigeWattzahl {
+        my $self = shift;
+        print "'" . $self-&gt;{name} . "' hat eine Birne mit ";
+        print $self-&gt;{wattzahl} . " Watt.\n";
+    }
+}
+
+my $lamp = Lamp-&gt;new(wattzahl =&gt; 11);
+$lamp-&gt;zeigeWattzahl();</pre>
+<p><u>Anmerkung</u>: Wenn man diese Konstruktion verwendet, mu&szlig; man darauf achten, da&szlig; der Ausdruck
+<pre>dies || das</pre>
+<p>zu "<tt>das</tt>" ausgewertet wird, wenn "<tt>dies</tt>" gleich Null ist. Wenn man der Methode "<tt>-&gt;new()</tt>" also als wattzahl 0 &uuml;bergibt, wird die Wattzahl in der Methode auf den Standardwert gesetzt (hier also auf 40). Das ist m&ouml;glicherweise nicht das, was man gewollt hatte, und man mu&szlig; selbst damit umgehen, falls das Problem in dem eigenen Programm von Bedeutung ist. Beispiel:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# OOP-Beispielskript 3 (mit Warnung)
+
+package Lamp { 
+ 
+    sub new { 
+        my $classname = shift;
+        my $args = {@_}; 
+        if ($args-&gt;{wattzahl} == 0) {
+            print "\nAchtung: Sollte die Wattzahl 0 sein?\n\n";
+        }
+        my $self = { wattzahl =&gt; $args-&gt;{wattzahl} || 40,
+                     name     =&gt; $args-&gt;{name} || "Standardlampe" }; 
+        return bless($self, $classname); 
+    }           
+
+    sub zeigeWattzahl {
+        my $self = shift;
+        print "'" . $self-&gt;{name} . "' hat eine Birne mit ";
+        print $self-&gt;{wattzahl} . " Watt.\n";
+    }
+}
+
+my $lamp = Lamp-&gt;new(wattzahl =&gt; 0);
+$lamp-&gt;zeigeWattzahl();
+</pre>
+<p>
+<HR>
+<h3><A NAME="9">9. Was "$self-&gt;{attribute}" eigentlich bedeutet</A></h3>
+<p>Attribute werden in etwas gespeichert, das in dieser Zeile in der Methode "<tt>new()</tt>" definiert wird:
+<pre>my $self = {};</pre>
+<p>Aber was ist das eigentlich?
+In Perl kann man die Daten eines Arrays oder Hashes nicht nur in den herk&ouml;mmlichen, benannten Arrays oder Hashes speichern, also so:
+<pre>my @a = (10, 22);
+my %h = (a =&gt; 10, b =&gt; 20);</pre>
+<p>Sondern man kann auch etwas ganz &Auml;hnliches erreichen, indem man die Daten in einem anonymen Array oder Hash speichert, und dann eine Referenz darauf richtet:
+<pre>my $aref = [10, 22];
+my $href = {a =&gt; 10, b =&gt; 20};</pre>
+<p>Wie man sieht, ist ein anonymes Array durch eckige Klammern [...] gekennzeichnet.
+<br>Und ein anonymer Hash durch geschweifte Klammern {...}.
+<p>Auf die Daten kann man dann folgenderma&szlig;en zugreifen:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# Ordinary array:
+my @a = (10, 20);
+print $a[1] . "\n";
+
+# Anonymous array with array reference pointing to it:
+my $aref = [10, 20];
+print $aref-&gt;[1] . "\n";
+
+# Ordinary hash:
+my %h = (a =&gt; 10, b =&gt; 20);
+print $h{a} . "\n";
+
+# Anonymous hash with hash reference pointing to it:
+my $href = {a =&gt; 10, b =&gt; 20};
+print $href-&gt;{a} . "\n";
+
+# By the way: Number of elements minus 1:
+print $#a . "\n";
+print $#{$aref} . "\n";</pre>
+<p>Das "<tt>$self</tt>" in Klassen ist also genau das: Eine Hash-Referenz, die auf einen anonymen Hash gerichtet ist.
+<br>Und auf die Daten in diesem anonymen Hashs kann mit Hilfe der Referenz zugegriffen werden.
+<p>
+<HR>
+<h3><A NAME="10">10. Arrays und Hashes als Attribute in einer Klasse</A></h3>
+<p>So wie in einfachen Hashes k&ouml;nnen auch in anonymen Hashes nicht nur Skalarvariablen, sondern auch andere anonyme Arrays oder Hashes gespeichert werden. Das ist der Grund, warum man diese Datentypen auch als Attribute in einer Klasse verwenden kann.
+<p>Hier dazu wiederum ein Beispielskript:
+<pre>#!/usr/bin/perl
+
+# OOP-Beispielskript 4
+
+use warnings;
+use strict;
+
+package Bag {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        $self-&gt;{fruits} = ["Apple", "Banana"];
+        $self-&gt;{books} = {crime =&gt; "Christie",
+                          cooking =&gt; "Oliver"};
+        return bless($self, $classname);
+    }
+
+    sub showFruits {
+        my $self = shift;
+        my @fruits = @{$self-&gt;{fruits}};
+        my $i;
+        foreach $i (@fruits) {
+            print "$i\n";
+        }
+        print "\n";
+    }
+
+    sub showBooks {
+        my $self = shift;
+        print $self-&gt;{books}-&gt;{crime} . "\n";
+        print $self-&gt;{books}-&gt;{cooking} . "\n\n";
+        # Or:
+        my %books = %{$self-&gt;{books}};
+        my $i;
+        foreach $i (keys(%books)) {
+            print "$i\t" . $books{$i} . "\n";
+        }
+    }
+
+    sub defineThirdFruit {
+        my ($self, $thirdfruit) = @_;
+        $self-&gt;{fruits}[2] = $thirdfruit;
+        print $self-&gt;{fruits}[2] . "\n";
+    }
+
+    sub addBook {
+        my ($self, $category, $author) = @_;
+        $self-&gt;{books}{$category} = $author;
+        print $category . "\t" . $self-&gt;{books}{$category} . "\n";
+    }
+}
+
+my $bag = Bag-&gt;new();
+$bag-&gt;defineThirdFruit("Peach"); 
+$bag-&gt;addBook("psychology", "Freud");
+print "\n";
+$bag-&gt;showFruits();
+$bag-&gt;showBooks();</pre>
+<p>---
+<p>Wie in den Methoden "<tt>defineThirdFruit()</tt>" und "<tt>addBook()</tt>" gezeigt, kann auf die Elemente von Arrays und Hashes, die Attribute in einer Klasse sind, mit Hilfe der folgenden Syntax zugegriffen werden:
+<pre>print $self-&gt;{fruits}[1] . "\n";
+
+print $self-&gt;{books}{crime} . "\n";</pre>
+<p>Genaugenommen sind dies Abk&uuml;rzungen f&uuml;r "<tt>$self-&gt;{fruits}-&gt;[1]</tt>", bzw. f&uuml;r "<tt>$self-&gt;{books}-&gt;{crime}</tt>".
+<br>Diese Ausdr&uuml;cke bedeuten Folgendes: Wie bereits dargestellt, ist "<tt>$self</tt>" eine Referenz auf einen anonymen Hash. Dieser Hash hat einen Schl&uuml;ssel (key) namens "<tt>fruits</tt>", dem als Wert (value) ein anonymes Array gegen&uuml;bersteht. "<tt>$self-&gt;{fruits}</tt>" is also wiederum eine Referenz: Eine Referenz auf das anonyme Array in dem anonymen Hash.
+<br>W&uuml;rde diese Reference statt "<tt>$self-&gt;{fruits}</tt>" wie in dem vorigen Abschnit "<tt>$aref</tt>" hei&szlig;en, dann w&uuml;rde man denselben Ausdruck wie oben verwenden, um auf ein Element des anonymen Arrays zuzugreifen:
+<pre>$aref-&gt;[1]</pre>
+<p>Da die Referenz aber "<tt>$self-&gt;{fruits}</tt>" hei&szlig;t, lautet der Ausdruck, um auf ein Element des anonymen Arrays zuzugreifen: 
+<pre>$self-&gt;{fruits}-&gt;[1]</pre>
+<p>Dasselbe gilt f&uuml;r Hashes: Wenn die Hash-Referenz "<tt>$href</tt>" hie&szlig;e, h&auml;tte man "<tt>$href-&gt;{crime}</tt>", da sie aber "<tt>$self-&gt;{books}</tt>",hei&szlig;t, lautet der Ausdruck "<tt>$self-&gt;{books}-&gt;{crime}</tt>".
+<hr width="30%">
+<p>Will man eine <tt>foreach</tt>-Schleife verwenden, kann man nicht mit Referenzen arbeiten, da die <tt>foreach</tt>-Schleife nur &uuml;ber gew&ouml;hnliche Arrays l&auml;uft.
+<p>Deshalb mu&szlig; die Array-Referenz "<tt>$self-&gt;{fruits}</tt>" erst dereferenziert werden, damit man in der Schleife auf die einzelnen Array-Elemente zugreifen kann. Wie dies geschieht, wird in der Methode "<tt>showFruits()</tt>" gezeigt:
+<br>Um die Referenz wird der Ausdruck "<tt>@{...}</tt>" gelegt, und das Ergebnis dieses Ausdrucks wird einer Array-Variablen zugewiesen (hier der Array-Variablen "<tt>@fruits</tt>"). Der gesamte Vorgang des Dereferenzierens sieht dann so aus:
+<pre>my @fruits = @{$self-&gt;{fruits}};</pre>
+<p>Danach kann man "<tt>@fruits</tt>" als normale Array-Variable verwenden, z.B. in einer <tt>foreach</tt>-Schleife.
+<p>Auf &auml;hnliche Weise kann die Hash-Referenz "<tt>$self-&gt;{books}</tt>" dereferenziert werden, so da&szlig; in einer Schleife auf die einzelnen Elemente des Hashs zugegriffen werden kann.
+<br>Wie in der Methode "<tt>showBooks()</tt> gezeigt, wird eine Hash-Referenz dereferenziert, indem der Ausdruck "<tt>%{...}</tt>" um die Referenz gelegt wird, und das Ergebnis einer Hash-Variablen zugewiesen wird (here "<tt>%books</tt>"). Das Dereferenzieren sieht dann insgesamt so aus:
+<pre>my %books = %{$self-&gt;{books}};</pre>
+<p>"<tt>%books</tt>" ist dann ein gew&ouml;hnlicher Hash.
+<HR>
+<h3><A NAME="11">11. &Uuml;bergabe von Objekten an Funktionen</A></h3>
+<p>Man kann Objekte problemlos an Funktionen &uuml;bergeben.
+<p>Das ist ein gro&szlig;er Vorteil gegen&uuml;ber anderen Datenstrukturen. Man &uuml;bergibt einfach die mit dem Namen des Objekts bezeichnete Variable an die Funktion und sofort stehen einem dort das Objekt mit all seinen Attributen und Methoden zur Verf&uuml;gung. Und zwar ohne, da&szlig; man noch etwas dereferenzieren m&uuml;&szlig;te.
+<br>Ohne Objekte m&uuml;&szlig;te man bei komplexeren Daten Referenzen auf gr&ouml;&szlig;ere "Array of Array" oder "Hash of Hash"-Strukturen &uuml;bergeben. Im Vergleich dazu ist die &Uuml;bergabe eines Objekts wesentlich einfacher und &uuml;bersichtlicher.
+Hier ein Beispiel:
+<pre>#!/usr/bin/perl
+
+# OOP-Beispielskript 5
+
+use warnings;
+use strict;
+
+package Lamp {
+
+    sub new {
+        my $classname = shift;
+        my $self = {state =&gt; "off"};
+        return bless($self, $classname);
+    }
+
+    sub showState {
+        my $self = shift;
+        print $self-&gt;{state}. "\n";
+    }
+}
+
+# Funktion au&szlig;erhalb der Klasse im Namensraum "main":
+
+sub showLampState {
+    my $l = shift;
+    $l-&gt;showState();
+}
+
+my $lamp = Lamp-&gt;new();
+showLampState($lamp);</pre>
+<p>---
+<p>In gleicher Weise kann man Objekte auch den Methoden anderer Objekte als Argumente &uuml;bergeben.
+<HR>
+<h3><A NAME="12">12. Vererbung</A></h3>
+<p>Angenommen, man will eine Klasse schreiben, die einer anderen Klasse, die man bereits geschrieben hat, sehr &auml;hnlich ist. Die meisten Attribute und Methoden sind identisch, die neue Klasse unterscheidet sich z.B. nur in zwei oder drei Methoden. Dann w&auml;re es doch praktisch, wenn die neue Klasse die restlichen Methoden und Attribute von der bereits bestehenden Klasse <b>&uuml;bernehmen</b> k&ouml;nnte, und man in der neuen Klasse also nur die Unterschiede zwischen den beiden Klassen neu schreiben m&uuml;&szlig;te.
+Dies erreicht man in der OOP durch sogenannte "Vererbung". Hier ein Beispiel:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# OOP-Beispielskript 6
+
+package Animal {
+
+    sub new {
+        my $classname = shift;
+        my $self  = {"name" =&gt; shift};
+        return bless($self, $classname);
+    }
+
+    sub startMoving {
+        my $self = shift;
+        print $self-&gt;{name} . " is walking.\n";
+    }
+
+    sub makeNoise {
+        my $self = shift;
+        print "Wuff! Wuff!\n";
+    }
+}
+
+package Cat {
+
+    use base 'Animal';
+
+    sub showName {
+        my $self = shift;
+        print $self-&gt;{'name'} . "\n";
+    }
+
+    sub makeNoise {
+        my $self = shift;
+        print "Meow!\n";
+    }
+}
+
+my $cat = Cat-&gt;new("Tibby");
+$cat-&gt;showName();
+$cat-&gt;startMoving();
+$cat-&gt;makeNoise();</pre>
+<p>---
+<p>Durch das "use base ..." &uuml;bernimmt die untergeordnete Klasse ("Cat") von der Elternklasse ("Animal") alle Attribute und Methoden, hier das Attribut "name" und die Methoden "startMoving()" und "makeNoise()".
+<br>Bei der Objektinstantiierung geht das Argument "Tibby" durch das "use base ..." offenbar an die "new()"-Methode von "Animal".
+<br>Der Aufruf "$cat-&gt;showName();" zeigt, da&szlig; das "Cat"-Objekt das Attribut "name" enth&auml;lt.
+<br>Die Methode "makeNoise()" wurde zwar von "Animal" &uuml;bernommen, wird aber in "Cat" durch einen anderen Inhalt &uuml;berschrieben.
+Der Aufruf "$cat-&gt;makeNoise();" bezieht sich somit auf die &uuml;berschriebene Methode im "Cat"-Objekt.
+<p>Neben "use base ..." gibt es noch "use parent ...". Ferner gibt es noch eine &auml;ltere Konstruktion der Vererbung mit Hilfe des "@ISA"-Arrays.
+Falls einem die obige Syntax nicht gen&uuml;gt, m&uuml;&szlig;te man hierzu also noch gesondert lesen. Ich habe Vererbung bisher nur vereinzelt benutzt.
+<HR>
+<h3><A NAME="13">13. OOP-Syntax in Perl/Tk</A></h3>
+<p>Wenn man sich mit den obigen Grunds&auml;tze von Perls traditioneller OOP vertraut gemacht hat, versteht man auch besser die Syntax, die in OOP geschriebene Perl-Module verwenden. Dies gilt insbesondere f&uuml;r die Befehle, die man in Perl/Tk zur Erstellung grafischer Oberfl&auml;chen verwendet.
+<br>Ein typisches, minimales Perl/Tk-Skript (das ein einfaches Fenster mit einer winzigen Aufschrift "Hallo" erstellt) s&auml;he z.B. so aus:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk; 
+
+my $mw = MainWindow-&gt;new();
+my $lab = $mw-&gt;Label(-text =&gt; "Hello");
+$lab-&gt;pack();
+$mw-&gt;MainLoop();</pre>
+<p>---
+<p>Die Perl/Tk-Befehle enthalten typische OOP-Syntax. Man k&ouml;nnte sie ohne Tk mit eigenen Klassen gewisserma&szlig;en "abfangen", und so sozusagen Tk ohne dessen Funktionalit&auml;t simulieren:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+# OOP-Beispielskript 7
+
+package MainWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        print "New MainWindow would have been created.\n";
+        return bless($self, $classname);
+    }
+
+    sub Label {
+        my $self = shift;
+        return Label-&gt;new(@_);
+    }
+
+    sub MainLoop {
+        my $self = shift;
+        print "Now the mainloop would run.\n";
+    }
+}
+
+package Label {
+
+    sub new {
+        my $classname = shift;
+        my $args = {@_}; 
+        my $self = { -text =&gt; $args-&gt;{-text} || "" };
+        print "New label-widget would have been created. ";
+        print "Its text would be '" . $self-&gt;{-text} . "'.\n";
+        return bless($self, $classname);
+    }
+
+    sub pack {
+        my $self = shift;
+        print "The label-widget would have been packed now.\n";
+    }
+}
+
+my $mw = MainWindow-&gt;new();
+my $lab = $mw-&gt;Label(-text =&gt; "Hello");
+$lab-&gt;pack();
+$mw-&gt;MainLoop();</pre>
+<p>---
+<p>Wenn man also Perls OOP versteht, begreift man auch Perl/Tk (und andere objektorientierte Module) besser.
+<HR>
+<h3><A NAME="14">14. Interaktion von Objekten und Klassendesign</A></h3>
+<p>Mit OOP ist es auch in Perl m&ouml;glich, umfangreiche Programme zu schreiben, die nicht un&uuml;bersichtlich werden m&uuml;ssen. 
+<br>Typischerweise besteht ein solches Programm aus mehreren Klassen, w&auml;hrend im Hauptbefehlsbereich des Skripts nur ein oder zwei Befehle stehen: Eine Objektinstantiierung und gegebenenfalls der Aufruf einer weiteren Methode, die das Programm in Gang setzt. 
+<br>Die weiteren Objekte werden dann innerhalb der aufgerufenen Klasse instantiiert. Man spricht von einer "<i>has a</i>"-Beziehung zu diesen Objekten.
+<br>Die eigentliche Kunst der OOP besteht darin, in sinnvoller Weise festzulegen, was die Objekte abbilden sollen und in welchem Verh&auml;ltnis die Objekte zueinander stehen sollen. Man spricht auch vom "Modellieren" von Klassen, fast wie bei den Skulpturen eines Bildhauers.
+<p>Klassen sollten in sich abgeschlossen sein. Von au&szlig;en sollten nur Methoden aufgerufen, aber nicht auf die internen Attribute einer Klasse zugegriffen werden. Man kann sich Objekte als Maschinen in Software vorstellen, die von anderen Objekten "benutzt" werden.
+Bei einem mechanischen Getr&auml;nkedosenautomaten in der realen Welt z.B. wirft eine Person eine M&uuml;nze ein und erh&auml;lt daraufhin eine Getr&auml;nkedose. Mit der internen Mechanik des Automaten kommt der Benutzer nicht in Ber&uuml;hrung. Er wei&szlig; von ihr nichts, braucht von ihr aber auch nichts zu wissen (ohne da&szlig; das schaden w&uuml;rde).
+<br>In einem Programm kann ein Objekt ebenso einfach benutzt werden, etwa mit einem Aufruf wie:
+<pre>my $getraenk = $getraenkeautomat-&gt;gibMirEineGetraenkedose(-centmuenze =&gt; 50);</pre>
+<p>oder:
+<pre>$T_800-&gt;beschuetzeMichVorDemT_1000(-waffe =&gt; "Pumpgun");</pre>
+<p>Genau so sollten Objekte gestaltet sein.
+<p>Objekte sollten in sich abgeschlossen sein und auch von anderen Objekten nur soviel "wissen", wie sie ben&ouml;tigen. Das ist nicht immer leicht durchzuhalten. Leicht kommt man in Versuchung, die Beziehungen zwischen mehreren Objekten &uuml;ber ein &uuml;bergeordnetes, "allwissendes" Objekt zu regeln. Ein solches "<a href="http://de.wikipedia.org/wiki/Gottobjekt">Gottobjekt</a>", auch "big hairy object" genannt, sollte man m&ouml;glichst vermeiden.
+<p>Bei gro&szlig;en Programmen mit grafischer Oberfl&auml;che ist es sinnvoll, die Datenverarbeitung von der grafischen Darstellung der Daten in mehreren Klassen zu trennen. Dies ist Gegenstand des Konzepts "<a href="http://de.wikipedia.org/wiki/Model_View_Controller">Model View Controller (MVC)</a>".
+<br>Im Idealfall sollte es damit m&ouml;glich sein, die grafische Anbindung (wie z.B. Tk, Gtk, Qt) durch Austausch der Klasse "View" zu wechseln. In der Praxis beschr&auml;nkt man sich aber meist doch auf die Unterst&uuml;tzung nur eines dieser Toolkits.
+<HR>
+<h3><A NAME="15">15. Ein l&auml;ngeres Programmbeispiel</A></h3>
+<p>Zum Abschlu&szlig; noch ein l&auml;ngeres Programmbeispiel. Es stellt mehrere sich bewegende "Ball"-Objekte grafisch in einer Tk-Oberfl&auml;che dar:
+<p>
+<center><img SRC="tkballs.png" height=318 width=401></center>
+<p>In Bezug auf die objektorientierte Programmierung wurden ausschlie&szlig;lich Konstruktionen verwendet, die in dem obigen Text erl&auml;utert wurden.
+<br>Da das l&auml;ngere Programm auf dieser Seite un&uuml;bersichtlich w&auml;re, habe ich es ausgelagert. Man findet es <a href="./tkballs.pl.txt">hier</a>.
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<br><center><a href="computing.html">Zur&uuml;ck</a></center>
+</body>
+</html>

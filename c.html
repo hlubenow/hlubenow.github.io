@@ -1,0 +1,1606 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="C, programming language, Dennis, Ritchie, Kernighan, pointer, segfault, segmantation fault, Speicherzugriffsfehler, array, char">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>Writing in C</title>
+</head>
+<body>
+<H2>
+Writing in C</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>
+<p>
+<p>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">About C</A>
+<LI><A HREF="#2">Compiler</A>
+<LI><A HREF="#3">A First Program - Hello World</A>
+<LI><A HREF="#4">for-Loops</A>
+<LI><A HREF="#5">while-Loops</A>
+<LI><A HREF="#6">If-Statements and Comments</A>
+<LI><A HREF="#7">break an continue</A>
+<LI><A HREF="#8">switch case</A>
+<LI><A HREF="#9">Simple Datatypes: int, double, char and size_t</A>
+<LI><A HREF="#10">Literals</A>
+<LI><A HREF="#11">Integer-Division and Modulo</A>
+<LI><A HREF="#12">Power and Square Root of a Number</A>
+<LI><A HREF="#13">The Preprocessor. #define. #include. Constants. Import of External Source Code</A>
+<LI><A HREF="#14">Read-Only Variables with const</A>
+<LI><A HREF="#15">Constant enumerations with "enum"</A>
+<LI><A HREF="#16">Functions. Passing Arguments by Value</A>
+<LI><A HREF="#17">Declaration, Definition and Initialization</A>
+<LI><A HREF="#18">Global Variables. Keyword "extern"</A>
+<LI><A HREF="#19">Keyword "static"</A>
+<LI><A HREF="#20">typedef</A>
+<LI><A HREF="#21">Arrays</A>
+<LI><A HREF="#22">Pointers. Passing Data to Functions by Reference</A>
+<LI><A HREF="#23">Arrays and Functions</h3</A>
+<LI><A HREF="#24">The Relation between Arrays and Pointers</h3</A>
+<LI><A HREF="#25">Strings in C - The Whole Story</A>
+<LI><A HREF="#26">Arrays of Strings</A>
+<LI><A HREF="#27">Strings with more than one Line</A>
+<LI><A HREF="#28">Format String Symbols of "printf()" and others</A>
+<LI><A HREF="#29">Getting User-Input: getchar(), scanf(), fgets(), getline()</A>
+<LI><A HREF="#30">Example-Program "Cookie Monster"</A>
+<LI><A HREF="#31">Structures with struct</A>
+<LI><A HREF="#32">Unions</A>
+<LI><A HREF="#33">Memory Areas of C-programs</h3</A>
+<LI><A HREF="#34">Managing More Complex Data Using an Array of Structs</h3</A>
+<LI><A HREF="#35">Getting a Random Number</h3</A>
+<LI><A HREF="#36">Peek and Poke</h3</A>
+<LI><A HREF="#37">Working with Files</h3</A>
+<LI><A HREF="#38">Keyword Summary of Variable Datatypes</h3</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. About C</A></h3>
+<p>The programming-language C was created at the beginning of the 1970s by Dennis Ritchie (1941-2011) to (re-)implement the operating-system UNIX.
+<br>It is a somehow laconical programming-language, that has only a minimal set of instructions. Everything else, for example even functions for string-manipulation, has to be imported as libraries.
+<p>C-code is close to the system and runs fast. Only assembler-code would be faster. Programs can be linked together from numerous files, so huge applications can be written in C by large teams of programmers.
+<p>Someone once said "C is like a small, sharp knife". Data is usually manipulated on the level of bytes.
+<p>It's not always easy (or necessary) to handle such a "small, sharp knife". In many cases, C is not the easiest language to write code. In 1987 Larry Wall created the interpreted language "Perl" to make manipulation of text easier for the programmer than in C. He wrote the Perl-interpreter in C though and also borrowed a lot of C's syntax for his language. So it's in any case useful to be familiar with C.
+<p>If your task just requires a smaller script, that doesn't have to run too fast and can be altered or even thrown away later, and if you want to have faster development and an easier life, learn and use <a href="perl1_introduction.html">Perl</a>. Or <a href="python.html">Python</a>.
+<p>But if you want to write serious, compiled applications, that run at about maximum speed and will be used by everyone for many years, if you want your code as almost "cast in stone", take the time and make the effort and <a href="https://www.youtube.com/watch?v=1S1fISh-pag">write in C</a>. 
+<p>C is not object-orientated. To add classes, the language C++ was designed by Bjarne Stroustrup in the 1980s, but C++, though compatible to C, can be seen as a different language. This text is just about C.
+<p>Quite a classic is the book "<a href="https://en.wikipedia.org/wiki/The_C_Programming_Language">The C Programming Language</a>" by Kernighan and Ritchie (often called "K&amp;R").
+<P>
+<HR>
+<h3><A NAME="2">2. Compiler</A></h3>
+<p>C is a compiled language. That means, you write some code with an editor (like vim) or with an <a href="https://en.wikipedia.org/wiki/Integrated_development_environment">IDE</a> (like <a href="https://www.geany.org/">Geany</a>) in a file called "h.c", for example. Then you run a compiler on that file.
+If everything is fine with your code, this creates an executable file, which is called "a.out", if you don't tell the compiler to use another name.
+<p>I use <a href="https://gcc.gnu.org/">gcc</a>, the C-compiler of the GNU-project. It is <a href="https://www.gnu.org/philosophy/free-sw.en.html">free software</a>. It comes with basically every GNU/Linux-distribution.
+<p>So, if you have a file "h.c", you can run
+<pre>gcc h.c</pre>
+<p>and get a file "a.out", which you can run then with
+<pre>./a.out</pre>
+<p>As very large and complicated applications can be written in C, and the executable often has to be linked against many libraries, there are lots of options to gcc. This is a topic of its own.
+<p>But concerning the very small example-programs on this page, you should be fine with the simple gcc-command above. It may be a good idea to use the "<tt>-Wall</tt>"-option, so "<tt>gcc -Wall h.c</tt>", to get all warnings.
+<p>
+<HR>
+<h3><A NAME="3">3. A First Program - Hello World</A></h3>
+<p>Here's a "Hello World" in C:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    puts("Hello World!");
+    return 0;
+}</pre>
+<p>The first line imports the standard library for input/output. How this line works, will be explained <a href="#12">later</a>.
+<p>The function "<tt>main()</tt>" is found in every C-program. It is executed, when the program is run.
+<br>The datatype of the value, the function returns, is written before the name of the function, in this case, it's "<tt>int</tt>" before the name "<tt>main</tt>", as the function will return the integer 0 at the end, "return 0;" (notice, that "return" is not a function).
+<br>The datatypes and names of the arguments that are passed to a function are written in round brackets after the name of the function, here "<tt>main()</tt>".
+As in this case no arguments are passed to "main", the brackets are empty.
+<p>C is case-sensitive.
+<p>
+<HR>
+<h3><A NAME="4">4. for-Loops</A></h3>
+<p>Here's an example of a for-loop in C:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int i;
+    for (i = 1; i &lt;= 10; i++) {
+        printf("%d\n", i);
+    }
+    return 0;
+}</pre>
+<p>Variables, like the integer "<tt>i</tt>" here, have to be declared, before they can be used.
+<p>To print integers, the function "<tt>printf()</tt>" has to be used. The first argument to it can be a "format-string", like the one in the example: "<tt>%d</tt>" means, the second argument will be an integer, it means "print the next argument as an integer". "\n" is the newline-character on Linux.
+<p>The term in brackets of the for-loop "(i=1; i&lt;=10; i++)" has the following meaning:
+<ol>
+<li>i=1: Iterator-variable is "i". Loop starts at 1.
+<li>i&lt;10: Condition for loop to run. So if i is not smaller or equal to 10, the loop will stop.
+<li>i++: Step of the loop. "i++" is short for "i = i + 1" (which is also equal to "i += 1").
+</ol>
+<p>
+<HR>
+<h3><A NAME="5">5. while-Loops</A></h3>
+<p>while-loops work similar. The while-loop runs, as long as the condition is met:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int x = 1;
+    while (x &le; 10) {
+        printf("%d\n", x);
+        x++;
+    }
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="6">6. If-Statements and Comments</A></h3>
+<p>Comments are written between "<tt>/*</tt>" and "<tt>*/</tt>". They can be longer than one line.
+<br><a href="https://en.wikipedia.org/wiki/Whitespace_character">Whitespace characters</a> are always ignored by the C-compiler.
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 1;
+    int b = 2;
+
+    /* If there is just one line after the condition, the curly brackets
+       can be left out. Use with care: */
+    if (a == 1)
+        printf("a is %d.\n", a);
+
+    if (b &gt; a)
+        printf("b is greater than %d.\n", a);
+
+    /* Meanings of symbols for logical operators:
+       == : equal
+       != : not equal
+       &amp;&amp; : and
+       || : or
+        ! : not
+    */
+
+    if (a &lt; b &amp;&amp; b == 2)
+        puts("a is less than b and b is 2.");
+
+    if (a &lt; b &amp;&amp; b == 2)
+        puts("a is less than b and b is 2.");
+
+    if (a == 10) {
+        puts("a is 10.");
+    } else {
+        puts("a is not 10.");
+    }
+    if (a != 10)
+        puts("a is really not 10.");
+    return 0;
+}</pre>
+<p>At debugging, you want to comment out large ranges of code.
+<br>But when there's a comment inside that range, it won't work, because there's a "*/" inside the range.
+<br>In C++, you can also write "<tt>// ...</tt>", and the rest of the line is a comment then. Probably because of the debugging-problem, the compiler "gcc" knows this syntax too. I suggest using it.
+<p>There is also "<tt>else if</tt>":
+<pre>if ( ... ) {
+    ...
+} else if ( ... ) {
+    ...
+}</pre>
+<p>Notice, that after the last command of the if-statement, that is before the right curly bracket, there has to be a semicolon.
+<p>As already shown in the example above, the curly brackets can be left out at all, if there is just a single line of code following the if-condition. This somehow breaks the general rule of writing code blocks. But if there are many conditions followed by just one line, it makes code more readable. But obviously this exception from the rule should be used with care.
+<p>
+<HR>
+<h3><A NAME="7">7. break an continue</A></h3>
+<p>With "<tt>continue</tt>", a loop (a for-loop, a while-loop), can be skipped to the next round.
+<p>With "<tt>break</tt>", a loop can be left at all.
+Example:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int i;
+    puts("");
+    for (i=1; i&lt;1000; i++) {
+        if (i == 3) {
+            puts("");
+            continue;
+        }
+        printf("%d\n", i);
+        if (i == 10) {
+            puts("End.\n");
+            break;
+        }
+    }
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="8">8. switch case</A></h3>
+<p>If a variable needs to be compared to several values (integers or single chars, that can be seen as integers), you could write many if/else if-statements. 
+There's an alternative construction in C, called "switch case-statement":
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 3;
+    int i;
+    switch (a) {
+        case 1:
+            puts("a is 1.");
+            break;
+        case 2:
+            puts("a is 2.");
+            break;
+        case 3:
+            for (i=0; i&lt;5; i++) {
+                printf("%d\n", i);
+            }
+            puts("a is 3.");
+            break;
+        default:
+            puts("a is none of these.");
+            break;
+    }
+    return 0;
+}</pre>
+<p>Notice the colons (":") at the end of the "case"-lines.
+<br>The "default"-part is executed, if no condition of any case is met (like the "else" in "if, else if, else").
+<p>
+<HR>
+<h3><A NAME="9">9. Simple Datatypes: int, double, char and size_t</A></h3>
+<p>Built-in <a href="https://de.wikipedia.org/wiki/Datentypen_in_C">datatypes in C</a> are:
+<ul>
+<li>int
+<p>Actually, there is:
+<ul>
+<li>short int
+<li>long int
+<li>long long int
+</ul>
+<p>And also the attributes:
+<ul>
+<li>signed
+<li>unsigned
+</ul>
+<br>"int" usually means "signed long int".
+<p>"<tt>printf()</tt>"'s format-string: "%d".
+<p>(For "long long int", "<tt>printf</tt>"'s format-string is "%lld".)
+<p>
+<li>float, double, long double
+<p>Datatypes for floating-point numbers. Often, "double" is, what you want.
+<p>"<tt>printf</tt>"'s format-string: "%f". "%.2f" rounds to two decimal places.
+<br>If you pass a "float" to printf, it becomes a "double" anyway.
+<p>
+<li>char
+<p>Used to store ASCII-characters. Use single quotes for the character (like 'a'). It also can be interpreted as a number from 0 to 255.
+<p>"<tt>printf</tt>"'s format-string: "%c" as a character, "%d" as a number.
+<p>
+<li>void
+<p>"void" means just "nothing". It can be used as the datatype of a return-value of functions (when nothing is returned). It can't be used for variables.
+</ul>
+<p>Let's see:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 10;
+    double pi = 3.14159265359;
+    char c  = 'm';
+    printf("%d\n", a);
+    printf("%f \t %.3f \n", pi, pi);
+    printf("%c \t %d \n", c, c);
+    puts("");
+    printf("%d\n", sizeof(a));
+    printf("%d\n", sizeof(pi));
+    printf("%d\n", sizeof(c));
+    return 0;
+}</pre>
+<p>"\t" in a format-string of "<tt>printf</tt>" means "tabulator", so it moves text away a bit in the line.
+<p>Notice, there are certain limits to the datatypes of numbers. So, if you want to use very large integers or floating point numbers with many decimal places, you'll have to read more about this.
+<p>"<tt>sizeof()</tt>" is useful sometimes: It returns the amount of memory, a variable occupies, in bytes. (Actually, "<tt>sizeof ()</tt>" is not a function, but an operator. But it works kind-of like a function.)
+<br>This amount (and therefore the output of "<tt>sizeof()</tt>") is dependent on the used operating-system.
+<p>"sizeof()" returns a special datatype called
+<ul>
+<li>size_t
+</ul>
+<p>Often this is just an "unsigned int" (it is on my system). (It's defined by a "typedef" (I'll explain later)). It's used to store the size of something in memory. As it's "unsigned", it mustn't get negative.
+<P>
+<HR>
+<h3><A NAME="10">10. Literals</A></h3>
+<p>Stand-alone numbers and strings in the code like '<tt>5</tt>' or '<tt>"Hello"</tt>' are called "literals". They are constants, so they cannot be changed.
+<p>An integer literal without a prefix is decimal, with the prefix '0x' or '0X', it's hexadecimal, and with '0', it's octal.
+<br>So for example '0xA5' is a hexadecimal integer literal meaning '165' (as decimal).
+<p>An integer literal can have a prefix 'U', 'L' or 'UL', to indicate, that it is 'unsigned' or 'long'. So '0xAAB5UL' would be a hexadecimal integer literal, that is explicitly 'unsigned long'.
+<p>String literals are valid C-code, although C doesn't have a datatype "string" for variables (only "arrays of char"). This has a few consequences, that are described <a href="#25">later</a>.
+<p>Notice, that literals are also used, when initializing variables, like in "<tt>int a = 5;</tt>".
+<P>
+<HR>
+<h3><A NAME="11">11. Integer-Division and Modulo</A></h3>
+<p>Mathematically, "10 / 3" would be 3.33333.... . And if you use the datatype "double" for the division, you will get that:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    double a = 10;
+    double b = 3;
+    double c = a / b;
+    printf("%f\n", c);
+    return 0;
+}</pre>
+<p>However, if you use the datatype "<tt>int</tt>", the decimal places are cut, and "10 / 3" would be just "3" then (which is mathematically incorrect):
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 10;
+    int b = 3;
+    int c = a / b;
+    printf("%d\n", c);
+    return 0;
+}</pre>
+<p>When using literal numbers (without variables), there's a difference between for example "<tt>9</tt>" (an int) and "<tt>9.</tt>" (a float):
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    printf("%d\n", 9 / 5);
+    printf("%f\n", 9 / 5);
+    printf("%f\n", 9. / 5.);
+    return 0;
+}</pre>
+<p>gives this output:
+<pre>1
+0.000000
+1.800000
+</pre>
+<p>So actually, in first example above, there is an internal conversion, when the int number is assigned to a double variable.
+<br>You have to take care of that. In some situations, you even may take use of that though.
+<p>With the modulo-operator "<tt>%</tt>", you can get the "rest" of the division: "10 / 3" is "3, rest 1". With modulo, you get this "1":
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 10;
+    int b = 3;
+    int c = a % b;
+    printf("%d\n", c);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="12">12. Power and Square Root of a Number</A></h3>
+<p>You get power and square root of a number like this:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;
+
+int main() {
+    int a = 2;
+    int b = 3;
+    int c = 49;
+    double d = pow(a, b);
+    double e = sqrt(c);
+    printf("%f\n", d);
+    printf("%f\n", e);
+    return 0;
+}</pre>
+<p>Notice, that you have to import the "math"-library here. And you need to tell gcc this with the option "-lm" (which means: Link the program with the library "m"):
+<pre>gcc -Wall -lm prog.c</pre>
+<p>Output is then: 8 and 7 (as float).
+<p>
+<HR>
+<h3><A NAME="13">13. The Preprocessor. #define. #include. Constants. Import of External Source Code</A></h3>
+<p><b>Macros</b>
+<p>In word processor programs like "Microsoft Word" or "LibreOffice Writer", there is a function, that automatically replaces text. You can tell it for example to replace "hl" to "hello", and the next time you write "hl", it is automatically turned into "hello".
+<br>In the process of compiling C programs, there is a stage where similar simple text replacement is done by the socalled "preprocessor".
+<br>In your program, you can write certain instructions for the compiler's preprocessor, and it will replace the texts as defined. These instructions are called "preprocessor directives". If you write for example
+<pre>#define TRUE 1</pre>
+<p>every occurrence of "TRUE" in your code will be changed to "1" during compilation by the preprocessor.
+<br>You won't notice it though, because the texts won't be changed in the source files, and you usually don't look into the compiled executables as they are hardly readable for humans (you can only take a look with a hex editor like "ht").
+<p>These "<tt>#define</tt>"-lines, that are called "macros", are used, because you can then write for example the word "TRUE" in your source code instead of "1", when you want to check, if an expression evaluates to "true". 
+<br>These macros are also used to define constants, that should be visible in the whole program, like for example:
+<pre>#define GRAVITY 9.81</pre>
+<p>So, when the word "GRAVITY" appears lateron in the source code, it means "9.81". But not, because "GRAVITY" was a variable (which it is not), but because it is replaced to the term "9.81" by the preprocessor. It's also not necessary then to think about the way, that value is passed into functions. It's simply written directly into these functions as numbers by the preprocessor.
+<p>When defining macros for strings, quotation marks have to be used, like:
+<pre>#define MESSAGE "Hello World"</pre>
+<p>According to Wikipedia, the word "macro" is an abbreviation of the general term "macroinstruction". When a macro(instruction) is applied to a text, the text is changed to another text.
+<br>The C compiler's preprocessor just does simple text substitution. (While a "macro" in "Microsoft Word" is a small program, that can change a text in a more complicated way. So that's something slightly different.)
+<br>The C macro is written with the keyword "<tt>#define</tt>" followed by what word is to be be replaced by what other word, separated by a space character.
+<br>Unlike regular lines of C code, lines with preprocessor directives like macros are not terminated by a semicolon.
+<p>Conditions for the preprocessor can be programmed with:
+<pre>#if
+#if defined
+#ifdef
+#ifndef
+#elif
+#else
+#endif</pre>
+<p>This is especially useful in large programs: Often, macros are defined only under the condition, that they aren't defined already.
+<br>Macros can be unset with the keyword "<tt>#undef</tt>".
+<br>When using the compiler gcc, a list of the defined macros of file "hello.c" (for example) can be printed with:
+<pre>gcc -dM -E hello.c</pre>
+<hr width="50%">
+<p><b>#include-Statements</b>
+<p>There is another kind of preprocessor directive, that uses the keyword "<tt>#include</tt>". 
+The "<tt>#include</tt>" directive is followed by the name of a text-file, either in "&lt; ... &gt;" or in quotation marks (" ... ").
+When the preprocessor reaches that line, it searches for the file of the given filename. When the file is found, the preprocessor replaces the line of the directive with the whole content of that file.
+That way, (the header files of) libraries are imported into the source code.
+<ul>
+<li>If the filename is passed within quotation marks, the same directory as the source code is searched for the file.
+<li>If the filename is passed within "&lt; ... &gt;", several directories are searched for the file. The default directories to be searched by gcc are compiled into the program "cpp" and can be listed with the command "<tt>cpp -v</tt>". Usually, "/usr/include" and "/usr/local/include" are searched. Other directories can be passed to gcc using the "-I"-command.
+</ul>
+<p>For example, the line
+<pre>#include &lt;stdio.h&gt;</pre>
+<p>is replaced by the preprocessor with the content of the file "<tt>stdio.h</tt>", which is "<tt>/usr/include/stdio.h</tt>" on Linux.
+<br>With the content of the header file "<tt>stdio.h</tt>", often necessary I/O routines like "<tt>printf()</tt>" are imported into the program.
+<p>
+<HR>
+<h3><A NAME="14">14. Read-Only Variables with const</A></h3>
+<p>Back from the preprocessor to ordinary C code.
+<br>Variables can be declared as "const". That means, they can't be altered afterwards. Therefore, the initialization has to be in the same line as the definition:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    const int a = 10;
+    /* a = 15; Wouldn't work */
+    printf("%d\n", a);
+    return 0;
+}</pre>
+<p>Variables declared that way are stored in a read-only-area of the program's memory.
+<p>
+<HR>
+<h3><A NAME="15">15. Constant enumerations with "enum"</A></h3>
+<p>Constant integers can also be defined with the datatype "enum":
+<pre>#include &lt;stdio.h&gt;
+
+enum colours { black, blue, red, magenta, green, cyan, yellow, white };
+enum months { january = 1, february };
+
+int main() {
+    printf("The number of cyan is: %d.\n", cyan);
+    printf("February is month number %d.\n", february);
+    return 0;
+}</pre>
+<p>You can use these enum statements to define boolean values (like in Python):
+<pre>enum boolean {False, True};
+enum none {None};</pre>
+<p>Then, in your code, "False" and "None" will be evaluated to 0, "True" to 1.
+<p>
+<HR>
+<h3><A NAME="16">16. Functions. Passing Arguments by Value</A></h3>
+<p>The core of C-programming, which may have been new back in 1970, is <a href="https://en.wikipedia.org/wiki/Structured_programming">structured programming</a>.
+The functionality of a large program is separated into small pieces, that deal with more specific problems.
+<br>These small pieces are code-blocks called "functions".
+Functions take some arguments, process them and return a return-value.
+Consider this program:
+<pre>#include &lt;stdio.h&gt;
+
+int addTen(int b) {
+    b += 10;
+    return b;
+}
+
+int main() {
+    int a = 5;
+    a = addTen(a);
+    printf("%d\n", a);
+    return 0;
+}</pre>
+<p>Now, this may be a bit complicated, but it is important, to understand it:
+<p>"<tt>main()</tt>" and "<tt>addTen()</tt>" are different functions, that are completely separated. With the line
+<pre>a = addTen(a);</pre>
+<p>"addTen()" is called and variable "a" is passed to it <b>by value</b> (there's another possible way to pass arguments to functions in C, but for now, it's by value).
+<br>So variable "b" in "addTen()" gets the value of variable "a" from "main()".
+<br>But "addTen()" doesn't know "a" itself. On the other hand, "main()" is totally unaware of variable "b" in "addTen()".
+<br>Variable "b" in "addTen()" is created, when "addTen()" is called. When "addTen()" is finished, variable "b" is destroyed.
+<p>All "local variables" (these are the variables inside a function) are destroyed, when the function is finished.
+<p>
+<HR>
+<h3><A NAME="17">17. Declaration, Definition and Initialization</A></h3>
+<p>The Declaration of a variable is the statement, that there is a variable of a certain name and type in the program.
+<br>Definition of a variable means having memory allocated for it.
+<br>Declaration <b>and</b> definition of a variable "a" would just be
+<pre>int a;</pre>
+<p>Usually, the two may be only separated, when several source-code-files are used.
+<p>Initialization of a variable means giving it a value, like in:
+<pre>a = 10;</pre>
+<p>In <a href="http://www.cprogramming.com/declare_vs_define.html">other words</a>:
+<br>A declaration provides basic attributes of a symbol: Its type and its name. Memory isn't allocated for the variable yet.
+<br>A definition provides all of the details of that symbol; if it's a variable, where that variable is stored. Memory is allocated for the variable.
+<p>gcc allows to combine all three: "<tt>int a = 10;</tt>". But other compilers (CC65. Maybe Borland, if I remember correctly) demand, that all declarations have to be written at the beginning of a function, and the initializations have to follow separately after all declarations:
+<pre>
+void main() {
+    int a;
+    int b;
+    float c;
+    char d[50];
+    a = 5;
+    b = 10;
+}</pre>
+<p>There can also be declarations of functions. They look like the first line of the function, but without the curly brackets, instead the line is terminated by a semicolon:
+<pre>int addTen(int b);</pre>
+<p>If you write the function "addTen()" below the function "main()" and try to compile with "gcc -Wall ", you'll get a warning.
+<br>If you declare the function before it is called, it compiles without warning:
+<pre>#include &lt;stdio.h&gt;
+
+int addTen(int b); 
+
+int main() {
+    int a = 5;
+    a = addTen(a);
+    printf("%d\n", a);
+    return 0;
+}
+
+int addTen(int b) {
+    b += 10;
+    return b;
+}</pre>
+<p>There can be several declarations, but just one definition.
+<p>This is quite obvious for functions. For variables, it becomes important, if you compile from several files of source-code.
+<br>Then, all declarations outside functions are usually written into a central file, which is called "header-file" and has the suffix ".h". It is imported into the other source-files with an "<tt>#include</tt>"-directive.
+<br>If you want to use a variable across these files, you write a definition of it into one of the source-files. Then, you write a declaration of the variable with the keyword "extern" into the header-file. That means, this is just a declaration, the definition is somewhere else (i.e. in the source-file previously mentioned). Then you import the header-file into all source-files. Then, the variable is known everywhere in the program.
+<p>
+<HR>
+<h3><A NAME="18">18. Global Variables. Keyword "extern"</A></h3>
+<p>It is possible to use global variables in C.
+<p>If you use just one source-file, you can declare (and define) such variables at the beginning of the file outside any function.
+Then they are known in every function, without any further declarations inside the functions.
+<p>If the global variable is for some reason declared below the function, where it is used, it has to be declared again inside the function using the keyword "<tt>extern</tt>". Although this case might be rare.
+<br>But this declaration with "<tt>extern</tt>" is also required, if the global variable is declared in another source-file. And this case is rather common.
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    extern int a;
+    printf("%d\n", a); 
+    return 0;
+}
+
+int a = 15;</pre>
+<p>Or here's another example, declaring the variable outside a function, but defining the variable (setting the value of the variable) inside a function. It is then known in other functions too, as it's a global variable after all:
+<pre>#include &lt;stdio.h&gt;
+
+int a;
+
+void showA() {
+    printf("%d\n", a);
+}
+
+int main() {
+    a = 5;
+    showA();
+    return 0;
+}</pre>
+<p>Of course, you should prefer local variables, but global variables are for example useful, if complex data shall be easily made available to several functions.
+<br>It's also alright to use global variables, in case you should write C-code for very small systems, like a vintage Sinclair ZX Spectrum with just 48K or an Atari 800 XL with 64K for example.
+The program can't become that long, that you get confused by your variables then.
+<p>
+<HR>
+<h3><A NAME="19">19. Keyword "static"</A></h3>
+<p>If the keyword "static" is put in front of the declaration of a function, the function is hidden from code outside the concrete source-file.
+<p>If "static" is put in front of the declaration of global variables (outside any functions), the global variable is hidden from code outside the source-file.
+<p>If "static" is put in front of the declaration of a <a href="https://stackoverflow.com/questions/572547/what-does-static-mean">local variable</a> , something totally different happens: The local variable doesn't get destroyed when the function closes. That means, when the function is called again, the static variable "remembers" the value it had, when the function closed last time. That is pretty weird. Better not use it.
+<p>
+<HR>
+<h3><A NAME="20">20. typedef</A></h3>
+<p>With "typedef", you can define your own names of datatypes. "typedef" can create new names for existing datatypes, but not create new datatypes.
+If you encounter strange words in code, that look like unknown datatypes, look out for a typedef-declaration somewhere.
+<pre>#include &lt;stdio.h&gt;
+
+typedef int Number;
+
+Number main() {
+    Number n = 10;
+    printf("%d\n", n);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="21">21. Arrays</A></h3>
+<p>You can define static arrays of the different types of data. The drawback is, you have to know in advance, how much memory you want to reserve for the arrays. Example:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int n[5] = {10, 11, 12, 13, 14};
+    double f[5] = {1.1, 1.2, 1.3, 1.4, 1.5};
+    char c[5] = {'a', 'b', 'c', 'd', 'e'};
+    int i;
+    for (i=0; i&lt;5; i++) {
+        printf("%d \t %.1f \t %c \n", n[i], f[i], c[i]);
+    }
+    return 0;
+}</pre>
+<p>When you combine declaration and definition of the array (like above), you can leave out the number in the declaration ("<tt>int n[] = ...";</tt>).
+<p>Of course you can (and probably should) reserve more memory for the array than is really needed. You just have to watch out, that you don't define more elements, than the array can carry, as that would lead to a severe bug.
+<p>When you just declare an array, simply nothing is written yet into the reserved memory. Whatever the bytes in the reserved area already hold, is still there, until you write something else into the array.
+<br>That means, if you declare an array of let's say 100 bytes, and you want to fill it with some numbers, there isn't any built-in way to tell, how many numbers the array already holds at the moment, and how many of the bytes are still uninitialized.
+You just have to keep track, of how many numbers you have already written, yourself:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int a[100];
+    int anum = 0;
+    a[0] = 10;
+    anum++;
+    a[1] = 20;
+    anum++;
+    a[2] = 25;
+    anum++;
+    printf("%d elements in the array.\n", anum);
+    a[2] = 0;
+    anum--;
+    printf("%d elements in the array.\n", anum);
+    return 0;
+}</pre>
+<p>While some compilers allow to declare the size of an array with a variable (like "<tt>int arr[b];</tt>", others require constant values (like literal numbers) for that. It's a good idea to define constants (as compiler macros) for that, if possible:
+<pre>#define ARR_SIZE 5
+
+void main() {
+    char arr[ARR_SIZE];
+}</pre>
+<p>For using arrays of strings, see <a href="#26">below</a>.
+<p>
+<HR>
+<h3><A NAME="22">22. Pointers. Passing Data to Functions by Reference</A></h3>
+<p>All variables in programming have certain features. You can add two integers and get another integer, according to mathematics. You may concatenate two strings and get a longer string - which isn't defined in mathematics at all, so it's quite a different process.
+<p>A pointer is a variable, that has features of its own, too.
+<br>It holds the memory-address of another variable. And it can be "dereferenced". Then the result represents the content of the other variable.
+<br>So, there's the pointer itself, and then there's the content, it points to.
+<br>Pointers have their own datatypes. These datatypes correspond to the content, they point to. An example:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 10;
+
+    /* The following two lines can also be written as:
+       "int *p = &amp;a;"
+       But it is not obvious, what they mean then: */
+
+    int *p;
+    p = &amp;a;
+
+    printf("%d\n", *p);
+    return 0;
+}</pre>
+<p>
+<ul>
+<li>"int *p" declares a "pointer to int". So pointer "p" is declared as of datatype "int *".
+<br>The identifier of the pointer is not "*p". In the declaration, the "*" is part of the name of the datatype called "int *".
+<br>The identifier of the pointer is "p".
+<p>
+<li>"p = ...;" points the pointer to the memory-address of another variable.
+<p>
+<li>"&amp;a" means: "The memory-address, where variable 'a' is stored".
+<p>
+<li>By using "*p", the pointer "p" is dereferenced.
+<br>"*p" then represents the content. The content at the memory-address, the pointer points to. 
+</ul>
+<p>Sometimes, functions take the pointer itself as an argument. If the function uses its content, the dereferencing happens inside the function then. So, though you want to do something with the content then, you often don't pass "*p" to the function.
+<br>"printf()" uses "*p" here, because with the format-string "%d" it expects an integer, and "*p" (the content) is an integer, while "p", the pointer is not. printf's format string "%p" would expect a pointer, but would display the memory address, it points to.
+<p>To every human being, pointers are confusing at first, sometimes even lateron. Just ask yourself, if you want to use the pointer itself (p) or its content (*p) and where the pointer points to at the moment.
+<p>Pointers have the advantage, that they can be return-values from functions. So you can return large amounts of data (large arrays for example) by returning a pointer. Otherwise that wouldn't be possible.
+<p>If you have an ordinary int, and point a "const int *"-pointer to it, you can inspect the value of the int, but not change it. That's sometimes useful.
+<p>Pointers are often used to pass larger data-structures to functions.
+<br>If you have for example an "array of int" called "a[]", you can point a pointer to that array and pass the pointer to a function. Then, the array is available inside the function through the pointer.
+<br>But it's the same array (at the same memory-address) like the one outside the function. So, by passing the pointer, the array doesn't get passed "by value" to the function, but "<b>by reference</b>". That means, if you change the array inside the function, outside the function the array gets changed too, as there is only one array.
+<br>Notice, that although the data, the pointer points to (an array for example), gets passed to the function "by reference", the pointer itself gets passed "by value". So you have a pointer inside the function that is different from the pointer outside the function, but both pointers point to the same memory-adress of the data-structure. If you change the pointer itself inside the function, the pointer outside the function remains unchanged:
+<pre>#include &lt;stdio.h&gt;
+
+void test(int *b) {
+    /* "b" is different from "p".
+       Changes to "b" don't change "p": */
+    b++;
+    printf("%d\n", *b);
+    /* "a[]" can be accessed through "b".
+       This effects "a[]" outside the function too.
+       So this line changes "a[1]": */
+    *b = 10;
+}
+
+int main() {
+    int a[] = {1, 2};
+    int *p = a;
+    test(p);
+    /* Function "test()" didn't change "p": */
+    printf("%d\n", *p);
+    /* Function "test()" did change "a[]" though: */
+    printf("%d\n", a[1]);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="23">23. Arrays and Functions</h3</A></h3>
+<p>In C, arrays can't be passed to functions directly. But a pointer to an array can be passed to a function. As array-names can be somehow seen as pointers to the array, you can pass the name of the array (together with its size) to a function, that expects a pointer to that array. After that you can just use that pointer, as if it was the array:
+<pre>#include &lt;stdio.h&gt;
+
+void printArray(int *p, int psize) {
+    int i;
+    for (i = 0; i &lt; psize; i++) {
+        printf("%d\n", p[i]);
+    }
+}
+
+int main() {
+    int a[5] = {1, 2, 3, 4, 5};
+    printArray(a, 5);
+    return 0;
+}</pre>
+<p>Of course this leads to "passing by reference", so any changes made to the array inside the function also effect the array outside the function.
+<p>
+<HR>
+<h3><A NAME="24">24. The Relation between Arrays and Pointers</h3</A></h3>
+<p>Pointers and array-names are closely related. But they are not identical.
+<br>When there is an array
+<pre>char a[] = {'i', 'n', '\0'};</pre>
+<p>then "a" is a pointer to &amp;a[0], that is, "a" is a pointer to the first address of the array.
+<br>So in a way you can say "The name of an array is a pointer to that array".
+<p>In particular, a function can have a parameter of type "pointer to char" ("<tt>char *</tt>"), and an "array of char" (<tt>char a[5];</tt>) can be passed in to it. Because "the name of an array is a pointer to that array". That is rather convenient and should be memorized.
+<p>But unlike an ordinary pointer, the array name <a href="https://study.com/academy/lesson/array-names-as-pointers-in-c-programming.html">always points to the the starting address of the array</a>. It can't be made pointing somewhere else.
+<br>So you can't do "a++" with the array-name, though you could do "p++" with a pointer to the array, even if it's <tt>const</tt>.
+<p>As there are these differences, I suggest, not messing the two. Access array-elements for example with
+<pre>a[1] = 't';</pre>
+<p>and if you want to use pointers, point another pointer to the array:
+<pre>char *p = a;</pre>
+<p><a href="http://c-faq.com/aryptr/aryptrequiv.html">Further Reading.</a>
+<P>
+<HR>
+<h3><A NAME="25">25. Strings in C - The Whole Story</A></h3>
+<p><b>Introduction. Two Ways to Create a String.</b>
+<p>Working with strings is a fundamental programming technique. In C, it is not an easy subject though, that raises a number of questions.
+<p>There are two different ways to create a string in C:
+<ol>
+<li>The first one is to use an "array of char". That is the best choice, when you can tell in advance, what the maximum size of the string will be. You can then declare the "array of char" according to this maximum size and don't have to change that declaration throughout the program. As probably most strings in real life programs have such a maximum size, "array of char" is the most commonly used type for a string in C.
+<p>
+<li>The second way to create a string is used, when the string can change at runtime to a size, you don't know yet and can't estimate either. Then a "dynamic string" is required. It can be created by allocating memory from the operating system using the function "<tt>malloc()</tt>" and setting a "pointer to char" to the newly allocated memory. When the size of the string changes during run-time, the program can allocate more memory for it by calling a function "<tt>realloc()</tt>". When the string isn't needed any more, the program has to explicitely set the used memory free by calling the function "<tt>free()</tt>" with the used pointer passed as an argument to the function.
+</ol>
+<p><u>Important</u>: This second way of creating a string has also to be used, when you want to create a <b>new</b> string inside a function and return it from there to the calling function.
+<br>But if you just want to pass a string to a function and process its data there, with the result still being visible also in the calling function, you can do that with an "array of char" too.
+<br>So the rule still is:
+<br>If you can tell the maximum size of a string in advance (most likely case), use an "array of char".
+<br>If not, use the second method, with "<tt>malloc()</tt>" in combination with a "pointer to char".
+
+<p><b>Datatype char</b>
+<p>Let's first take a look at the details of creating an "array of char".
+<p>C doesn't have a datatype "string". It only has the datatype "char", which represents only a single character. In memory, chars have a size of one byte. They have to be written in single quotes, like for example 'A'. This notation in single quotes corresponds directly to their ASCII-value. So in the code, 'A' can also be used to represent 65. chars are integers of one byte. With "printf()", they can be can printed as integers or characters, depending on the format string used:
+<pre>#include &lt;stdio.h&gt;
+void main() {
+    char a = 'A';
+    printf("%d\n", a); /* Result: 65 */
+    printf("%c\n", a); /* Result: A */
+}</pre>
+<p>In C, there are not just single chars, but also arrays of them. A static string is in C by definition a number of coherent chars in an array, with the last char being '\0' to terminate the string.
+
+<p><b>Relation between Arrays and Pointers</b>
+<p>There is also a special relation between arrays and pointers in C. The name of an array is a pointer to the memory address of the first byte of the array. The difference to other pointers is, that the name of the array always points to this address (the address of the first byte of the array). It can't be pointed somewhere else (while other pointers can). So array names can also be used as pointers to the array. Names of char arrays are also "pointers to char" ("<tt>char *</tt>").
+
+<p><b>"printf()" with the Format String "%s"</b>
+<p>Of these circumstances is taken advantage, when "printf()" is used with the format string "%s": Although there's still no datatype "string" in C, when you pass the name of the array to "printf()" with the format string "%s", the function treats the argument as a pointer to the address of the first byte of an array and prints everything it finds as a character, until the terminating char '\0' is reached.
+
+<p><b>String Literals</b>
+<p>In C, there's also such a thing as "literals". There are "integer literals" like <tt>5</tt> or <tt>25223</tt> and string literals like <tt>"Hello"</tt> in the code. So there isn't a datatype "string" for variables in C, but there are string literals. Literals are stored in a memory region of the program, that can't be changed. As a result, literals themselves can't be changed, they are constant (<tt>const</tt>). It is possible though, to copy the data of the literal into other memory regions, especially into the memory of ordinary variables. These copys of the literal data in variables can then be changed.
+
+<p><b>Initialization of an "Array of char" using a String Literal</b>
+<p>So this is what happens, when you declare an "array of char" variable and initialize it with a string literal. The literal is stored in the read-only memory area, but its data is copied by the compiler into the memory area of the "array of char". Therefore the data in the array can be changed:
+<pre>#include &lt;stdio.h&gt;
+void main() {
+    char a[6] = "Yello";
+    printf("%s\n", a);
+    a[0] = 'H';
+    printf("%s\n", a);
+}</pre>
+<p>Notice, that the string "Hello" has only 5 characters, but one more byte has to be reserved to store the terminating '\0'-character of the string.
+<p>To be able to initialize an "array of char" with a string literal is only a feature of the compiler for convenience. It is an abbreviation of:
+<pre>char a[6] = {'H', 'e', 'l', 'l', 'o', '\0'};</pre>
+<p>In this case it is also possible to leave out the number of bytes ("char a[] = ..."), because the compiler can determine, how many bytes are needed, by the size of the string literal.
+<p>If the compiler didn't have these convenience features, the function "strcpy()" would have to be used, to copy the data of a string literal into an "array of char". It's not always possible to use a string literal for initialization, so the function "strcpy()" is still often needed to create a string.
+<p>So this is basically, how static strings are created. An "array of char" of a suitable size is declared, and bytes, terminated by the '\0' character are stored in this array.
+
+<p><b>Accessing the Elements of the "array of char"</b>
+<p>The single elements of an array can be accessed by using numbers inside the square brackets of the array name, like "<tt>a[5]</tt>" for example. This is called "array notation". Here's a simple example:
+<pre>#include &lt;stdio.h&gt;
+
+void main() {
+    int i;
+    char a[] = "Yello";
+    a[0] = 'H';
+    for (i = 0; i &tl; 5; i++) {
+        printf("%c\n", a[i]);
+    }
+}</pre>
+
+<p><b>Passing an "Array of char" to a Function and Making Use of the Processed Result</b>
+<p>There is still a problem with "arrays of char": Strings are often manipulated inside functions. And you want to get the resulting string back from the function. But char arrays and other variables, that are declared locally inside a function, are deleted, when the function ends. So how do you get the string out of the function? The answer is not, to return a pointer to the array from the function. Because the memory of the local array is deleted (set free and maybe overwritten by something else), when the function ends.
+<br>In my opinion, the solution for that problem is to declare the "array of char" <u>in the calling function</u>. The memory for it is reserved in the higher level function. Then the array is passed to the lower level function by reference, using a "<tt>char *</tt>" parameter in the function's declaration. Passing the array that way is possible, because in C "the name of an array is a pointer to that array" as described above.
+<br>Then the array is available in the lower level function and can be processed directly.
+<br>When the function ends, nothing has to be returned. But the memory of the "array of char" has been changed as planned, and the array is still available in the higher level function. Here's an example:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+void workOnString(char *s) {
+    char temp;
+    strcpy(s, "Wello");
+    strcat(s, " ");
+    strcat(s, "Horld");
+    temp = s[0];
+    s[0] = s[6];
+    s[6] = temp;
+}
+
+void main() {
+    char a[20];
+    workOnString(a);
+    printf("%s\n", a);
+}</pre>
+<p>So this is, how static strings are basically handled in C. 
+
+<p><b>String Functions</b>
+<p>You can then use functions on these strings, that are defined in the header file "<tt>string.h</tt>" of the standard library. Essential functions are:
+<ul>
+<li><tt>strcpy()</tt>
+<br>Copies the data of a string or a string literal into the memory of a string (for example of an "array of char"), taking care of the ending <tt>'\0'</tt>.
+"<tt>strcpy()</tt>" is often used to build a string in the first place.
+<p>
+<li><tt>strlen()</tt>
+<br>Returns the number of characters of a string as an int. So '<tt>strlen("abc")</tt>' would be 3.
+<p>
+<li><tt>strcat()</tt>
+<br>Adds one string to another, taking care of the ending '\0'.
+<p>
+<li><tt>strcmp()</tt>
+<br>Compares two strings and returns 0, if they are equal.
+<p>
+<li><tt>strstr()</tt>
+<br>Checks, if a substring is part of a string. Returns a NULL-pointer, if not.
+<p>
+<li><tt>strdup()</tt>
+<br>Returns a copy of the string with allocated memory.
+</ul>
+<p>The library "<tt>stdlib.h</tt>" also has the function:
+<ul>
+<li><tt>atoi()</tt>
+<br>Converts a string, that holds a number, into an integer.
+</ul>
+<p>The library "<tt>stdlib.h</tt>" has a function, that does the opposite:
+<ul>
+<li><tt>sprintf()</tt>
+<p>Writes "<tt>printf()</tt>"-type output (like for example integers) into a string.
+The function is quite powerful. For example gives you
+<pre>char s[20];
+sprintf(s, "%03d", 5);</pre>
+<p>trailing zeros, so that "<tt>005</tt>" is written into "<tt>s</tt>".
+<pre>sprintf(s, "%.2f", 32.51245);</pre>
+<p>converts the floating point number into a string and rounds it to two decimal places (like used in currencies).
+</ul>
+<p>Here's an example on how to use these functions:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    char a[20];
+    char b[20];
+    int c = 34;
+    int d = 17;
+    strcpy(a, "Hello");
+    printf("%d\n", strlen(a));
+    strcpy(b, "World");
+    printf("%s\n", a);
+    printf("%s\n", b);
+    strcat(a, " ");
+    strcat(a, b);
+    printf("%s\n", a);
+
+    strcpy(a, "Area ");
+    sprintf(b, "%d", c + d);
+    strcat(a, b);
+    printf("%s\n", a);
+    return 0;
+}</pre>
+
+<hr width=30%>
+
+<p><b>Dynamic Strings with "malloc()" in Combination with a "Pointer to char"</b>
+<p>A lot of strings are static, probably most of them. But what if you really don't know in advance, how long the string will be?
+<br>Then you can define a "pointer to char", and dynamically reserve memory for a string, using the function "malloc()". You pass the number of bytes to it, you want, then "malloc()" asks the operating-system, if you can have that many bytes. If you can't, "malloc()" returns a socalled NULL-pointer, if you can, you'll get the bytes for the string.
+<pre>char *mystring = malloc(100);</pre>
+<p>After that, "strcpy()" can be used to copy string data into that memory area.
+<br>When you don't need the string any more, you should free the memory, that was reserved for it, by passing the "pointer to char" to the function "free()".
+<p>But there's something, you have to keep in mind: You must not assign a string literal directly to a "pointer to char", if the string is supposed to be changeable lateron.
+If you write
+<pre>char *a = "Hello";</pre>
+<p>which is tempting of course, the string literal "Hello" is stored in the read-only memory area for literals, and a pointer called 'a' is set to that unchangeable memory location. 
+<br>Nothing more. The data of the string literal is not copied to a writeable memory area of a variable. So it stays a constant string literal, it doesn't become a changeable variable.
+<br>If you want the data of a dynamic string in a writeable area, you have to reserve memory for the data using the function "<tt>malloc()</tt>" ("memory allocation"), and use "strcpy()" to copy the data there. When later you don't need the string any more, you should also free the memory, that was reserved for it, by calling the function "free()" with the pointer to the memory as an argument:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    /* This is tempting, but don't do it: */
+    char *a = "Hello 1";
+    puts(a);
+    /* Instead do this: */
+    char *b = malloc(100);
+    strcpy(b, "Hello 2");
+    puts(b);
+    free(b);
+    return 0;
+}</pre>
+<p>This method is used, to get a dynamic string. If the memory allocated isn't sufficient any more, more memory can be requested with the function "realloc()".
+<p>When you think of it: What is an array? It is a number of bytes in memory. They are associated with a certain datatype, so that the program knows, what kind of data is stored there. And the data is accessible through the name of the array.
+<br>Now, when "<tt>malloc()</tt>" is succesful, you're again provided with a number of bytes. And with the pointer, there's also a way to access these bytes using a variable name. So in effect, this construction is quite close to an array. But it's dynamic, while arrays are static.
+<p>Also the string functions from the standard library can be used with "pointers to char" combined with memory allocated with "malloc()".
+<p>Dynamic strings can also be used to define a string inside of a function and return it from there at the end of the function.
+It seems, memory allocated with "malloc()" isn't deleted when a function ends, like local variables are. So the pointer can be returned from the function, and the memory of the string is still intact.
+So this is also possible:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+char *workOnArray() {
+    char *s = malloc(20);
+    strcpy(s, "Hello");
+    strcat(s, " ");
+    strcat(s, "World");
+    return s;
+}
+
+void main() {
+    char *a = workOnArray();
+    printf("%s\n", a);
+    free(a);
+}</pre>
+<p>When dealing with static strings, I'd still prefer using an "array of char" defined in the higher level function as shown above though.
+
+<p><b>Accessing the String Elements by Pointer</b>
+<p>When using dynamic strings, you can use socalled "pointer arithmetic" to access the elements of the string. If you have a "pointer to char" called "a", at first it points to element number 0 of the string. You can raise "a" by 1 ("a++;") or by 5 ("a += 5;") to reach element number 1, respectively 5 of the string.
+<br>You have to remember though, how far you went into the string, because at the end, you should set the pointer back to element number 0, to be able to call "<tt>free()</tt>" with the correct memory address.
+<p>But surprisingly, you can also use array notation with dynamic strings. Here's an example:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+void main() {
+    char *a = malloc(20);
+    strcpy(a, "Hello");
+    printf("%s\n", a);
+    a++;
+    printf("%s\n", a);
+    a += 3;
+    printf("%s\n", a);
+    printf("\n");
+    a -= 4;
+    printf("Moved back to the beginning: %s\n", a);
+    printf("\n");
+    /* Also using array notation: */
+    printf("%c\n", a[3]);
+    printf("%c\n", a[4]);
+    a[0] = 'Y';
+    printf("%s\n", a);
+    free(a);
+}</pre>
+<P>
+<HR>
+<h3><A NAME="26">26. Arrays of Strings</A></h3>
+<p>Often, you want an array of strings. You can have one like this, using the first method mentioned above to create the strings:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    char array_of_strings[2][6] = {"Hallo", "Welt"};
+    printf("%s\n", array_of_strings[0]);
+    printf("%s\n", array_of_strings[1]);
+    return 0;
+}</pre>
+<p>In the declaration, the first number between the square brackets is the number of lines (= elements or the array). When you think of the array as a table, the first number inside the square brackets of the array is the <b>y</b>-coordinate (!). The second number is the x-coordinate. (Memorize that.)
+<br>The second number is the number of characters of the largest string in the array, plus one for the string's terminating '<tt>\0</tt>' character.
+<p>Arrays of strings can also be passed to functions, using the syntax shown in the following example. The size of the strings has to be passed to the function as well. This is mandatory. As you probably want to have the number of elements of the array in the function too, you pass both values of the array definition separately to the function.
+In gcc it is possible to pass the size of the strings as an integer first, and use the same integer variable for the argument of the string sizes of the array of strings. So this works in gcc:
+<pre>#include &lt;stdio.h&gt;
+
+void printStringArray(int arrlen, int strsize, char (*array_of_strings)[strsize]) {
+    int i;
+    for (i = 0; i &lt; arrlen; i++) {
+        printf("%s\n", array_of_strings[i]);
+    }
+}
+
+int main() {
+    char array_of_strings[2][6] = {"Hallo", "Welt"};
+    printStringArray(2, 6, array_of_strings);
+    return 0;
+}</pre>
+<p>It doesn't work in CC65 though. But this does:
+<pre>#define STRSIZE_ARR 6
+void printStringArray(int arrlen, char (*array_of_strings)[STRSIZE_ARR]) {...}</pre>
+<p>
+<HR>
+<h3><A NAME="27">27. Strings with more than one Line</A></h3>
+<p>If you want to write longer strings with many lines, you can use one of the following syntaxes:
+<pre>#include &lt;stdio.h&gt;
+ 
+int main() {
+    /* First syntax: */
+    char s[] = "This is the first line,\n\
+this is the second line.\n";
+
+    /* Second syntax: */
+    char s2[] = "This is the third line,\n"
+                "this is the fourth line.\n";
+    printf("%s", s);
+    puts("");
+    printf("%s", s2);
+    return 0;
+}</pre>
+<p>I recommend the second one, because it can handle the indentation better.
+<p>
+<HR>
+<h3><A NAME="28">28. Format String Symbols of "printf()" and others</A></h3>
+<p>We've used a lot of "printf()"'s format strings already. Time for an overview:
+<p>
+<table style="width:70%">
+<tr>
+  <td><b>datatype</b></td>
+  <td><b>format string</b></td>
+</tr>
+<tr>
+  <td>int</td>
+  <td>%d</td>
+</tr>
+<tr>
+  <td>long long int</td>
+  <td>%lld</td>
+</tr>
+<tr>
+  <td>unsigned int</td>
+  <td>%u</td>
+</tr>
+<tr>
+  <td>unsigned long int</td>
+  <td>%lu</td>
+</tr>
+<tr>
+  <td>size_t (usually "unsigned int")</td>
+  <td>%zu</td>
+</tr>
+<tr>
+  <td>ssize_t (usually "signed int") (I'm not sure about this)</td>
+  <td>%zd</td>
+</tr>
+<tr>
+  <td>hexadezimal</td>
+  <td>%x</td>
+</tr>
+<tr>
+  <td>octal</td>
+  <td>%o</td>
+</tr>
+<tr>
+  <td>float and double</td>
+  <td>%f</td>
+</tr>
+<tr>
+  <td>float, rounded to two decimal places</td>
+  <td>%.2f</td>
+</tr>
+<tr>
+  <td>float in exponential form</td>
+  <td>%e</td>
+</tr>
+
+<tr>
+  <td>char</td>
+  <td>%c</td>
+</tr>
+<tr>
+  <td>string (argument is the pointer)</td>
+  <td>%s</td>
+</tr>
+<tr>
+  <td>pointer-address as returned by "malloc()"</td>
+  <td>%p</td>
+</tr>
+
+</table>
+<p>
+<p>Even more on format strings <a href="https://en.wikipedia.org/wiki/Printf_format_string">here</a>.
+<p>
+<HR>
+<h3><A NAME="29">29. Getting User-Input: getchar(), scanf(), fgets(), getline()</A></h3>
+<p>In C, the user can be asked for input on the console with the function "scanf()". It takes a format-string as the first argument (like printf()), and the memory-address of the variable to send the input to as the second argument (bit tricky). Example:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    int a;
+    printf("\nEnter number: ");
+    scanf("%d", &amp;a);
+    printf("\nYour input was: %d.\n\n", a);
+    return 0;
+}</pre>
+<p>"scanf()" can be used for getting a single number or a single word.
+<hr width=30%>
+<p>For some weird reason "scanf()" stops reading, when it encounters a whitespace character like for example a simple "space" character.
+<br>It is said, that you could then use something like this:
+<pre>char str[21];
+scanf("%20[^\n]", str);</pre>
+<p>if you want to read a string of 20 characters plus the "\0" character with "scanf()".
+<br>But on my terminal, it unblocked the reading, when reading repeatedly. So that didn't work either.
+<br>Instead, the function "fgets()" can be used. This reads 20 characters:
+<pre>char str[21];
+fgets(str, 20, stdin);</pre>
+<p>Unfortunately, this also puts the newline character ("\n") into the string. So you have to chomp the string. By hand, because there isn't such a function in the standard libraries.
+<hr width=30%>
+<p>That's all too stupid. Probably the best way to read user input, is to write a custom function, that reads in one character after the other, and produces the wanted results:
+<pre>#include &lt;stdio.h&gt;
+
+int my_input(char *arr, unsigned int arrlen) {
+    /* "arr" has to be a static array defined outside this function.
+       It gets passed by reference to this function, so it's manipulated directly,
+       and the results also take effect outside the function. */
+    char c;
+    int count = 0;
+    c = getchar();
+    while (c != EOF &amp;&amp; c != '\n' &amp;&amp; count &lt; arrlen) {
+        arr[count] = c;
+        count++;
+        c = getchar();
+    }
+    arr[count] = '\0';
+    return count;
+}
+
+
+int main() {
+    char a[20];
+    int alen;
+    printf("Please enter a line:\n");
+    alen = my_input(a, 20);
+    printf("You entered the string \"%s\", which has %d characters.\n", a, alen);
+    return 0;
+}</pre>
+<hr width=30%>
+<p>Another alternative: The function "getline()" (advanced topic): Since 2010, there's also a function "getline()" in "stdio.h". It can't be used with static arrays, but always uses a "pointer to char". "getline()" takes care of allocating memory for the string itself. But after using the string, you have to free that memory yourself again. Here's an example, how "getline()" can be used:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main() {
+    char *a = NULL;
+    /* Just an "unsigned int": */
+    size_t buffsize;
+    /* Just a "signed int": */
+    ssize_t alen;
+    printf("Please enter a line:\n");
+    alen = getline(&amp;a, &amp;buffsize, stdin);
+    /* Chomp the string: */ 
+    alen--;
+    *(a + alen) = '\0'; 
+    printf("You entered the string \"%s\", which has %zd characters.\n", a, alen);
+    free(a);
+}</pre>
+<p>
+<HR>
+<h3><A NAME="30">30. Example-Program "Cookie Monster"</A></h3>
+<p>This is a nice little program from a good Perl-book (Laura Lemay: "Sams Teach Yourself Perl in 21 Days"), I can recommend. If you get to this program and can run it, you already know some of the constructions, a programming-language uses:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main() {
+    /* Cookie Monster */
+    char cookies[10];
+    strcpy(cookies, "");
+    while (strcmp(cookies, "COOKIES") != 0) {
+        printf("I want COOKIES: ");
+        scanf("%s", &amp;cookies);
+    }
+    puts("Mmmm. COOKIES.");
+}</pre>
+<p><u>Explanation</u>: We declare an array of 10 char for the string (so the maximum is 9 letters plus '\0').
+<br>strcpy() copies a string literal into the string.
+We get user-input with scanf() as described above.
+strcmp() compares two strings and returns 0, if the strings are equal.
+<p>All in all already pretty cool, I think. :)
+<p><u>Note</u>: As we want to get only one word from the command-line (stdin), it's ok to use "scanf()". If we wanted to get a string of several words, the problems described <a href="#29">above</a> would occur. 
+<p>
+<HR>
+<h3><A NAME="31">31. Structures with struct</A></h3>
+<p>Structures are probably one of the most often used datatype in C.
+<p>To be able to create <a href="#14">static arrays</a> is nice, but they can only hold data of the same type. Whereas structures can hold data of several types (they can hold even more structures).
+<p>C doesn't have classes (learn C++ if you want them). Nevertheless, the easiest way to explain, what structures are (maybe), to think of them as "classes without methods".
+<p>In Python, defining a simple class and using it would be:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+class Fruit:
+    def __init__(self, name, colour, cent):
+        self.name = name
+        self.colour = colour
+        self.cent = cent
+
+apple = Fruit(name = "Apple", colour = "green", cent = 25)
+print apple.colour
+print apple.cent
+print
+banana = Fruit(name = "Banana", colour = "yellow", cent = 35)
+print banana.colour
+print banana.cent</pre>
+<p>The class "Fruit" describes in general, what fruits are about.
+Then, an object of the class "Fruit" called "apple" is instantiated.
+The attributes inside this object can then be accessed.
+The same is done with an object "banana".
+<p>Ok, now the struct in C:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+struct Fruit {
+    char name[100];
+    char colour[100];
+    int cent;
+};
+
+typedef struct Fruit Fruit;
+
+int main() {
+    Fruit apple;
+    strcpy(apple.name, "Apple");
+    strcpy(apple.colour, "green");
+    apple.cent = 25;
+    puts(apple.colour);
+    printf("%d\n", apple.cent);
+    puts("");
+    Fruit banana;
+    strcpy(banana.name, "Banana");
+    strcpy(banana.colour, "yellow");
+    banana.cent = 35;
+    puts(banana.colour);
+    printf("%d\n", banana.cent);
+    return 0;
+}</pre>
+<p>The name "Fruit" in "struct Fruit" is called a "structure tag".
+<br>As structure-definitions can be rather complicated, often "typedef" is used, to be able to identify the structure only by its name.
+<br>The line "Fruit apple;" inside "main()" (referring to the "typedef") works pretty much like the instantiation of an object.
+<br>The members of the struct are accessed with the "."-syntax (the "member access operator"), pretty much like the attributes of an object.
+<hr width=30%>
+<p>The "instantiation" can be done for one or more "objects" right after the declaration of the "class":
+<pre>#include &lt;stdio.h&gt;
+
+struct Fruit {
+    char name[100];
+    char colour[100];
+    int cent;
+} apple, banana;
+
+int main() {
+    return 0;
+}</pre>
+<p>And the initialization of the members can be done right there too. Take a look at this syntax:
+<pre>#include &lt;stdio.h&gt;
+
+struct Fruit {
+    char name[100];
+    char colour[100];
+    int cent;
+} apple = {
+    "Apple",
+    "green",
+    25},
+  banana = {
+    "Banana",
+    "yellow",
+    35
+};
+
+int main() {
+    puts(apple.colour);
+    printf("%d\n", apple.cent);
+    puts("");
+    puts(banana.colour);
+    printf("%d\n", banana.cent);
+    return 0;
+}</pre>
+<p>The "object"-initializations can also be separated:
+<pre>#include &lt;stdio.h&gt;
+
+struct Fruit {
+    char name[100];
+    char colour[100];
+    int cent;
+} apple = {
+    "Apple",
+    "green",
+    25
+};
+
+struct Fruit banana = {
+    "Banana",
+    "yellow",
+    35
+};
+
+int main() {
+    puts(apple.colour);
+    printf("%d\n", apple.cent);
+    puts("");
+    puts(banana.colour);
+    printf("%d\n", banana.cent);
+    return 0;
+}</pre>
+<p>And: The "class-name" can also be left out, if you want just a single "object" of the "class" (this is not possible in Python):
+<pre>#include &lt;stdio.h&gt;
+
+struct {
+    char name[100];
+    char colour[100];
+    int cent;
+} apple = {
+    "Apple",
+    "green",
+    25
+};
+
+int main() {
+    puts(apple.colour);
+    printf("%d\n", apple.cent);
+    puts("");
+    return 0;
+}</pre>
+<hr width=30%>
+<p>It is also possible to point pointers to structure-"objects".
+<br>Members are then accessed with the "-&gt;"-operator (which is short for "(*pointer).member"):
+<pre>#include &lt;stdio.h&gt;
+
+struct Fruit {
+    char name[100];
+    char colour[100];
+    int cent;
+} apple = {
+    "Apple",
+    "green",
+    25
+};
+
+int main() {
+    struct Fruit *a = &amp;apple;
+    puts(a-&gt;colour);
+    printf("%d\n", a-&gt;cent);
+    return 0;
+}</pre>
+<p>
+<p>
+<HR>
+<h3><A NAME="32">32. Unions</A></h3>
+<p>Unions are declared in the same way as structures, you just have to use the keyword "union" instead of "struct".
+<br>The difference between the two has to do with memory allocation:
+For a structure, the sum of the memory size of all its members is allocated.
+For a union, memory only of the size of its largest member is allocated.
+<br>So you can save up some memory, when you use an union instead of a structure.
+The price for that is, that only one member of the union can be accessed at a time. It is shown <a href="https://www.programiz.com/c-programming/c-unions">here</a>, how this is done, in case you wonder. If you try to access more members, they will be corrupted.
+<br>Although there may be situations, where memory has to be spared, the more memory computers have, the less likely is such a situation.
+<p>
+<HR>
+<h3><A NAME="33">33. Memory Areas of C-programs</h3</A></h3>
+<p>Let's take a look at the <a href="http://www.geeksforgeeks.org/memory-layout-of-c-program/">memory-layout</a> of a C-program. When a C-program is started, it builds up the following memory-segments in cooperation with the operating-system:
+<ul>
+<li>Text segment
+<br>Contains executable instructions. Usually read-only.
+<p>
+<li>Data segment:
+<p>
+<ul>
+<li>Initialized Data Segment
+<br>Contains global variables and static variables, that are initialized. It is divided into a read-write-part and a read-only-part.
+<p>
+<li>Uninitialized Data Segment
+<br>Contains global variables and static variables, that are initialized to 0 or not initialized. Also called "bss"-segment (especially in the output of the command "size").
+</ul>
+<p>
+<li>Stack
+<br>Contains local variables of functions and additional information on functions, arguments and function-calls. Writeable.
+<p>
+<li>Heap
+<br>Contains memory allocated by "malloc()". Also used by shared libraries. Writeable.
+</ul>
+<p>The shell-command "size" displays the sizes of the text- and data-segments.
+<br>The shell-command "nm" displays more information about memory-usage of variables and other symbols.
+<p>Pointers inside functions are usually stored on the <a href="https://stackoverflow.com/questions/14588767/where-in-memory-are-my-variables-stored-in-c">stack</a>, but the memory they point to is usually on the heap. 
+<p>The <a href="https://stackoverflow.com/questions/7943628/where-will-a-constant-string-be-stored-in-memory">string literal</a> of
+<pre>char *a = "Hi";</pre>
+<p>is stored in the read-only-section of the initialized data segment or even in the (read-only) text-segment.
+<br>The string literal of
+<pre>char a[] = "Hi";</pre>
+<p>is short for
+<pre>char a[] = {'H', 'i', '\0'};</pre>
+<p>and therefore stored on the stack.
+<p>
+<HR>
+<h3><A NAME="34">34. Managing More Complex Data Using an Array of Structs</h3</A></h3>
+<p>When it comes to managing more complex data, the first idea may be to use arrays. But handling arrays of more than one dimension can quickly become difficult and frustrating, especially when trying to pass them to functions using pointers.
+<br>So my suggestion is, to create a one dimensional array, that holds structs.
+<br>When you think of the array as a database, each struct then represents one data record inside of it.
+<br>Here's an example, how such an array of structs can be built and then used afterwards:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+#define DATA_ROWS    3
+#define DATA_COLUMNS 2
+
+struct Person {
+    char name[30];
+    char date[11];
+};
+
+void getData(struct Person *persons) {
+    int i;
+    /* 6 strings with a maximum length of 24 + '\0': */
+    const char data[DATA_ROWS * DATA_COLUMNS][25] = {"John Smith", "12.03.1975",
+                                                   "James Jones", "24.07.1987",
+                                                   "Henry Newman", "15.07.1979"};
+    for (i = 0; i &lt; DATA_ROWS; i++) {
+        strcpy(persons[i].name, data[i * DATA_COLUMNS]);
+        strcpy(persons[i].date, data[i * DATA_COLUMNS + 1]);
+    }
+}
+
+int main() {
+    struct Person persons[3];
+    getData(persons);
+    int i;
+    for (i = 0; i &lt; DATA_ROWS; i++) {
+        printf("%s\n", persons[i].name);
+        printf("%s\n", persons[i].date);
+        puts("");
+    }
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="35">35. Getting a Random Number</h3</A></h3>
+<p>Here's an example of getting a random number in the range of 0 to 9.
+<br>There are several ways in C to achieve this. This is just a basic one for average use. If you need higher level randomness, you'll have to look for more sophisticated ways (see discussions like <a href="https://stackoverflow.com/questions/822323/how-to-generate-a-random-int-in-c">this one</a>).
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;time.h&gt;
+
+int main() {
+    int i;
+    int r;
+    /* srand() seeds the random generator. Only use it once:  */
+    srand(time(NULL));
+    for (i = 0; i < 20; i++) {
+        r = rand() % 10;
+        printf("%d\n", r);
+    }
+    return 0;
+}</pre>
+<p>On Linux, there are also the functions "random()" and "srandom()". Not sure, what their advantage is. The example above works also on Linux.
+
+<p>
+<HR>
+<h3><A NAME="36">36. Peek and Poke</h3</A></h3>
+<p>On the old home computers, you could view the content of a certain memory address with BASIC's PEEK-command.
+<br>And insert a certain value into a memory address with the POKE-command.
+<br>This is, how you would do something similar in C:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+typedef unsigned char     byte;
+typedef unsigned long int addrtype;
+
+byte my_peek(addrtype address) {
+    byte *sysvar;
+    sysvar = (byte *) address;
+    return *sysvar;
+}
+
+void my_poke(addrtype address, byte value) {
+    byte *sysvar;
+    sysvar = (byte *) address;
+    *sysvar = value;
+}
+
+addrtype getMemoryAddress(char *a) {
+    char num[20];
+    sprintf(num, "%p", a);
+    /* sprintf() with "%p" provides a string of a hex value,
+       so this string has to be converted with base 16: */
+    return (addrtype) strtoll(num, NULL, 16);
+}
+
+int main() {
+    char a[] = "Hello";
+    addrtype l = getMemoryAddress(a);
+    printf("%lu\t%d\n", l, my_peek(l));
+    my_poke(l, 66);
+    printf("%lu\t%d\n", l, my_peek(l));
+    printf("%s\n", a);
+    return 0;
+}</pre>
+<p>This is probably, what happened (I'm not 100% sure though):
+<br>If you do "pointer = &amp;intvariable;" (like you usually do in example programs), the pointer is pointed to the memory address of "intvariable" (wherever that may be) and then represents the content of that address - which is the value of the variable.
+<br>When you do "pointer = intvariable;", the pointer is pointed to the value of the variable seen as a memory address. 
+<br>The datatype of the variable has to be recasted, to make it compatible with the pointer (somehow).
+<br>At the memory address, the pointer finds a single value in the range from 0 to 255 (a byte). This kind of value is usually represented by the datatype "unsigned char". That's why a "pointer to unsigned char" is used.
+<p>In the example, I changed the string "Hello" to "Bello" by poking directly into its memory address. That's alright, but I can achieve the same thing, by setting a pointer on that memory address without knowing its decimal or hexadecimal value. You know, like this:
+<pre>#include &lt;stdio.h&gt;
+
+int main() {
+    char a[] = "Hello";
+    *a = 'B';
+    printf("%s\n", a);
+    return 0;
+}</pre>
+<p>That's probably the C-way to do it - slightly more high-level, but only a bit. Still very close to manipulating bytes directly.
+<p>
+<HR>
+<h3><A NAME="37">37. Working with Files</h3</A></h3>
+<p>This is how you read from a text-file (called "test"):
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+ 
+int main() {
+    char fname[] = "test";
+    FILE *fp = fopen(fname, "r");
+    if (fp == NULL) {
+        printf("\nCouldn't read file \"%s\". Aborting.\n\n", fname);
+        exit(1);
+    }
+    int c;
+    while ((c = getc(fp)) != EOF) {
+        putc(c, stdout);
+    }
+    fclose(fp);
+    return 0;
+}</pre>
+<p>"EOF" and "stdout" are defined in "stdio.h". "EOF" means "end of file" (it's just an integer, of "-1" in my case).
+<br>"stdout" is the program's standard output-channel. When you send data to stdout, it is usually printed on the screen (in a terminal).
+<br>"getc()" reads in one character.
+<br>"FILE" is a typedef'ed name for a structure defined in "stdio.h". "fp" is a pointer that points to such a structure. "fopen()" returns such a pointer.
+<p>And this is how you write to a text-file (called "test2"):
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+ 
+int main() {
+    char schiller[] = "Und blicket sie lange verwundert an.\n"
+                      "Drauf spricht er: \"Es ist euch gelungen,\n"
+                      "Ihr habt das Herz mir bezwungen,\n"
+                      "Und die Treue, sie ist doch kein leerer Wahn ...\"\n";
+    char fname[] = "test2";
+    if (access(fname, F_OK) == 0) {
+        printf("\nFile \"%s\" already exists. Aborting.\n\n", fname);
+        exit(1);
+    }
+    FILE *fp = fopen(fname, "w");
+    if (fp == NULL) {
+        printf("\nCouldn't open file \"%s\" for writing. Aborting.\n\n", fname);
+        exit(2);
+    }
+    int i;
+    for (i=0; i &lt; strlen(schiller); i++) {
+        putc(schiller[i], fp);
+    }
+    fclose(fp);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="38">38. Keyword Summary of Variable Datatypes</h3</A></h3>
+<p><b>Variable Declarations</b>:
+<p><a href="#9">Elementary datatypes</a>:
+<ul>
+<li>int (= signed long int (usually))
+<li>short int, long int, long long int
+<li>float, double, long double
+<li>char
+<li>size_t
+<li>void
+</ul>
+<p>A variable of each of these datatypes (except void) can be declared as
+<ul>
+<li><a href="#9">signed, unsigned</a>
+<li><a href="#14">const</a>
+<li><a href="#18">extern</a> (mostly used in header-files)
+<li><a href="#19">static</a> (mostly used in function declarations)
+<li>an <a href="#21">array</a>, for example "<tt>int a[10]</tt>" or "<tt>char b[10]</tt>"
+<li>a <a href="#22">pointer</a>, for example "<tt>int *</tt>" or "<tt>char *</tt>"; also "<tt>void *</tt>"
+</ul>
+<p>Special Declarations:
+<ul>
+<li><a href="#20">typedef</a>
+<li><a href="#15">enum</a>
+<li><a href="#31">struct</a>, <a href="#32">union</a>
+</ul>
+<hr width=70%>
+<br><center><a href="index.html">Back to the computing-page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>

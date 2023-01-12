@@ -1,0 +1,1582 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Tk, Tk, Perl,Tips,Tipps,Tricks,Guido,Rossum,script,scripts,sripting,language">
+   <meta name="Author" content="abgdf {at-symbol} gmx.net">
+   <title>Perl Page #3: Creating Window-Applications using Perl/Tk</title>
+</head>
+<body>
+<H2>
+<img SRC="icopl.png" height=32 width=32>&nbsp;
+Perl Page #3: Creating Window-Applications using Perl/Tk</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">About Tk. Accessing its Documentation</A>
+<LI><A HREF="#2">Creating a Window using Tk</A>
+<LI><A HREF="#3">Displaying Text using the Label-Widget</A>
+<LI><A HREF="#4">Setting reasonable Window-Fonts; Setting the Window- and Icon-Title; Resizing and Moving the Window</A>
+<LI><A HREF="#5">Buttons, an Entry-Field and a tkMessageBox</A>
+<LI><A HREF="#6">Making a Choice using Radiobuttons</A>
+<LI><A HREF="#7">Making several Choices using Checkbuttons</A>
+<LI><A HREF="#8">Frames and the Widget-Hierarchy</A>
+<LI><A HREF="#9">More about ".pack()" and Tkconstants</A>
+<LI><A HREF="#10">Example-Script "IceChooser"</A>
+<LI><A HREF="#11">Creating a Text-Field</A>
+<LI><A HREF="#12">Creating a Menubar</A>
+<LI><A HREF="#13">Displaying a Statusbar</A>
+<LI><A HREF="#14">Scrollbars and the ScrolledText-Widget</A>
+<LI><A HREF="#15">Dialog-Windows</A>
+<LI><A HREF="#16">Processing Keyboard-Events using ".bind()"</A>
+<LI><A HREF="#17">Making the Application aware of other than Keyboard- and Mouse-Events</A>
+<LI><A HREF="#18">Displaying gif-Images</A>
+<LI><A HREF="#19">Scale-Widgets</A>
+<LI><A HREF="#20">Graphics with the Canvas-widget</A>
+<LI><A HREF="#21">Avoiding Console Windows for Perl GUI-Applications on Windows</A>
+<LI><A HREF="#22">Further Reading</A>
+</OL>
+<P>
+<P>
+<HR>
+<h3><A NAME="1">1. About Tk. Accessing its Documentation</A></h3>
+<p>"<a href="https://metacpan.org/pod/Tk">Tk.pm</a>" is a Perl-module. It was written by Nick Ing-Simmons (1958-2006) in about 1995/1999. It is an interface to the widget toolkit "Tk" of the programming-language "Tcl", which was created by John Ousterhout.
+<br>With Perl/Tk it is possible to build small to medium-size window-applications.
+<br>Compared to other GUI ("Guided User Interface")-toolkits (like "gtk" or "Qt"), Tk is quite small. It is available on Windows, Linux and Mac OS X. So window-applications written in Perl/Tk can be really plattform-independent.
+<br>On the other hand, some Tk-applications don't look too beautiful and certain advanced window-elements are not available in the original Tk-module.
+<br>Nevertheless you can achieve a lot of GUI-tasks using plain Tk without any extensions (although there are some very interesting extensions available).
+<p>Window-applications in general are made up of window-elements like buttons, switches and so on. These window-elements (including the application's main window itself) are called
+<pre>widgets</pre>
+<p>This often used term is short for "window gadgets" and just means "some kind of window-element".
+<p>Perl comes with a quite detailed documentation of Tk. You can access it by just executing
+<pre>perldoc Tk</pre>
+<p>If you want detailed information about a certain widget-class, for example the "Button", you can run
+<pre>perldoc Tk::Button</pre>
+<P>
+<HR>
+<h3><A NAME="2">2. Creating a Window using Tk</A></h3>
+<p>This code just creates an empty Perl/Tk-window:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+my $mw = MainWindow-&gt;new();
+$mw-&gt;MainLoop();</pre>
+<p>What happened here ?
+After importing the Tk-module (after telling the system where to find the Perl-executable and switching on "warnings" and "strict"), an instance of a "Tk::MainWinwod"-object is created, that's called "$mw".
+<br>After that, the "-&gt;MainLoop()"-method of "$mw" was called.
+<br>As a result the (empty) main window was displayed and the Tk-main loop was started.
+<p>Scripts for window-applications need a different structure than scripts for text-only-applications:
+<br>Text-only-applications can be executed line by line.
+<br>But window-applications display one or more windows and then wait for events, that come from the user (like mouse-clicks or keyboard-presses) or from somewhere else.
+<br>This processing of events, that feels nearly simultaneous to the user, is done by the main loop.
+<br>So, the main window is shown and the main loop is started. It waits for events. If an event occurs, the main loop reacts on it.
+<br>Usually it calls a function, that is defined inside the program.
+<br>For example, lateron we will define an "Exit"-Button. We will create a "Button"-instance and define, that it shall show the text "Exit" on it and that, when it is clicked, it shall call a function, that destroys the main window (when the main window is destroyed, the main loop will stop and the application will end).
+So, when this application is started, sooner or later the main loop is started. It waits for the event "Exit-button clicked". If this event occurs, the main loop will call the function defined in connection with the button. As a result the application will end.
+<p>In the little example above, we have just created an empty main window. The only thing the main loop can wait for here, is the event "application shall end, because its window's 'close'-button was clicked or 'Alt+F4' (on Windows) or something similar was pressed".
+<P>
+<HR>
+<h3><A NAME="3">3. Displaying Text using the Label-Widget</A></h3>
+<p>This code displays "Hello" inside the Tk-window.
+<br>This is done using the "Tk::Label"-widget:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+my $mw = MainWindow-&gt;new();
+my $lab1 = $mw-&gt;Label(-text =&gt; "Hello");
+$lab1-&gt;pack();
+$mw-&gt;MainLoop(); </pre>
+<p>The ".pack()"-method is always needed, if you want the window elements to show up. So first you define what your window element (called "widget") shall look like and then you call ".pack()" to show it.
+<p>The main loop of the program still has nothing more to wait for than in the first example.
+<P>
+<HR>
+<h3><A NAME="4">4. Setting reasonable Window-Fonts; Setting the Window- and Icon-Title; Resizing and Moving the Window</A></h3>
+<p>One of the reasons, some people think, Tk is ugly, is, that often the window fonts aren't set properly.
+<br>But this can be done for example like this:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+my $mw = MainWindow-&gt;new(-title =&gt; "MyWindow");
+$mw-&gt;optionAdd("*font", "Arial 15 normal");
+$mw-&gt;geometry("320x240+325+200");
+
+my $lab1 = $mw-&gt;Label(-text =&gt; "Hello");
+$lab1-&gt;pack();
+$mw-&gt;MainLoop();</pre>
+<p>We also
+<ul>
+<li>added a window-title and</li>
+<li>resized the main window and</li>
+<li>moved it to some other place on the desktop</li>
+</ul>
+<p>here. Now we're at a point, where we should move on to writing things in a more object oriented way. So we rewrite the code above like this:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "MyWindow");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("320x240+325+200");
+        $self-&gt;{lab1} = $self-&gt;{mw}-&gt;Label(-text =&gt; "Hello");
+        $self-&gt;{lab1}-&gt;pack();
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+}
+
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<p>If you don't understand what's going on in this step, you can read <a href="perl2_oop.html">my page about object-oriented programming in Perl</a>.
+<p>The main loop of the program still hasn't much to wait for.
+<P>
+<HR>
+<h3><A NAME="5">5. Buttons, an Entry-Field and a tkMessageBox</A></h3>
+<p>Now take a look at this small script:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "MyWindow");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("320x240+325+200");
+        $self-&gt;{lab1} = $self-&gt;{mw}-&gt;Label(-text =&gt; "Please enter something:");
+        $self-&gt;{lab1}-&gt;pack();
+        $self-&gt;{entr1} = $self-&gt;{mw}-&gt;Entry(-background =&gt; "white");
+        $self-&gt;{entr1}-&gt;pack();
+        $self-&gt;{entr1}-&gt;focus();
+
+        $self-&gt;{btn1} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Ok", -command =&gt; sub { $self-&gt;btnClick()});
+        $self-&gt;{btn1}-&gt;pack();
+
+        $self-&gt;{btn2} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn2}-&gt;pack();
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub btnClick {
+        my $self = shift;
+        $self-&gt;{mw}-&gt;messageBox(-title =&gt; "From entr1", -message =&gt; "Entryfield 1 contains: " . $self-&gt;{entr1}-&gt;get());
+    }
+}
+
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<p>When the script starts, the "MyWindow"-instance "$app" is created and its "-&gt;new()"-function is run. So the Tk-main window "$mw", a label, an entry-field and two buttons are created. Then the main loop of "$mw" is run, so the application waits for events (like mouse-clicks or key-presses). You can enter something in the entry field. Whenever you click on "btn1", the method "-&gt;btnClick()" is run.
+<br>In "btnClick()" a "messageBox" is created. This is an easy way to create simple message-boxes.
+<br>The "-&gt;get()"-method of the entry field "entr1" returns the contents of the entry-field as a string. This is then displayed in the messageBox. After this messageBox is closed, the application returns to the main loop of "$mw".
+<br>By clicking the second button, the main window "$mw" is closed and the application is ended, because the "destroy"-method of "$mw" has been called.
+<p>The part 
+<pre>-command =&gt; sub { $self-&gt;btnClick() }</pre>
+<p>in the definition line of "$btn1" needs an explanation. In Perl, you can for example define ordinary arrays, that are named. That is, they have a name like "<tt>@array</tt>". But you can also define an anonymous array datatype, that is just called "[]". This construction with square brackets is an "anonymous array reference". This datatype can then be assigned to a named reference and be accessed through this reference:
+<pre>my $aref = [1, 2, 3];
+print $aref-&gt;[1] . "\n";</pre>
+<p>(result is "2").
+<br>Accordingly, an anonymous function reference can be defined. It looks like this: "<tt>sub { ... }</tt>". Consider this example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $ref = sub { my $a = shift; my $b = shift; return $a * $b; };
+
+print &amp;{$ref}(5, 7) . "\n";</pre>
+<p>(result is "35"). In the "print"-line, the function reference is dereferenced, (using "<tt>&amp;{ .. }</tt>"). Then the function can be called.
+<br>So this is what we have as an argument for "<tt>-command =&gt; </tt>": An anonymous function reference.
+<hr width="20%">
+<p>Back to the entry field. It can be cleared with:
+<pre>$self-&gt;{entr1}->delete(0, "end");</pre>
+<p>New text can be inserted with:
+<pre>$self-&gt;{entr1}->insert(0, "Hello");</pre>
+<P>
+<HR>
+<h3><A NAME="6">6. Making a Choice using Radiobuttons</A></h3>
+<p>This script demonstrates the use of radiobuttons:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "MyWindow");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("320x240+325+200");
+        $self-&gt;{colour} = "";
+        $self-&gt;{rb1} = $self-&gt;{mw}-&gt;Radiobutton(-text =&gt; "Red", -variable =&gt; \$self-&gt;{colour}, -value =&gt; "Red");
+        $self-&gt;{rb2} = $self-&gt;{mw}-&gt;Radiobutton(-text =&gt; "Yellow", -variable =&gt; \$self-&gt;{colour}, -value =&gt; "Yellow");
+        $self-&gt;{rb3} = $self-&gt;{mw}-&gt;Radiobutton(-text =&gt; "Green", -variable =&gt; \$self-&gt;{colour}, -value =&gt; "Green");
+        $self-&gt;{rb2}-&gt;select();
+
+        $self-&gt;{rb1}-&gt;pack();
+        $self-&gt;{rb2}-&gt;pack();
+        $self-&gt;{rb3}-&gt;pack();
+
+        $self-&gt;{btn1} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Ok", -command =&gt; sub { $self-&gt;btnClick()});
+        $self-&gt;{btn1}-&gt;pack();
+
+        $self-&gt;{btn2} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn2}-&gt;pack();
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub btnClick {
+        my $self = shift;
+        $self-&gt;{mw}-&gt;messageBox(-title =&gt; "Your selection", -message =&gt; "The selected colour is: " . $self-&gt;{colour});
+    }
+}
+
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<p>Radiobuttons are very useful, if the user should make a single choice between several possibilities.
+<p>In the script we create three radiobuttons "rb1", "rb2" and "rb3" and sign them with "Red", "Yellow" and "Green" (this could be the selection for a colour of a car for example).
+<br>The radiobuttons are connected by sharing the same variable "<tt>$self-&gt;{colour}</tt>". We have to pass a reference to this variable as the "<tt>-variable =&gt;</tt>" argument. That way, all radiobuttons can access the same variable to set a value.
+<br>Passing the "value"-argument, we define, what value should be assigned to the variable "colour", if the radiobutton is selected.
+<br>Using the ".select()"-method, we make radiobutton "rb2" the default-selection.
+<br>When "btn1" is clicked, the method "btnClick" is run. This value is then displayed in the "messageBox" like in the example above.
+<P>
+<HR>
+<h3><A NAME="7">7. Making several Choices using Checkbuttons</A></h3>
+<p>This script demonstrates the usage of checkbuttons. They are useful, if several options can be selected, for example you could choose, what you wanted to eat ("soup" and "meat", just "ice" or even nothing at all):
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+=begin remark
+
+icechooser.pl, 03.07.2021.
+
+Originally, this was a Perl/Tk-example
+(see "http://www.perltk.de/tk_widgets/howto_tut2_7-checkbutton.html").
+
+In 2008, I translated it to Perl/Tk. From there, I translated it back to Perl/Tk.
+
+=end remark
+
+=cut
+
+package IceChooser {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        my $i;
+        $self->{mw} = MainWindow->new(-title => 'Ice-Cream Chooser');
+        $self->{mw}->optionAdd("*font", "Arial 18 normal");
+        $self->{mw}->geometry("+250+200");
+
+        $self->{f1} = $self->{mw}->Frame();
+        $self->{f1}->pack(-side => 'top', -expand => 1, -fill => 'both');
+
+        # Some checkbuttons in a frame:
+
+        $self->{f2} = $self->{f1}->Frame(-borderwidth => 3, -relief => 'groove');
+        $self->{f2}->pack(-side => 'right', -expand => 1, -fill => 'both');
+        $self->{f2}->Label(-text => "Extras")->pack();
+
+        $self->{cream} = 0;
+        $self->{wafer} = 0;
+
+        $self->{cb1} = $self->{f2}->Checkbutton(-text => "Cream", -variable => \$self->{cream});
+        $self->{cb1}->pack(-anchor => 'w');
+
+        $self->{cb2} = $self->{f2}->Checkbutton(-text => "Extra wafer", -variable => \$self->{wafer});
+        $self->{cb2}->pack(-anchor => 'w');
+
+        # Two groups of radiobuttons in two frames:
+
+        $self->{f3} = $self->{f1}->Frame(-borderwidth => 3, -relief => 'groove');
+        $self->{f3}->pack(-side => 'right', -expand => 1, -fill => 'both');
+        $self->{f3}->Label(-text =>"Crumbles")->pack();
+
+        $self->{crumblesorts} = ["No crumbles",
+                                 "Chocolate crumbles",
+                                 "Colourful crumbles",
+                                 "Cracknel crumbles",
+                                 "Flakes of plain chocolate"];
+
+        $self->{crumble} = "";
+
+        $self->{rb1} = [];
+        my @c = @{ $self->{crumblesorts} };
+        my @temp1 = ();
+        for $i (0 .. $#c) {
+            push(@temp1, $self->{f3}->Radiobutton(-text     => $self->{crumblesorts}[$i],
+                                                  -variable => \$self->{crumble},
+                                                  -value    => $i));
+            $self->{rb1} = \@temp1;
+            $self->{rb1}[$i]->pack(-anchor => 'w');
+        }
+
+        $self->{rb1}[0]->select();
+
+        $self->{f4} = $self->{f1}->Frame(-borderwidth => 3, -relief => 'groove');
+        $self->{f4}->pack(-side => 'right', -expand => 1, -fill => 'both');
+        $self->{f4}->Label(-text => "Sauces")->pack();
+
+        $self->{saucesorts} = ['No sauce',
+                               'Strawberry-sauce',
+                               'Chocolate-sauce',
+                               'Tropico'];
+
+        $self->{sauce} = "";
+
+        $self->{rb2} = [];
+        my @s = @{ $self->{saucesorts} };
+        my @temp2 = ();
+        for $i (0 .. $#s) {
+            push(@temp2, $self->{f4}->Radiobutton(-text     => $self->{saucesorts}[$i],
+                                                  -variable => \$self->{sauce},
+                                                  -value    => $i));
+            $self->{rb2} = \@temp2;
+            $self->{rb2}[$i]->pack(-anchor => 'w');
+        }
+
+        $self->{rb2}[0]->select();
+
+        # A listbox:
+        $self->{listbox} = $self->{f1}->Listbox(-relief     => 'sunken',
+                                                -width      => -1,
+                                                -setgrid    => 1,
+                                                -selectmode => 'single');
+
+        $self->{listbox}->pack(-side => 'right', -expand => 1, -fill => 'both');
+        my @ballnumbers = ('One ball', 'Two balls', 'Three balls', 'Four balls', 'Five balls');
+        for my $ball (@ballnumbers) {
+            $self->{listbox}->insert('end', $ball);
+        }
+
+        $self->{listbox}->selectionSet(2, 2); # Default is "Three balls".
+
+        # The Buttons "OK" and "Exit":
+
+        $self->{f5} = $self->{mw}->Frame();
+        $self->{f5}->pack(-side => 'bottom');
+
+        $self->{btn1} = $self->{f5}->Button(-text => "Ok", -command => sub { $self->btnClick() });
+        $self->{btn1}->pack(-side => 'left', -expand => 0, -fill => 'none', -ipadx => 20, -padx => 10, -pady => 10);
+        $self->{btn2} = $self->{f5}->Button(-text => "Exit", -command => sub { $self->{mw}->destroy() });
+        $self->{btn2}->pack(-side => 'right', -expand => 0, -fill => 'none', -ipadx => 20, -padx => 10, -pady => 10);
+        $self->{mw}->MainLoop();
+    }
+
+    sub btnClick {
+        my $self  = shift;
+        my @yesno = qw(No Yes);
+        my $msg   = "Your selected ice-cream:"         . "\n\n";
+        $msg     .= $self->getSelectedListboxElement() . "\n\n";
+        $msg     .= "Cream:           "  . $yesno[$self->{cream}]                  . "\n";
+        $msg     .= "Extra wafer:    "   . $yesno[$self->{wafer}]                  . "\n";
+        $msg     .= "Crumble:         "  . $self->{crumblesorts}[$self->{crumble}] . "\n";
+        $msg     .= "Sauce:            " . $self->{saucesorts}[$self->{sauce}]     . "\n";
+        $self->{mw}->messageBox(-title => "Your ice-cream", -message => $msg);
+    }
+
+    sub getSelectedListboxElement {
+        my $self = shift;
+        # "->get()" with two arguments returns all elements of the listbox:
+        my @l = $self->{listbox}->get(0, 'end');
+        # "->curselection()" returns the number of all selected elements as a list.
+        # As here's always exactly one element selected, we're interested in the
+        # first element of this list.
+        my @s = $self->{listbox}->curselection();
+        return $l[$s[0]];
+    }
+}
+
+my $app = IceChooser->new();
+$app->createWindow();</pre>
+<p>We manage the checkbuttons and other Tk-objects in Perl-lists here.
+<p>Again, we need references to variables to store the states of the checkbuttons. They set the variables to "1" for "on" and to "0" for "off". We could define other values with "<tt>-onvalue</tt>" and "<tt>-offvalue</tt>"-arguments of the checkbuttons.
+<br>At initialisation we need to call ".deselect()" to store "0" in the variables.
+<P>
+<HR>
+<h3><A NAME="8">8. Frames and the Widget-Hierarchy</A></h3>
+<p>When you create a widget, you usually pass the name of its parent widget as the first argument. For example, in
+<pre>$self-&gt;{mw}-&gt;Label(-text =&gt; "Hello");</pre>
+<p>"$mw" (for "main window") is the name of the parent-widget.
+<br>So there's a hierarchy of widgets. On top of it is the socalled "toplevel"-widget. Usually, the toplevel-widget is the main window.
+<p>Widgets can have other parents than the toplevel widget. For example, you can group them in frames, to give your application a more ordered look.
+To do that, first, you create a frame
+<pre>my $self-&gt;{frame1} = $self-&gt;{mw}-&gt;Frame();</pre>
+<p>(Notice, that the frame itself is a widget too, with the main window as its parent-widget).
+<p>Then, you put your (other) widgets into the frame, for example:
+<pre>$lab1 = $self-&gt;{frame1}-&gt;Label(-text =&gt; "Hello");</pre>
+<p>After that, you use ".pack()" to show it all:
+<pre>$self-&gt;{lab1}-&gt;pack();
+$self-&gt;{frame1}-&gt;pack();</pre>
+<P>
+<HR>
+<h3><A NAME="9">9. More about ".pack()" and Tkconstants</A></h3>
+<p>The "pack()"-method is used to show widgets inside their parent-widgets (like for example the main window).
+<p>The "pack()"-method calls "Pack", one of Tk's geometry-managers.
+<p>Tk offers two more geometry-managers called "Grid" and "Place".
+"Pack" is the most commonly used one.
+<br>It can handle the relative distances between the widgets, even if the size of the application-window is changed.
+<p>The "pack()"-method has several arguments to position your widgets where you want them:
+<p>First, there's the "-side =&gt;"-argument. It tells Pack where to add the widget in its parent widget.
+<p>The values for "side" are:
+<ul>
+<li>"top",
+<li>"bottom",
+<li>"left",
+<li>"right".
+</ul>
+<p>Then, there are the "-padx" and "-pady"-arguments.
+<br>They give a widget some (horizontal, respectively vertical) space in its parent-widget. For example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+my $mw = MainWindow-&gt;new();
+$mw-&gt;optionAdd("*font", ,"Arial 15 normal");
+$mw-&gt;geometry("+250+200");
+
+my $btn1 = $mw-&gt;Button(-text =&gt; "Hello");
+$btn1-&gt;pack(-padx =&gt; 100, -pady =&gt; 80);
+
+$mw-&gt;MainLoop();</pre>
+<p>"-padx" and "-pady" add space outside the original widget in the parent-widget.
+<p>If you want to add space inside the original widget (and enlarge it this way), you can use "-ipadx" and "-ipady":
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+my $mw = MainWindow-&gt;new();
+$mw-&gt;optionAdd("*font", ,"Arial 15 normal");
+$mw-&gt;geometry("+250+200");
+
+my $btn1 = $mw-&gt;Button(-text =&gt; "Hello");
+$btn1-&gt;pack(-ipadx =&gt; 100, -ipady =&gt; 80, -padx =&gt; 20, -pady =&gt; 20);
+
+$mw-&gt;MainLoop();</pre>
+<p>Usually, there are several widgets. It is of importance, in which order their "pack()"-methods are called in the Perl-script.
+<p><u>Hint</u>: If you want three widgets (for example three buttons) in a horizontal row in a parent-widget (for example a frame), you can use
+<pre>$widget-&gt;pack(-side =&gt; 'left');</pre>
+on every widget. Then, the first one is packed left, and the second one is packed left too, that is, right of the first widget, and so on.
+<p>More information on "pack()" can be found executing
+<pre>perldoc Tk::pack</pre>
+<P>
+<HR>
+<h3><A NAME="10">10. Example-Script "IceChooser"</A></h3>
+<p>The little examples above worked, but still didn't look too much like a proper window-application.
+<p>So let's combine, what was said about the widgets
+<ul>
+<li>Label</li>
+<li>Button</li>
+<li>Radiobutton</li>
+<li>Checkbutton</li>
+<li>Frame</li>
+<li>and the geometry-manager Pack</li>
+</ul>
+<p>to a slightly larger example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+=begin remark
+
+icechooser.pl, 03.07.2021.
+
+Originally, this was a Perl/Tk-example
+(see "http://www.perltk.de/tk_widgets/howto_tut2_7-checkbutton.html").
+
+In 2008, I translated it to Perl/Tk. From there, I translated it back to Perl/Tk.
+
+=end remark
+
+=cut
+
+package IceChooser {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        my $i;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; 'Ice-Cream Chooser');
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 18 normal");
+        $self-&gt;{mw}-&gt;geometry("+250+200");
+
+        $self-&gt;{f1} = $self-&gt;{mw}-&gt;Frame();
+        $self-&gt;{f1}-&gt;pack(-side =&gt; 'top', -expand =&gt; 1, -fill =&gt; 'both');
+
+        # Some checkbuttons in a frame:
+
+        $self-&gt;{f2} = $self-&gt;{f1}-&gt;Frame(-borderwidth =&gt; 3, -relief =&gt; 'groove');
+        $self-&gt;{f2}-&gt;pack(-side =&gt; 'right', -expand =&gt; 1, -fill =&gt; 'both');
+        $self-&gt;{f2}-&gt;Label(-text =&gt; "Extras")-&gt;pack();
+
+        $self-&gt;{cream} = 0;
+        $self-&gt;{wafer} = 0;
+
+        $self-&gt;{cb1} = $self-&gt;{f2}-&gt;Checkbutton(-text =&gt; "Cream", -variable =&gt; \$self-&gt;{cream});
+        $self-&gt;{cb1}-&gt;pack(-anchor =&gt; 'w');
+
+        $self-&gt;{cb2} = $self-&gt;{f2}-&gt;Checkbutton(-text =&gt; "Extra wafer", -variable =&gt; \$self-&gt;{wafer});
+        $self-&gt;{cb2}-&gt;pack(-anchor =&gt; 'w');
+
+        # Two groups of radiobuttons in two frames:
+
+        $self-&gt;{f3} = $self-&gt;{f1}-&gt;Frame(-borderwidth =&gt; 3, -relief =&gt; 'groove');
+        $self-&gt;{f3}-&gt;pack(-side =&gt; 'right', -expand =&gt; 1, -fill =&gt; 'both');
+        $self-&gt;{f3}-&gt;Label(-text =&gt;"Crumbles")-&gt;pack();
+
+        $self-&gt;{crumblesorts} = ["No crumbles",
+                                 "Chocolate crumbles",
+                                 "Colourful crumbles",
+                                 "Cracknel crumbles",
+                                 "Flakes of plain chocolate"];
+
+        $self-&gt;{crumble} = "";
+
+        $self-&gt;{rb1} = [];
+        my @c = @{ $self-&gt;{crumblesorts} };
+        for $i (0 .. $#c) {
+            push($self-&gt;{rb1}, $self-&gt;{f3}-&gt;Radiobutton(-text     =&gt; $self-&gt;{crumblesorts}[$i],
+                                                        -variable =&gt; \$self-&gt;{crumble},
+                                                        -value    =&gt; $i));
+            $self-&gt;{rb1}[$i]-&gt;pack(-anchor =&gt; 'w');
+        }
+
+        $self-&gt;{rb1}[0]-&gt;select();
+
+        $self-&gt;{f4} = $self-&gt;{f1}-&gt;Frame(-borderwidth =&gt; 3, -relief =&gt; 'groove');
+        $self-&gt;{f4}-&gt;pack(-side =&gt; 'right', -expand =&gt; 1, -fill =&gt; 'both');
+        $self-&gt;{f4}-&gt;Label(-text =&gt; "Sauces")-&gt;pack();
+
+        $self-&gt;{saucesorts} = ['No sauce',
+                               'Strawberry-sauce',
+                               'Chocolate-sauce',
+                               'Tropico'];
+
+        $self-&gt;{sauce} = "";
+
+        $self-&gt;{rb2} = [];
+        my @s = @{ $self-&gt;{saucesorts} };
+        for $i (0 .. $#s) {
+            push($self-&gt;{rb2}, $self-&gt;{f4}-&gt;Radiobutton(-text     =&gt; $self-&gt;{saucesorts}[$i],
+                                                        -variable =&gt; \$self-&gt;{sauce},
+                                                        -value    =&gt; $i));
+            $self-&gt;{rb2}[$i]-&gt;pack(-anchor =&gt; 'w');
+        }
+
+        $self-&gt;{rb2}[0]-&gt;select();
+
+        # A listbox:
+        $self-&gt;{listbox} = $self-&gt;{f1}-&gt;Listbox(-relief     =&gt; 'sunken',
+                                                -width      =&gt; -1,
+                                                -setgrid    =&gt; 1,
+                                                -selectmode =&gt; 'single');
+
+        $self-&gt;{listbox}-&gt;pack(-side =&gt; 'right', -expand =&gt; 1, -fill =&gt; 'both');
+        my @ballnumbers = ('One ball', 'Two balls', 'Three balls', 'Four balls', 'Five balls');
+        for my $ball (@ballnumbers) {
+            $self-&gt;{listbox}-&gt;insert('end', $ball);
+        }
+
+        $self-&gt;{listbox}-&gt;selectionSet(2, 2); # Default is "Three balls".
+
+        # The Buttons "OK" and "Exit":
+
+        $self-&gt;{f5} = $self-&gt;{mw}-&gt;Frame();
+        $self-&gt;{f5}-&gt;pack(-side =&gt; 'bottom');
+
+        $self-&gt;{btn1} = $self-&gt;{f5}-&gt;Button(-text =&gt; "Ok", -command =&gt; sub { $self-&gt;btnClick() });
+        $self-&gt;{btn1}-&gt;pack(-side =&gt; 'left', -expand =&gt; 0, -fill =&gt; 'none', -ipadx =&gt; 20, -padx =&gt; 10, -pady =&gt; 10);
+        $self-&gt;{btn2} = $self-&gt;{f5}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn2}-&gt;pack(-side =&gt; 'right', -expand =&gt; 0, -fill =&gt; 'none', -ipadx =&gt; 20, -padx =&gt; 10, -pady =&gt; 10);
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub btnClick {
+        my $self  = shift;
+        my @yesno = qw(No Yes);
+        my $msg   = "Your selected ice-cream:"         . "\n\n";
+        $msg     .= $self-&gt;getSelectedListboxElement() . "\n\n";
+        $msg     .= "Cream:           "  . $yesno[$self-&gt;{cream}]                  . "\n";
+        $msg     .= "Extra wafer:    "   . $yesno[$self-&gt;{wafer}]                  . "\n";
+        $msg     .= "Crumble:         "  . $self-&gt;{crumblesorts}[$self-&gt;{crumble}] . "\n";
+        $msg     .= "Sauce:            " . $self-&gt;{saucesorts}[$self-&gt;{sauce}]     . "\n";
+        $self-&gt;{mw}-&gt;messageBox(-title =&gt; "Your ice-cream", -message =&gt; $msg);
+    }
+
+    sub getSelectedListboxElement {
+        my $self = shift;
+        # "-&gt;get()" with two arguments returns all elements of the listbox:
+        my @l = $self-&gt;{listbox}-&gt;get(0, 'end');
+        # "-&gt;curselection()" returns the number of all selected elements as a list.
+        # As here's always exactly one element selected, we're interested in the
+        # first element of this list.
+        my @s = $self-&gt;{listbox}-&gt;curselection();
+        return $l[$s[0]];
+    }
+}
+
+my $app = IceChooser-&gt;new();
+$app-&gt;createWindow();</pre>
+<p>Already looks a lot better, if you ask me.
+<p>We have a "Tk::Listbox"-widget here. That wasn't explained before, but I think you can already see what it does.
+<P>
+<HR>
+<h3><A NAME="11">11. Creating a Text-Field</A></h3>
+<p>When you look at professional window applications like editors or wordprocessors, you'll find, that most of their windows are occupied by a large field, in which text is displayed and can be edited by the user.
+<p>Tk offers a widget "Tk::Text" with which such a large text-field can be created.
+<p>Basically "Text"-widgets are created like any other Tk-widget.
+Passing arguments can do the following things:
+<ul>
+<li>A custom "-font" can be set for the Text-widget.</li>
+<li>The "-width" and "-height" of the widget can be set in text-characters.</li>
+<li>The "-background" and "-foreground"-colours can be defined.</li>
+<li>(Left) tabstops can be set in centimeters, using a parameter like "-tabs =&gt; ["3c", "5c"]".</li>
+</ul>
+<p>After the widget is created, you can automatically insert text into it, using its "-&gt;insert()"-method.
+The first argument for this method is, where to insert the text.
+Therefore, two coordinates have to be given in a string, separated by a colon, where "1.0" is the top left corner of the Text-widget.
+This string of coordinates is called an "index".
+'end' points to the index, where the last character has been inserted into the text-field up to now.
+<br><u>Notice</u>:The coordinates have to be inside the range, where text has already been inserted. Otherwise the text will be inserted at 'end'.
+<br>The second argument to "-&gt;insert()" is the text, that should be inserted.
+<p>When the Text-widget has the focus, a cursor appears, and the user can insert text into the text-field. He can even mark text for cut/copy/paste-operations supported by the operating-system.
+<p>The text-field can be cleared using
+<pre>$tfield-&gt;delete("1.0", 'end');</pre>
+<p>(where "$tfield" is the text-field).
+<p>Text can be read from the text-field using "-&gt;get()".
+<p>Text can also be reformatted at runtime including change of text-fonts, colours and sizes using "tags". It is even said to be possible, to embed images or other Tk-widgets inside a Text-widget. Please see
+<pre>perldoc Tk::Text</pre>
+<p>for details. Here's an example-script for some of the possible text-field-operations:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package TextFieldWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "TextFieldWindow");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+250+200");
+        $self-&gt;{mw}-&gt;title("Text-Field-Demonstration");
+
+        $self-&gt;{tfield} = $self-&gt;{mw}-&gt;Text(-font       =&gt; "{Courier} 15 {normal}",
+                                            -width      =&gt; 82,
+                                            -height     =&gt; 20,
+                                            -background =&gt; 'white',
+                                            -foreground =&gt; 'black');
+        $self-&gt;{tfield}-&gt;pack();
+        $self-&gt;{tfield}-&gt;insert('end', "Hello from inside the Text-widget.\n\nIf you click on it once, you can edit this text.");
+        $self-&gt;{fr} = $self-&gt;{mw}-&gt;Frame();
+        $self-&gt;{btn1} = $self-&gt;{fr}-&gt;Button(-text    =&gt; "Show contents",
+                                            -command =&gt; sub { $self-&gt;showContents() });
+        $self-&gt;{btn2} = $self-&gt;{fr}-&gt;Button(-text    =&gt; "Clear text-field",
+                                            -command =&gt; sub { $self-&gt;clearTextField() });
+
+        $self-&gt;{btn3} = $self-&gt;{fr}-&gt;Button(-text    =&gt; "Exit",
+                                            -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn1}-&gt;pack(-side =&gt; 'left', -padx =&gt; 20);
+        $self-&gt;{btn3}-&gt;pack(-side =&gt; 'right', -padx =&gt; 20);
+        $self-&gt;{btn2}-&gt;pack(-padx =&gt; 20);
+        $self-&gt;{fr}-&gt;pack(-pady =&gt; 10);
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub showContents {
+        my $self = shift;
+        my $msg = "The text-field contains right now:\n\n";
+        $msg .= $self-&gt;{tfield}-&gt;get('1.0', 'end') . "\n";
+        $self-&gt;{mw}-&gt;messageBox(-title =&gt; 'Text-field-Contents', -message =&gt; $msg);
+    }
+
+    sub clearTextField {
+        my $self = shift;
+        $self-&gt;{tfield}-&gt;delete('1.0', 'end');
+    }
+}
+
+my $app = TextFieldWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<P>
+<HR>
+<h3><A NAME="12">12. Creating a Menubar</A></h3>
+<p>Wouldn't it be nice to have a menubar with headlines like "File", "Edit" and so on, too ?
+<p>As far as I know, there isn't a preconfigured template for that in Tk, but there are the widgets "Menu" and "Menubutton".
+<br>With these we can create a custom solution in five steps:
+<ol>
+<li>We create a "Tk::Frame".</li>
+<li>We fill the frame with several "Tk::Menubutton"s.</li>
+<li>For each menubutton we create a "Tk::Menu".</li>
+<li>We fill the menues with several menu options, using the "-&gt;add("command", ...)"-method of the menues.</li>
+<li>We connect the menus to the menubuttons using the "-&gt;configure(-menu =&gt; ...)"-method of the menubuttons.</li>
+</ol>
+<p><u>Please notice</u>: The "Tk::Menu" offers a feature, to drag a menu away from its application with the mouse and move it around on the screen in its own window.
+You see this sometimes on Linux, but Windows users aren't used to it, so we switch this feature off doing:
+<pre>$mainwindow-&gt;optionAdd("*tearOff", 'false');</pre>
+<p>(where "$mainwindow" is the main window.)
+<p>Here comes the example-script:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MenuBarWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "MenuBarWindow");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+158+190");
+        $self-&gt;{mw}-&gt;optionAdd("*tearOff", 'false');
+        $self-&gt;{mw}-&gt;title("Menubar-Demonstration");
+
+        # The menubar-frame:
+
+        $self-&gt;{mbarframe} = $self-&gt;{mw}-&gt;Frame(-relief =&gt; 'ridge', -bd =&gt; 5);
+
+        # The menubuttons:
+
+        $self-&gt;{mb_file} = $self-&gt;{mbarframe}-&gt;Menubutton(-text =&gt; "File");
+        $self-&gt;{mb_edit} = $self-&gt;{mbarframe}-&gt;Menubutton(-text =&gt; "Edit");
+        $self-&gt;{mb_info} = $self-&gt;{mbarframe}-&gt;Menubutton(-text =&gt; "Info");
+
+        $self-&gt;{mbarframe}-&gt;pack(-side =&gt; 'top', -fill =&gt; 'x');
+        $self-&gt;{mb_file}-&gt;pack(-side =&gt; 'left');
+        $self-&gt;{mb_edit}-&gt;pack(-side =&gt; 'left');
+        $self-&gt;{mb_info}-&gt;pack(-side =&gt; 'right');
+
+        # Menues associated with the menubuttons:
+        
+        # First, the "File"-menu:
+       
+        $self-&gt;{menu_file} = $self-&gt;{mb_file}-&gt;Menu();
+        $self-&gt;{menu_file}-&gt;add("command", -label =&gt; "Open", -command =&gt; sub {}, -state =&gt; "disabled");
+        $self-&gt;{menu_file}-&gt;add("command", -label =&gt; "Save", -command =&gt; sub {}, -state =&gt; "disabled");
+        $self-&gt;{menu_file}-&gt;add("separator");
+        $self-&gt;{menu_file}-&gt;add("command", -label =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{mb_file}-&gt;configure(-menu =&gt; $self-&gt;{menu_file});
+
+        # The "Edit"-menu:
+
+        $self-&gt;{menu_edit} = $self-&gt;{mb_edit}-&gt;Menu();
+        $self-&gt;{menu_edit}-&gt;add("command", -label =&gt; "Show contents", -command =&gt; sub { $self-&gt;showContents() });
+        $self-&gt;{menu_edit}-&gt;add("command", -label =&gt; "Clear text-field", -command =&gt; sub { $self-&gt;clearTextField() });
+        $self-&gt;{mb_edit}-&gt;configure(-menu =&gt; $self-&gt;{menu_edit});
+
+        # The "Info"-menu:
+        $self-&gt;{menu_info} = $self-&gt;{mb_info}-&gt;Menu();
+        $self-&gt;{menu_info}-&gt;add("command", -label =&gt; "Show Info", -command =&gt; sub { $self-&gt;showInfo() });
+        $self-&gt;{mb_info}-&gt;configure(-menu =&gt; $self-&gt;{menu_info});
+
+        # That's all for the menubar. Now comes the text-field again:
+
+        $self-&gt;{tfield} = $self-&gt;{mw}-&gt;Text(-font       =&gt; "{Courier} 15 {normal}",
+                                            -width      =&gt; 82,
+                                            -height     =&gt; 20,
+                                            -background =&gt; 'white',
+                                            -foreground =&gt; 'black');
+        $self-&gt;{tfield}-&gt;pack();
+
+        $self-&gt;{tfield}-&gt;insert('end', "Hello.\n\nPlease click on the menubar, to see, what you can do here.");
+
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub showInfo {
+        my $self = shift;
+        $self-&gt;{mw}-&gt;messageBox(-title =&gt; 'Info', -message =&gt; "This is just a little menubar-demonstration,\ncreated on 7-4-2021.\n");
+    }
+
+    sub showContents {
+        my $self = shift;
+        my $msg = "The text-field contains right now:\n\n";
+        $msg .= $self-&gt;{tfield}-&gt;get('1.0', 'end') . "\n";
+        $self-&gt;{mw}-&gt;messageBox(-title =&gt; 'Text-field-Contents', -message =&gt; $msg);
+    }
+
+    sub clearTextField {
+        my $self = shift;
+        $self-&gt;{tfield}-&gt;delete('1.0', 'end');
+    }
+}
+
+my $app = MenuBarWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<P>
+<HR>
+<h3><A NAME="13">13. Displaying a Statusbar</A></h3>
+<p>At the window-bottom of many professional applications there is a statusbar showing short messages about what the program is doing at the moment.
+Tk doesn't provide a special widget for such a statusbar.
+<p>But it is possible to emulate one using a Label-widget with a textvariable in a frame at the bottom of the main window. 
+<p>Here's an example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = Tk::MainWindow-&gt;new(-title =&gt; "Statusbar-Demonstration");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+325+200");
+        $self-&gt;{numclicks} = 0;
+        $self-&gt;{btn1} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Press", -command =&gt; sub { $self-&gt;btnClick() });
+        $self-&gt;{btn1}-&gt;pack(-padx =&gt; 150, -pady =&gt; 50);
+        $self-&gt;{btn2} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn2}-&gt;pack(-anchor =&gt; 'e', -padx =&gt; 20, -pady =&gt; 20);
+        $self-&gt;{sbartext} = "";
+        $self-&gt;{sbarframe} = $self-&gt;{mw}-&gt;Frame();
+        $self-&gt;{sbarlabel} = $self-&gt;{sbarframe}-&gt;Label(-bd           =&gt; 1,
+                                                       -relief       =&gt; 'sunken',
+                                                       -anchor       =&gt; 'w',
+                                                       -textvariable =&gt; \$self-&gt;{sbartext});
+        $self-&gt;{sbarlabel}-&gt;pack(-fill =&gt; 'x');
+        $self-&gt;{sbarframe}-&gt;pack(-side =&gt; 'bottom', -fill =&gt; 'x');
+        $self-&gt;{sbartext} = "Waiting.";
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub btnClick {
+        my $self = shift;
+        $self-&gt;{numclicks}++;
+        $self-&gt;{sbartext} = "Button pressed " . $self-&gt;{numclicks} . " times.";
+    }
+}
+
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<p>There's another way of writing this example using a StatusBar-class for the statusbar and using the "-&gt;configure()"-method of the Label-widget:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = Tk::MainWindow-&gt;new(-title =&gt; "Statusbar-Demonstration");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+325+200");
+        $self-&gt;{numclicks} = 0;
+        $self-&gt;{btn1} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Press", -command =&gt; sub { $self-&gt;btnClick() });
+        $self-&gt;{btn1}-&gt;pack(-padx =&gt; 150, -pady =&gt; 50);
+        $self-&gt;{btn2} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn2}-&gt;pack(-anchor =&gt; 'e', -padx =&gt; 20, -pady =&gt; 20);
+        $self-&gt;{sbartext} = "";
+        $self-&gt;{sbarframe} = $self-&gt;{mw}-&gt;Frame();
+        $self-&gt;{sbarlabel} = $self-&gt;{sbarframe}-&gt;Label(-bd           =&gt; 1,
+                                                       -relief       =&gt; 'sunken',
+                                                       -anchor       =&gt; 'w',
+                                                       -textvariable =&gt; \$self-&gt;{sbartext});
+        $self-&gt;{sbar} = StatusBar-&gt;new($self-&gt;{mw});
+        $self-&gt;{sbar}-&gt;createBar();
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub btnClick {
+        my $self = shift;
+        $self-&gt;{numclicks}++;
+        $self-&gt;{sbar}-&gt;set("Button pressed " . $self-&gt;{numclicks} . " times.");
+    }
+}
+
+package StatusBar {
+
+    sub new {
+        my $classname = shift;
+        my $self = {master =&gt; shift};
+        return bless($self, $classname);
+    }
+
+    sub createBar {
+        my $self = shift;
+        $self-&gt;{frame1} = $self-&gt;{master}-&gt;Frame();
+        $self-&gt;{label1} = $self-&gt;{frame1}-&gt;Label(-bd =&gt; 1,
+                                                 -relief =&gt; 'sunken',
+                                                 -anchor =&gt; 'w');
+        $self-&gt;{label1}-&gt;pack(-fill =&gt; 'x');
+        $self-&gt;{frame1}-&gt;pack(-side =&gt; 'bottom', -fill =&gt; 'both');
+        $self-&gt;set("Waiting.");
+    }
+
+    sub set {
+        my $self   = shift;
+        my $format = shift;
+        $self-&gt;{label1}-&gt;configure(-text =&gt; $format);
+        $self-&gt;{label1}-&gt;idletasks();
+    }
+
+    sub clear {
+        my $self = shift;
+        $self-&gt;{label1}-&gt;configure(-text =&gt; "");
+        $self-&gt;{label1}-&gt;idletasks();
+    }
+}
+
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<P>
+<HR>
+<h3><A NAME="14">14. Scrollbars and the ScrolledText-Widget</A></h3>
+<p>If you want to show more text in for example a Text-widget than can be displayed at once, you can use a "Tk::Scrolled"-widget.
+It adds one or more scrollbars to a widget, so the user can scroll the content.
+<p>Here's an example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+my $mw = MainWindow-&gt;new(-title =&gt; "ScrolledText-Demo'");
+$mw-&gt;optionAdd("*font", "Arial 15 normal");
+$mw-&gt;geometry("+250+200");
+my $tfield = $mw-&gt;Scrolled("Text",
+                           -scrollbars =&gt; 'e',
+                           -font =&gt; "{Courier} 15 {normal}",
+                           -width      =&gt; 82,
+                           -height     =&gt; 20,
+                           -background =&gt; 'white',
+                           -foreground =&gt; 'black');
+$tfield-&gt;pack();
+
+my $i;
+my $lastnum = 100;
+for $i (1 .. $lastnum) {
+    $tfield-&gt;insert('end', $i);
+    if ($i != $lastnum) {
+        $tfield-&gt;insert('end', "\n");
+    }
+}
+
+my $btn1 = $mw-&gt;Button(-text =&gt; "Ok",
+                       -command =&gt; sub { $mw-&gt;destroy() });
+$btn1-&gt;pack(-side =&gt; 'right', -padx =&gt; 20, -pady =&gt; 10);
+$mw-&gt;MainLoop();</pre>
+<P>
+<HR>
+<h3><A NAME="15">15. Dialog-Windows</A></h3>
+<p>Simple dialog-windows can be created using "<tt>-&gt;messageBox()</tt>":
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "Example of Simple Dialog");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+250+200");
+        $self-&gt;{btn1} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Click button to open dialog-window.", -command =&gt; sub { $self-&gt;btnClick()});
+        $self-&gt;{btn1}-&gt;pack();
+
+        $self-&gt;{btn2} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn2}-&gt;pack();
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub btnClick {
+        my $self = shift;
+        my @yesno = qw(Yes No);
+        my $answer = $self-&gt;{mw}-&gt;messageBox(-type =&gt; "YesNo",
+                                             -title =&gt; "Your Choice",
+                                             -message =&gt; 'Please click either "Yes" or "No".');
+        $self-&gt;{mw}-&gt;messageBox(-title =&gt; $answer, -message =&gt; "Your choice was: $answer.");
+    }
+}
+
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<p>If you need more complex input from the user, for example from one or more entry-fields, "<tt>-&gt;messageBox()</tt>" isn't sufficient any more.
+<p>Then you have to create your own dialog-window.
+<p>"Tk::Toplevel" provides a second main window-widget.
+<p>So it should be easy to create such a window and populate it with an entry-field, a button and so on. But there is a problem:
+<br>If you open the Toplevel window (as a second main window), the Perl-script doesn't wait for the user to make his input, but just moves on and returns to the main loop.
+So your application gets messed up.
+<p>(You don't run into this problem, when you use "<tt>-&gt;messageBox()</tt>", because the code there already takes care of this automatically).
+<p>Fortunately, there's a solution for this problem:
+<p>When the new Toplevel-window is open, you can make the first window wait, until the new ones closes again, by doing:
+<pre>$mainwindow-&gt;waitWindow($dialogwindow);</pre>
+<p>Here's an example-script again:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "Example of Custom Dialog-Window");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+250+200");
+
+        $self-&gt;{btn1} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Click button to open dialog-window.", -command =&gt; sub { $self-&gt;btnClick()});
+        $self-&gt;{btn1}-&gt;pack(-padx =&gt; 20, -pady =&gt; 20);
+
+        $self-&gt;{btn2} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn2}-&gt;pack(-pady =&gt; 10);
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub btnClick {
+        my $self = shift;
+        $self-&gt;{dialogwindow} = $self-&gt;{mw}-&gt;Toplevel();
+        $self-&gt;{dialogwindow}-&gt;title("Dialog Window");
+        $self-&gt;{dialogwindow}-&gt;geometry("+300+250");
+        $self-&gt;{lab1} = $self-&gt;{dialogwindow}-&gt;Label(-text =&gt; "Please enter something:");
+        $self-&gt;{lab1}-&gt;pack();
+        $self-&gt;{entr1} = $self-&gt;{dialogwindow}-&gt;Entry();
+        $self-&gt;{entr1}-&gt;pack();
+        $self-&gt;{entr1}-&gt;focus();
+        $self-&gt;{btn3} = $self-&gt;{dialogwindow}-&gt;Button(-text =&gt; "Ok",
+                                                      -command =&gt; sub { $self-&gt;dialogEnd() });
+        $self-&gt;{btn3}-&gt;pack();
+
+        # This is the important line: It tells the MainWindow to wait:
+
+        $self-&gt;{mw}-&gt;waitWindow($self-&gt;{dialogwindow});
+    }
+
+    sub dialogEnd {
+        my $self = shift;
+        my $e = $self-&gt;{entr1}-&gt;get();
+        $self-&gt;{dialogwindow}-&gt;destroy();
+        $self-&gt;{mw}-&gt;messageBox(-title =&gt; "Input", -message =&gt; "You entered:\n\n$e\n");
+    }
+}
+        
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<P>
+<HR>
+<h3><A NAME="16">16. Processing Keyboard-Events using ".bind()"</A></h3>
+<p>Most widgets, including the main window, support the ".bind()"-method.
+<br>With it, you can execute a function, when a given key was pressed and the widget, to which the key was bound, has the focus.
+<br>So key-combinations, that should work everywhere in your application, should be bound to the main window-widget.
+<br>The name of the key has to be specified as a string. Possible expressions are for example:
+<pre>&lt;Return&gt;
+&lt;Control-q&gt;</pre>
+<p>"-&gt;bind()" is called like this (different than widgets):
+<pre>$self-&gt;{mw}-&gt;bind("&lt;Control-q&gt;" =&gt; sub { ... });</pre>
+<p>When used without object oriented programming, the ".bind()"-method automatically passes the widget as an argument to the function. So this script shows, which key was pressed:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+sub print_keysym {
+    my $widget = shift;
+    my $e = $widget-&gt;XEvent();
+    my $keysym_text    = $e-&gt;K();
+    my $keysym_decimal = $e-&gt;N();
+    print "keysym  = $keysym_text\n";
+    print "numeric = $keysym_decimal\n";
+}
+
+my $mw = MainWindow-&gt;new(-title =&gt; "MyWindow");
+$mw-&gt;optionAdd("*font", "Arial 15 normal");
+$mw-&gt;geometry("+250+200");
+$mw-&gt;bind('&lt;KeyPress&gt;' =&gt; \&amp;print_keysym);
+MainLoop();</pre>
+<p>But when using object oriented programming, another argument is passed to the function because of the
+<pre>my $self = shift;</pre>
+<p>The widget isn't then passed to the function. But it is still known in the class, therefore it's still available in the function, too:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "Bind-Example");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+250+200");
+        $self-&gt;{mw}-&gt;bind('<KeyPress>' =&gt; sub { $self-&gt;print_keysym() });
+        $self-&gt;{mw}-&gt;bind('<Control-q>' =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{t} = "Pressed:\nkeysym = none\nnumeric = none\n";
+        $self-&gt;{lab1} = $self-&gt;{mw}-&gt;Label(-textvariable =&gt; \$self-&gt;{t});
+        $self-&gt;{lab1}-&gt;pack(-padx =&gt; 20, -pady =&gt; 20);
+        $self-&gt;{btn1} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn1}-&gt;pack(-padx =&gt; 20, -pady =&gt; 20);
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub print_keysym {
+        my $self = shift;
+        my $widget = $self-&gt;{mw};
+        my $e = $widget-&gt;XEvent();
+        my $keysym_text = $e-&gt;K();
+        my $keysym_decimal = $e-&gt;N();
+        $self-&gt;{t} = "Pressed:\nkeysym = $keysym_text\nnumeric = $keysym_decimal\n";
+    }
+}
+
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<P>
+<HR>
+<h3><A NAME="17">17. Making the Application aware of other than Keyboard- and Mouse-Events</A></h3>
+<p>When the main loop of the Tk-application is run, it expects input from the user like mouse-clicks on buttons or pressing of key-combinations assigned with "-&gt;bind()".
+<br>But what, if the application shall notice something else, for example a certain amount of time passed by or the change of a variable ?
+<p>This can be done with the methods "-&gt;after()" and especially "-&gt;afterIdle()".
+<p>In the following example for "-&gt;after()" a second toplevel window is opened and closed in a time interval without any interaction of the user:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {interval =&gt; 3,
+                    task2on =&gt; 0,
+                    task1on =&gt; 0};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; 'Example for the ".after()"-method');
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+250+200");
+        $self-&gt;{lab1} = $self-&gt;{mw}-&gt;Label(-text =&gt; "When you click on \"On\", a second window pops up and closes again every $self-&gt;{interval} seconds.\n\nBy clicking on \"Off\", you can stop this again.");
+        $self-&gt;{lab1}-&gt;pack(-padx =&gt; 20, -pady =&gt; 20);
+        
+        $self-&gt;{fr1} = $self-&gt;{mw}-&gt;Frame();
+        $self-&gt;{fr1}-&gt;pack();
+        $self-&gt;{btn1} = $self-&gt;{mw}-&gt;Button(-text =&gt; "On", -command =&gt; sub { $self-&gt;on()});
+        $self-&gt;{btn1}-&gt;pack(-side =&gt; 'left', -padx =&gt; 10);
+
+        $self-&gt;{btn2} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Off", -command =&gt; sub { $self-&gt;off()});
+        $self-&gt;{btn2}-&gt;pack(-side =&gt; 'right', -padx =&gt; 10);
+
+        $self-&gt;{btn3} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit", -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn3}-&gt;pack(-side =&gt; 'right', -padx =&gt; 10, -pady =&gt; 10);
+
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub on {
+        my $self = shift;
+        print "On\n";
+        if (! $self-&gt;{task1on} &amp;&amp; ! $self-&gt;{task2on}) {
+            $self-&gt;{task1} = $self-&gt;{mw}-&gt;after($self-&gt;{interval} * 1000, sub { $self-&gt;openWin() });
+            $self-&gt;{task1on} = 1;
+        }
+    }
+
+    sub off {
+        my $self = shift;
+        if ($self-&gt;{task1on}) {
+            $self-&gt;{mw}-&gt;afterCancel($self-&gt;{task1});
+            $self-&gt;{task1on} = 0;
+        }
+
+        if ($self-&gt;{task2on}) {
+            $self-&gt;{secwin}-&gt;destroy();
+            $self-&gt;{mw}-&gt;afterCancel($self-&gt;{task2});
+            $self-&gt;{task2on} = 0;
+        }
+        print "Off\n";
+    }
+
+    sub openWin {
+        my $self = shift;
+        $self-&gt;{secwin} = $self-&gt;{mw}-&gt;Toplevel();
+        $self-&gt;{secwin}-&gt;title("Temporary Window");
+        $self-&gt;{secwin}-&gt;geometry("+400+250");
+        $self-&gt;{lab2} = $self-&gt;{secwin}-&gt;Label(-text =&gt; "This is a temporary window.\n\nIt closes and reopens every " . $self-&gt;{interval} ." seconds.");
+        $self-&gt;{lab2}-&gt;pack(-padx =&gt; 20, -pady =&gt; 20);
+        $self-&gt;{task1on} = 0;
+        $self-&gt;{task2} = $self-&gt;{mw}-&gt;after($self-&gt;{interval} * 1000, sub { $self-&gt;closeWinAndSettask1on() });
+        $self-&gt;{task2on} = 1;
+        print "Opening window.\n";
+    }
+
+    sub closeWinAndSettask1on {
+        my $self = shift;
+        $self-&gt;{secwin}-&gt;destroy();
+        $self-&gt;{task2on} = 0;
+        $self-&gt;{task1} = $self-&gt;{mw}-&gt;after($self-&gt;{interval} * 1000, sub { $self-&gt;openWin() });
+        $self-&gt;{task1on} = 1;
+        print "Closing window.\n";
+    }
+}
+        
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<p>As you can see, controlling the main loop can get rather complicated.
+Read
+<pre>perldoc Tk::after</pre>
+<p>for further information.
+<p><u>Notice</u>: The result couldn't have been achieved using
+<pre>sleep(INTERVAL);</pre>
+<p>because "sleep()" would have frozen the whole application.
+<br>But you need the application to keep on running to watch out for mouse-clicks or other events.
+<P>
+<HR>
+<h3><A NAME="18">18. Displaying gif-Images</A></h3>
+<p>The "Tk::Photo"-class makes it quite easy to display an image in the application-window.
+<br>Supported image-format is for example "gif".
+<p>The "Photo"-object must be connected to another widget like a "Label". This widget can then be packed into another widget like the main window.
+<p>Here's an example-script. It needs a gif-image "filename.gif" in the script's directory, respectively you have to adapt the script to the filename of the gif-image to display:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+my $mw = MainWindow-&gt;new(-title =&gt; "Displaying a gif-Image");
+$mw-&gt;optionAdd("*font", "Arial 15 normal");
+$mw-&gt;geometry("+450+200");
+
+my $img = $mw-&gt;Photo(-file =&gt; 'filename.gif', -format =&gt; 'gif');
+my $lab1 = $mw-&gt;Label(-image =&gt; $img, -relief =&gt; 'raised');
+$lab1-&gt;pack(-padx =&gt; 100, -pady =&gt; 50, -ipadx =&gt; 20, -ipady =&gt; 20);
+my $btn1 = $mw-&gt;Button(-text =&gt; "Ok", -command =&gt; sub { $mw-&gt;destroy() });
+$btn1-&gt;pack(-pady =&gt; 20);
+$btn1-&gt;focus();
+
+$mw-&gt;MainLoop();</pre>
+<p>Embedding such an image into an existing textfield "$tfield" can be done with:
+<pre>my $img = $mw-&gt;Photo(-file =&gt; "yourimage.gif", -format =&gt; 'gif);
+$tfield-&gt;imageCreate("1.0", -image =&gt; $myimg)</pre>
+<p>In a Canvas it would be:
+<pre>$canvas-&gt;createImage(0, 0, -anchor =&gt; nw, -image =&gt; $myimg);</pre>
+<p>Instead of reading the image-data from a file, it can also be obtained from an encoded string.
+<P>
+<HR>
+<h3><A NAME="19">19. Scale-Widgets</A></h3>
+<p>"Tk::Scale" provides graphical push-controls for entering numerical values in a certain range defined by "-from" and "-to"-arguments.
+<br>Here's an example-script, that should make clearer, what "Tk::Scale" is about:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+package MyWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new(-title =&gt; "SumCalculator");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+250+200");
+        $self-&gt;{fr1} = $self-&gt;{mw}-&gt;Frame(-relief =&gt; 'sunken',
+                                          -borderwidth =&gt; 10);
+        $self-&gt;{fr1}-&gt;pack(-side =&gt; 'left', -padx =&gt; 10, -pady =&gt; 10);
+        $self-&gt;{fr2} = $self-&gt;{mw}-&gt;Frame(-relief =&gt; 'raised',
+                                          -borderwidth =&gt; 10);
+        $self-&gt;{fr2}-&gt;pack(-side =&gt; 'left', -padx =&gt; 10, -pady =&gt; 10);
+        $self-&gt;{fr3} = $self-&gt;{mw}-&gt;Frame(-relief =&gt; 'sunken',
+                                          -borderwidth =&gt; 10);
+        $self-&gt;{fr3}-&gt;pack(-side =&gt; 'left', -padx =&gt; 10, -pady =&gt; 10, -ipadx =&gt; 10);
+        $self-&gt;{sum} = 0;
+        $self-&gt;{lab1} = $self-&gt;{fr3}-&gt;Label(-textvariable =&gt; \$self-&gt;{sum});
+        $self-&gt;{lab1}-&gt;pack();
+        $self-&gt;{btn1} = $self-&gt;{fr2}-&gt;Button(-text =&gt; "Calculate Sum",
+                                             -command =&gt; sub { $self-&gt;result() });
+        $self-&gt;{btn1}-&gt;pack(-anchor =&gt; 'center');
+        $self-&gt;{btn2} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Exit",
+                                            -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn2}-&gt;pack(-side =&gt; 'bottom', -padx =&gt; 10, -pady =&gt; 10);
+        $self-&gt;{scale1} = $self-&gt;{fr1}-&gt;Scale(-from =&gt; 0,
+                                              -to   =&gt; 100,
+                                              -orient =&gt; 'horizontal',
+                                              -label =&gt; "Number 1:");
+        $self-&gt;{scale1}-&gt;pack();
+        $self-&gt;{scale2} = $self-&gt;{fr1}-&gt;Scale(-from =&gt; 0,
+                                              -to   =&gt; 100,
+                                              -orient =&gt; 'horizontal',
+                                              -label =&gt; "Number 2:");
+        $self-&gt;{scale2}-&gt;pack();
+        $self-&gt;{scale3} = $self-&gt;{fr1}-&gt;Scale(-from =&gt; 0,
+                                              -to   =&gt; 100,
+                                              -orient =&gt; 'horizontal',
+                                              -label =&gt; "Number 3:");
+        $self-&gt;{scale3}-&gt;pack();
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub result {
+        my $self = shift;
+        $self-&gt;{sum} = $self-&gt;{scale1}-&gt;get() + $self-&gt;{scale2}-&gt;get() + $self-&gt;{scale3}-&gt;get();
+    }
+}
+
+my $app = MyWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<p>Usually you may prefer the "Tk::Entry"-widget to ask numerical input from the user.
+<br>But "Tk::Scale" is a very nice widget, if you want to write an audio-mixer-application for example.
+<p>The push-controls can be set up vertically too.
+<P>
+<HR>
+<h3><A NAME="20">20. Graphics with the Canvas-widget</A></h3>
+<p>The "Tk::Canvas"-widget makes it possible to draw some graphics in a Tk-window.
+<p>Here's a (quite beautiful) example:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Tk;
+
+# Screen resolution:
+
+my $RESX = 1024;
+my $RESY = 576;
+
+package SplashWindow {
+
+    sub new {
+        my $classname = shift;
+        my $self = {};
+        return bless($self, $classname);
+    }
+
+    sub createWindow {
+        my $self = shift;
+        $self-&gt;{mw} = MainWindow-&gt;new();
+        $self-&gt;{mw}-&gt;title("Splash");
+        $self-&gt;{mw}-&gt;optionAdd("*font", "Arial 15 normal");
+        $self-&gt;{mw}-&gt;geometry("+130+18");
+        $self-&gt;{cv} = $self-&gt;{mw}-&gt;Canvas(-bg =&gt; "white",
+                                          -width =&gt; $RESX,
+                                          -height =&gt; $RESY);
+        $self-&gt;{cv}-&gt;pack();
+        $self-&gt;drawSplash();
+        $self-&gt;{btn} = $self-&gt;{mw}-&gt;Button(-text =&gt; "Ok",
+                                           -command =&gt; sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn}-&gt;bind("&lt;Return&gt;", sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn}-&gt;bind("&lt;Control-q&gt;", sub { $self-&gt;{mw}-&gt;destroy() });
+        $self-&gt;{btn}-&gt;focus();
+        $self-&gt;{btn}-&gt;pack(-side =&gt; 'right',
+                           -padx =&gt; 10,
+                           -pady =&gt; 10);
+        $self-&gt;{mw}-&gt;MainLoop();
+    }
+
+    sub drawSplash {
+        my $self = shift;
+        my $pi = 3.141592;
+        my @m = ();
+        my $i;
+        for $i (0 .. 1000) {
+            push(@m, 0);
+        }
+        my $n = 141;
+        my $a = cos($pi / 4.);
+        my $peak_width = -0.001;
+        my $peak_height = 90;
+        my ($x, $x1, $y, $y1, $e, $c, $d, $z);
+        for $y (1 .. ($n + 1)) {
+            $e = $a * $y;
+            $c = $y - $n / 2 - 1;
+            $c *= $c;
+            for $x (1 .. ($n + 1)) {
+                $d = $x - $n / 2 - 1;
+                $z = $peak_height * exp($peak_width * ($c + $d * $d));
+                $x1 = $x + $e;
+                $y1 = $z + $e;
+                # Skip overlapping points:
+                if ($y1 &gt;= $m[int($x1)]) {
+                    $m[int($x1)] = $y1;
+                    $self-&gt;plot($x1, $y1);
+                }
+            }
+        }
+    }
+
+    sub plot {
+        my $self = shift;
+        my $x = shift;
+        my $y = shift;
+        my $pointsize = 2;
+        my $padx = 30;
+        my $pady = 40;
+        my $zx_spectrum_x = 256;
+        my $zx_spectrum_y = 176;
+        # $x = $x / $zx_spectrum_x * $RESX + $padx;
+        $x = $x / $zx_spectrum_x * $RESX + $padx;
+        $y = $RESY - $y / $zx_spectrum_y * $RESY - $pady;
+        my $i;
+        for $i (0 .. $pointsize) {
+            $self-&gt;{cv}-&gt;createLine($x, $y + $i, $x + $pointsize, $y + $i);
+        }
+    }
+}
+
+my $app = SplashWindow-&gt;new();
+$app-&gt;createWindow();</pre>
+<P>
+<HR>
+<h3><A NAME="21">21. Avoiding Console Windows for Perl GUI-Applications on Windows</A></h3>
+<p>When writing a GUI-application in Perl/Tk on Windows, you probably want to start it without a console window showing up on the screen.
+<p>This can be done by running the script with a Perl executable "<tt>wperl.exe</tt>" or "<tt>perlw.exe</tt>" provided by the Perl distribution on Windows. <a href="https://strawberryperl.com">Strawberry Perl</a> for example, which seems to be a nice Perl distribution, provides an executable "wperl.exe" in its "../perl/bin/"-directory.
+<br>Similar to "<tt>.pyw</tt>"-files for Python scripts without console windows, maybe such Perl scripts could have a special suffix "<tt>.plw</tt>", which could be linked as an application type to "<tt>wperl.exe</tt>". But that's my own suggestion.
+<p>Unfortunately, Strawberry Perl doesn't come with the Tk module by default at the moment. On my Windows XP-machine I could install Tk from CPAN by executing the command
+<pre>cpan -f -i -P Tk</pre>
+<p>in the "<tt>../perl/bin</tt>"-directory of Strawberry Perl though. Some tests failed, so the installation had to be forced with the "<tt>-f -i</tt>" options. But then Tk mostly worked (maybe a bit experimental though).
+
+<P>
+<HR>
+<h3><A NAME="22">22. Further Reading</A></h3>
+<ul>
+<li>Book: Lidie/Walsh: "Mastering Perl/Tk", 2002</a></li>
+<li><a href="https://www.perl.com/pub/1999/10/perltk/index.html/">Tutorial at "perl.com"</a></li>
+<li><a href="http://www.perltk.de/tk_widgets/howtos.html">Tutorials at "perltk.de" (German)</a></li>
+</ul>
+<p>My little series about Perl continues with "<a href="perl4_patterns.html">Perl Page #4: Programming Patterns</a>".
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<p><a href="index.html">Back to main-page</a>
+</body>
+</html>
