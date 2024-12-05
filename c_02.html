@@ -1,0 +1,844 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="C, programming language, Dennis, Ritchie, Kernighan, pointer, segfault, segmantation fault, Speicherzugriffsfehler, array, char">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>Writing in C: Part 2: Where Things Get Strange</title>
+</head>
+<body>
+<H2>
+Writing in C: Part 2: Where Things Get Strange</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>
+<p>
+<p>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Preface to Page Two</A>
+<LI><A HREF="#2">Working with Data in Memory.</A>
+<LI><A HREF="#3">Pointers and the Function "malloc()"</A>
+<LI><A HREF="#4">Pointers and Functions in General. Function "free()".</A>
+<LI><A HREF="#5">Pointers to Simpler Datatypes. Dereferentiation.</h3</A>
+<LI><A HREF="#6">Pointing Pointers to Already Allocated Memory. Pointer Arithmetic.</A>
+<LI><A HREF="#7">realloc()</A>
+<LI><A HREF="#8">sizeof()</A>
+<LI><A HREF="#9">Comparing Pointers. NULL-Pointers</A>
+<LI><A HREF="#10">Pointer-Casting. Pointers to void</A>
+<LI><A HREF="#11">String Literals in the Code, and Better Not Pointing a Pointer to Them</A>
+<LI><A HREF="#12">String Functions</A>
+<LI><A HREF="#13">Strings with More than one Line</A>
+<LI><A HREF="#14">Getting User-Input</A>
+<LI><A HREF="#15">Example-Program "Cookie Monster"</A>
+<LI><A HREF="#16">Structures with struct</A>
+<LI><A HREF="#17">Pointers to Structures</A>
+<LI><A HREF="#18">Emulating Object-Oriented Programming in C</A>
+<LI><A HREF="#19">Unions</A>
+<LI><A HREF="#20">Arrays</A>
+<LI><A HREF="#21">Memory Areas of C-programs</h3</A>
+<LI><A HREF="#22">Linked Lists (Dynamically Changeable Lists)</h3</A>
+<LI><A HREF="#23">Getting a Random Number</h3</A>
+<LI><A HREF="#24">Alternative Syntaxes</h3</A>
+<LI><A HREF="#25">Working with Files</h3</A>
+<LI><A HREF="#26">Keyword Summary of Variable Datatypes</h3</A>
+</OL>
+<p>
+<HR>
+<h3><A NAME="1">1. Preface to Page Two</A></h3>
+<p>So far, my <a href="c_01.html">first text</a> was dealing with the language constructions of C, that are relatively easy to understand.
+But now we're reaching the point, where things may get strange and are at first very unfamiliar.
+<br>The books I read then just went on describing the language systematics. They didn't get to the point, what C was about. So I'm taking a different approach here. I'm going straight to managing memory yourself, and move on from there to emulating objects.
+In the end, when everything is explained, you may find, that the books were basically talking about the same things.
+<p>The first chapters on this page build on top of each other. So please read them <b>one after one</b>, starting with the first one. Until you reach "Emulating Object-Oriented Programming in C". This is probably the most interesting chapter, but it can only be understood, if you're familiar with everything that was explained before.
+<p>
+<HR>
+<h3><A NAME="2">2. Working with Data in Memory.</A></h3>
+<p>In programming, often more complex data than single ints and chars have to be processed.
+<br>In C, the programmer has to manage the memory of the program himself / herself.
+So the common way to deal with that kind of data in C is as follows:
+<ul>
+<li>Reserve memory for the data.
+<li>Define a variable that can access that memory.
+<li>Process the data using that variable together with functions.
+<li>Free the memory again, when the work is done.
+</ul>
+<p>In the following chapter, I describe, how this is done.
+<p>
+<HR>
+<h3><A NAME="3">3. Pointers and the Function "malloc()"</A></h3>
+<p>To do, what was mentioned in the last chapter, we need a variable that can access data in memory. C has such a variable, and it is called a "pointer". When declaring it, also the type of data it points to has to be specified, so for example a pointer to "<tt>int</tt>" called "<tt>p</tt>" is declared as:
+<pre>int *p;</pre>
+<p>A pointer to "<tt>char</tt>" called "<tt>p</tt>" is declared as:
+<pre>char *p;</pre>
+<p>Where "<tt>*p</tt>" (the data, the pointer points to) is of datatype "<tt>int</tt>", respectively "<tt>char</tt>".
+<p>And we need a way to reserve memory for data. The function "<tt>malloc()</tt>" (= "memory allocation"), which is part of "<tt>stdlib.h</tt>" can do this. The number of bytes, that should be reserved, are passed as an argument to "<tt>malloc()</tt>". If the function works, the memory is allocated. (If not, "<tt>malloc()</tt>" returns "<tt>NULL</tt>". It should be checked, if "<tt>malloc()</tt>" was successful.)
+<br>So to allocate 100 bytes to store 100 "<tt>char</tt>", and get a pointer to that memory, one would write:
+<pre>char *p = malloc(100);</pre>
+<p>Now that we have that memory, and we have a pointer to access it, we can do something with the memory.
+As specified, there can to be up to 100 "<tt>char</tt>" in there. We could for example do now:
+<pre>p[0] = 'H';
+p[1] = 'e';
+p[2] = 'l';
+p[3] = 'l';
+p[4] = 'o';
+p[5] = '\0';
+</pre>
+<p>print it:
+<pre>printf("%s\n", p)</pre>
+<p>And free the memory in the end as mentioned above:
+<pre>free(p);</pre>
+<p>Altogether:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+void main(void) {
+    char *p = malloc(100);
+    p[0] = 'H';
+    p[1] = 'e';
+    p[2] = 'l';
+    p[3] = 'l';
+    p[4] = 'o'; 
+    p[5] = '\0';
+    printf("%s\n", p);
+    free(p);
+}</pre>
+<p>Notice, on our way we just defined a string here. Strings in C are just a couple of char-bytes in memory, terminated by the 0-char (which is written as "<tt>'\0'</tt>").
+<p>Many functions take a pointer as an argument. So does "<tt>printf()</tt>" here, when used with the format-string "<tt>%s</tt>".
+<p>Another function, that takes a pointer as an argument is "<tt>strcpy()</tt>", which is part of "<tt>string.h</tt>". It copies text into a memory location, pointed to by a pointer. Using it, we can write:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+void main(void) {
+    char *p = malloc(100);
+    strcpy(p, "Hello");
+    printf("%s\n", p);
+    free(p);
+}</pre>
+<p>The <tt>"Hello"</tt> is a "string literal" here, pure text inside a C-program. Such "string literals" are stored somewhere in a read-only area of the memory used by the C-program.
+<p>
+<HR>
+<h3><A NAME="4">4. Pointers and Functions in General. Function "free()".</A></h3>
+<p>Pointers can passed to and from functions without limitations. That way, the memory, the pointers point to, can be accessed inside the functions, and the data, that is stored there, can be processed by the functions.
+<br>It is also possible, to allocate new memory inside a called function, and return the pointer to that memory from the called function to the calling function.
+<br>It's not necessary to call "<tt>free()</tt>" in the same function, where the memory was allocated. "<tt>free()</tt>" can be called from anywhere in the program. It just frees the memory, to which the pointer, that is passed to it, points. Example:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+char *createData(void) {
+    char *p = malloc(100);
+    strcpy(p, "Hello");
+    return p;
+}
+
+void main(void) {
+    char *a = createData();
+    printf("%s\n", a);
+    free(a);
+}</pre>
+<p>Second example:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+void printAndFree(char *p) {
+    printf("%s\n", p);
+    free(p);
+}
+
+void main(void) {
+    char *a = malloc(100);
+    strcpy(a, "Hello");
+    printAndFree(a);
+}</pre>
+<p>
+<HR>
+<h3><A NAME="5">5. Pointers to Simpler Datatypes. Dereferentiation.</h3</A></h3>
+<p>Pointers can also be pointed to simpler datatypes such a single int or a single char.
+<br>It mustn't be set to the int/char itself though, but to its memory address, which is indicated by a "<tt>&amp;</tt>":
+<pre>int a = 5;
+int *p = &a;</pre>
+<p>As already mentioned above, the datatype of the "<tt>pointer to int</tt>" called "<tt>p</tt>" is "<tt>int *</tt>". So the second line could also be written as:
+<pre>int *p;
+p = &a;</pre>
+<p>When the data, the pointer points to, should be accessed (not the memory address, it points to) the pointer has to be "dereferenced". This is done by writing a leading "<tt>*</tt>":
+<pre>printf("%d\n" *p);</pre>
+<p>Once again:
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int a = 5;
+    /* Can also be written as: "int *p = &a;" */
+    int *p;
+    p = &amp;a;
+    printf("%d\n", *p);
+    return 0;
+}</pre>
+<p>Often, functions take the pointer itself as an argument. Then, just "<tt>p</tt>" has to be passed. This is for example the case for functions like "<tt>strcpy()</tt>" or for "<tt>printf()</tt>" with the format-string "<tt>%s</tt>".
+<br>"<tt>printf()</tt>" with the format-string "<tt>%d</tt>" is different though. It expects an integer as its argument.
+Therefore, <b>not</b> the "<tt>pointer to int</tt>" called "<tt>p</tt>" itself can be passed to it, but the data it points to - which is accessed by dereferencing the pointer and therefore passing "<tt>*p</tt>".
+<p>Notice, that when using smaller datatypes like single ints, chars or also pointers themselves, it's not necessary to call "<tt>malloc()</tt>" to reserve memory for them. The information, how much memory is needed for them, is stored in the compiler, and the compiler allocates this memory itself accordingly. So in a sense, having to allocate memory for data yourself is the ordinary case, while using ints and chars without allocating memory is the exception, made possible by the compiler.
+<p>
+<HR>
+<h3><A NAME="6">6. Pointing Pointers to Already Allocated Memory. Pointer Arithmetic.</A></h3>
+<p>As might be expected, pointers can also be pointed to already allocated memory.
+<p>And it's possible, to use the operators "<tt>+=</tt>", "<tt>++</tt>", "<tt>-=</tt>" and "<tt>--</tt>" on pointers. This is called "pointer arithmetic". The effect is, that the memory location of the pointer is changed accordingly. For example, if there's a pointer "<tt>p</tt>", the operation "<tt>p++;</tt>" makes it point one byte next to the original byte.
+<br>That way, for example a pointer can be used to "walk" on the data of a string and change characters. You just have to remember, where the string began, so it can be freed correctly. This can be done, by keeping a pointer at the original position.
+<br>There's also the socalled "array notation", with a number inside square brackets: It keeps the pointer at its location, but processes the byte, the number of bytes in the brackets away:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void) {
+    char *a = malloc(100);
+    strcpy(a, "Hello XorYd");
+    puts(a);
+    /* Pointing a new pointer to the location, "a" points to: */
+    char *b = a;
+    b += 6;
+    *b = 'W';
+    puts(a);
+    char *c = a;
+    c[9] = 'l';
+    puts(a);
+    free(a);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="7">7. realloc()</A></h3>
+<p>If you want a different size of the memory, that was already allocated with "<tt>malloc()</tt>", you can use the function "<tt>realloc()</tt>":
+<pre>char *a = malloc(20);
+a = realloc(a, 100);
+free(a);
+</pre>
+<p>"<tt>realloc()</tt>" takes a pointer to the old allocated memory, and returns a pointer to newly allocated memory of a different size.
+<p>
+<HR>
+<h3><A NAME="8">8. sizeof()</A></h3>
+<p>A single byte with its 8 bits can store a number from 0 to 255. But for example an "<tt>int</tt>" in C can be much larger than 255. Therefore, a single "<tt>int</tt>", occupies more than one byte in memory. "<tt>malloc()</tt>" needs the number of bytes to allocate in memory as an argument though. Therefore, the number of bytes to pass to "<tt>malloc()</tt>" to store one or more ints, has to be calculated. The operator "<tt>sizeof()</tt>" (that works similar to a function) can be used for that:
+<pre>
+/* Allocating memory for 1 and for 7 ints: */
+int *a = malloc(sizeof(int));
+int *b = malloc(7 * sizeof(int));
+...
+...
+free(a);
+free(b);
+</pre> 
+<p>"<tt>sizeof()</tt>" doesn't need to be used with "<tt>char</tt>", because one "<tt>char</tt>" has a size of one byte.
+<p>
+<HR>
+<h3><A NAME="9">9. Comparing Pointers. NULL-Pointers</A></h3>
+<p>With the format-string "<tt>%p</tt>" of "<tt>printf()</tt>", the memory location, a pointer points to, can be printed.
+As far as I know, when two pointers are compared in an "<tt>if</tt>"-statement, the memory location, they point to, is compared. This may come in handy later.
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+void checkPointers(char *a, char *b) {
+    printf("Pointer 1: %p\tPointer 2: %p\n", a, b);
+    if (a == b) {
+        puts("Pointers equal.");
+    } else {
+        puts("Pointers not equal.");
+    }
+}
+
+int main(void) {
+    char *a = malloc(100);
+    char *b = malloc(100);
+    strcpy(a, "Hello");
+    strcpy(b, "Hello");
+    checkPointers(a, b);
+    if (strcmp(a, b) == 0) {
+        puts("The strings are equal though.");
+    }
+    puts("");
+    /* Pointing c at the location of b: */
+    char *c = b;
+    checkPointers(b, c);
+    free(a);
+    free(b);
+    return 0;
+}</pre>
+<p>There is also the pointer "NULL", that points to nothing ("<tt>char *a = NULL;</tt>"). Functions like for example "<tt>malloc()</tt>" return this special pointer on failure. This can be checked ("<tt>if (a == NULL) { ... }</tt>").
+<p>
+<HR>
+<h3><A NAME="10">10. Pointer-Casting. Pointers to void</A></h3>
+<p>Pointers, that point to certain data, for example to chars, can be changed lateron to point to a different datatype - while still pointing at the same memory location. This changing of datatype is called "casting". It is done like that, by putting round brackets around the datatype of the pointer:
+<pre>char *a = malloc(100);
+(int *) a;</pre>
+<p>And there's also the "<tt>pointer to void</tt>". It is a somehow generic pointer. Pointers can be casted from pointers to other datatypes to "<tt>pointer to void</tt>", and back. Without losing the data, because as mentioned they still point to the same memory location.
+<br>The type "<tt>pointer to void</tt>" can be used as a function parameter, to pass different types of pointers into the function. In the function, the pointers have to be cast back into their original types, to be able to work with them:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+void passEverythingIn(void *p, char *type) {
+    if (strcmp(type, "Pointer to int") == 0) {
+        printf("%d\n", *((int *) p));
+    }
+    if (strcmp(type, "Pointer to char (string)") == 0) {
+        printf("%s\n", (char *) p);
+    }
+}
+
+int main(void) {
+    int a = 5;
+    int *b = &a;
+    char *c = malloc(100);
+    strcpy(c, "Hello");
+    passEverythingIn(b, "Pointer to int");
+    passEverythingIn(c, "Pointer to char (string)");
+}</pre>
+<p>So this is very useful. Or the other way around: By returning a "<tt>pointer to void</tt>" from a function, a pointer to a memory location of not yet specified data can be passed. Actually, this is, what "<tt>malloc()</tt>" returns: A "<tt>pointer to void</tt>".
+<p>Casting is also possible with ordinary datatypes like "<tt>int</tt>" and "<tt>char</tt>". But it's more often used with pointers.
+<p>
+<HR>
+<h3><A NAME="11">11. String Literals in the Code, and Better Not Pointing a Pointer to Them</A></h3>
+<p>"Literals" are pure texts, that the programmer writes into the code. There are "integer literals" like <tt>5</tt> or <tt>25223</tt>, and string literals like <tt>"Hello"</tt>. These literals are automatically stored in a memory region of the program, that can't be changed. As a result, literals themselves can't be changed.
+<br>It is possible though, to point a pointer to such a literal, especially to a string literal. But the pointer then points to that unchangeable memory region, that was automatically created by the processes of running the program.
+<br>So, technically C makes it possible to point a pointer at a string literal:
+<pre>char *a = "Hello";</pre>
+<p>But that isn't the right way to initialize a string. Unless the string is known to stay unchanged throughout the whole program.
+<br>In all other cases, free and changeable memory has to be allocated for the string (or there will be difficult to find errors in the program). So with using a pointer, the string has to be initialized like this:
+<pre>char *a = malloc(6);
+strcpy(a, "Hello");
+...
+free(a)</pre>
+<p>
+<HR>
+<h3><A NAME="12">12. String Functions</A></h3>
+<p>After strings have been initialized correctly, and sufficient memory has been allocated for them, things get a little easier again.
+<br>Then, functions can be used on them, that are defined in "<tt>string.h</tt>". Essential functions are:
+<ul>
+<li><tt>strcpy()</tt>
+<br>Copies the data of a string or a string literal into the memory of a string, taking care of the trailing <tt>'\0'</tt>.
+<br>"<tt>strcpy()</tt>" is often used to build a string in the first place.
+<p>
+<li><tt>strlen()</tt>
+<br>Returns the number of characters of a string as an int. So '<tt>strlen("abc")</tt>' would be 3.
+<br>When allocating memory, remember, that one byte more is needed for the trailing <tt>'\0'</tt>.
+<p>
+<li><tt>strcat()</tt>
+<br>Adds one string to another, taking care of the trailing <tt>'\0'</tt>.
+<p>
+<li><tt>strcmp()</tt>
+<br>Compares two strings and returns 0, if they are equal.
+<p>
+<li><tt>strstr()</tt>
+<br>Checks, if a substring is part of a string. Returns a NULL-pointer, if not.
+<p>
+<li><tt>strdup()</tt>
+<br>Returns a pointer to a copy of the string with allocated memory.
+</ul>
+<p>The library "<tt>stdlib.h</tt>" also has the function:
+<ul>
+<li><tt>atoi()</tt>
+<br>Converts a string, that holds a number, into an integer.
+</ul>
+<p>The library "<tt>stdlib.h</tt>" has a function, that does the opposite:
+<ul>
+<li><tt>sprintf()</tt>
+<p>Writes "<tt>printf()</tt>"-type output (like for example integers) into a string.
+The function is quite powerful. For example gives you
+<pre>sprintf(s, "%03d", 5);</pre>
+<p>leading zeros, so that "<tt>005</tt>" is written into "<tt>s</tt>" (where "<tt>s</tt>" is a "<tt>pointer to char</tt>", and you allocated enough memory for the string).
+<pre>sprintf(s, "%.2f", 32.51245);</pre>
+<p>converts the floating point number into a string and rounds it to two decimal places (like used in currencies).
+</ul>
+<p>Here's an example on how to use some of these functions:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main(void) {
+    char *a = malloc(20);
+    char *b = malloc(20);
+    int c = 34;
+    int d = 17;
+    strcpy(a, "Hello");
+    printf("%d\n", strlen(a));
+    strcpy(b, "World");
+    printf("%s\n", a);
+    printf("%s\n", b);
+    strcat(a, " ");
+    strcat(a, b);
+    printf("%s\n", a);
+    strcpy(a, "Area ");
+    sprintf(b, "%d", c + d);
+    strcat(a, b);
+    printf("%s\n", a);
+    free(a);
+    free(b);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="13">13. Strings with More than one Line</A></h3>
+<p>If you want to write longer strings with many lines, you can use one of the following syntaxes:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+ 
+int main(void) {
+    char *s  = malloc(100);
+    char *s2 = malloc(100);
+    /* First syntax: */
+    strcpy(s, "This is the first line,\n\
+this is the second line.\n");
+
+    /* Second syntax: */
+    strcpy(s2, "This is the third line,\n"
+               "this is the fourth line.\n");
+    printf("%s", s);
+    puts("");
+    printf("%s", s2);
+    free(s);
+    free(s2);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="14">14. Getting User-Input</A></h3>
+<p>In C-libraries, several functions for getting user-input can be found. There are functions like "<tt>scanf()</tt>", "<tt>fgets()</tt>", "<tt>getline()</tt>" and "<tt>getchar()</tt>". Somehow, most of these functions have drawbacks. "<tt>getchar()</tt>" reads just one character at a time, but seems to be relatively reliable. I wrote something on my own with it, which kind of works, for strings of a size up to about "<tt>bufflen</tt>", which is 100 here:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+char *my_input(char *s) {
+    printf(s);
+    int bufflen = 100;
+    char *a = malloc(bufflen);
+    char c;
+    int count = 0; 
+    c = getchar();
+    while (c != EOF &amp;&amp; c != '\n' &amp;&amp; count &lt; bufflen - 1) {
+        a[count] = c; 
+        count++;
+        c = getchar();
+    }    
+    a[count] = '\0';
+    return a;
+}
+
+int main(void) {
+    char *a = my_input("Please enter a line: ");
+    printf("You entered the string \"%s\", which has %d characters.\n", a, strlen(a));
+    free(a);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="15">15. Example-Program "Cookie Monster"</A></h3>
+<p>A nice little program from a good book about Perl called "Laura Lemay: 'Sams Teach Yourself Perl in 21 Days'" is called "Cookie Monster". If you are able to write this program in a programming language, you already know some of its constructions:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+/* Function "my_input()": See above: char *my_input(char *s) { ... } */
+
+int main(void) {
+    /* Cookie Monster */
+    char *cookies = malloc(100);
+    strcpy(cookies, "");
+    while (strcmp(cookies, "COOKIES") != 0) {
+        free(cookies);
+        cookies = my_input("I want COOKIES: ");
+    }
+    puts("Mmmm. COOKIES.");
+    free(cookies);
+}</pre>
+<P>
+<HR>
+<h3><A NAME="16">16. Structures with struct</A></h3>
+<p>Structures are containers, that can hold data of different datatypes.
+As we will see, structures can be used to create something similar to objects in object-oriented programming. In this sense, structures hold the attributes, and the methods are just C-functions built around them.
+Let's define a structure "<tt>struct Fruit</tt>", that will hold attributes of a fruit like its color and its price:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stlib.h&gt;
+
+struct Fruit {
+    char *name;
+    char *color;
+    int cent;
+};
+
+int main(void) {
+    struct Fruit apple;
+    apple.name  = malloc(100);
+    apple.color = malloc(100);
+    strcpy(apple.name, "Apple");
+    strcpy(apple.color, "green");
+    apple.cent = 25;
+    puts(apple.color);
+    printf("%d\n", apple.cent);
+    free(apple.name);
+    free(apple.color);
+}</pre>
+<p>As you can see, the members of structures are accessed using the "<tt>.</tt>"-operator.
+<p>Notice, that the datatype of the structure is "<tt>struct Fruit</tt>". Not "<tt>struct</tt>", not "<tt>Fruit</tt>", but "<tt>struct Fruit</tt>".
+<br>The variable "<tt>apple</tt>" is of type "<tt>struct Fruit</tt>".
+<P>
+<HR>
+<h3><A NAME="17">17. Pointers to Structures</A></h3>
+<p>It is also possible to point pointers to structure-"objects".
+<br>Members are then accessed using the "<tt>-&gt;</tt>"-operator (which is a shortcut for "(*pointer).member").
+<br>Instead of a fruit, let's model a lamp, using a structure of type "<tt>struct Lamp</tt>" with three elements:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct Lamp {
+    char *name;
+    char *state;
+    int lightintensity;
+};
+
+int main(void) {
+    struct Lamp *lamp1    = malloc(sizeof(struct Lamp));
+    lamp1->name           = malloc(20);
+    lamp1->state          = malloc(10);
+    lamp1->lightintensity = 50;
+    strcpy(lamp1->name, "First Lamp");
+    strcpy(lamp1->state, "off");
+    puts(lamp1->name);
+    puts(lamp1->state);
+    printf("%d\n", lamp1->lightintensity);
+    free(lamp1->name);
+    free(lamp1->state);
+    free(lamp1);
+}</pre>
+<p>
+<HR>
+<h3><A NAME="18">18. Emulating Object-Oriented Programming in C</A></h3>
+<p>Referring to the example in the last chapter ("Pointers to Structures"), let's add useful functions (as "methods") around the structure, which is controlled with the pointer pointing to it. The first argument to these structure-related functions is always the pointer to the structure (similar to other object-oriented languages by the way: There's for example the "<tt>self</tt>" in Python, and the "<tt>this</tt>" in C++).
+<br>And also, let's use some comments and whitespace, to make the combination of the structure and its functions look more like a class: 
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+/* class Lamp: */
+
+    struct Lamp {
+        char *name;
+        char *state;
+        int lightintensity;
+    };
+
+    struct Lamp *Lamp_new(char *name, int lightintensity, char *state) {
+        struct Lamp *self = malloc(sizeof(struct Lamp));
+        self->name        = malloc(20);
+        self->state       = malloc(10);
+        strcpy(self->name, name);
+        strcpy(self->state, state);
+        self->lightintensity = lightintensity;
+        return self;
+    }
+
+    void Lamp_switchOn(struct Lamp *self) {
+        strcpy(self->state, "on");
+        printf("'%s' is on at %d Watt.\n", self->name, self->lightintensity);
+    }
+
+    void Lamp_switchOff(struct Lamp *self) {
+        strcpy(self->state, "off");
+        printf("'%s' is off.\n", self->name);
+    }
+
+    void Lamp_newLightBulb(struct Lamp *self, int light) {
+        if (strcmp(self->state, "on") == 0) {
+            puts("Light bulb can not be changed.");
+            printf("First, '%s' has to be switched off.\n", self->name);
+        } else {
+            self->lightintensity = light;
+            printf("Light bulb in '%s' has been changed.\n", self->name);
+            printf("The new bulb has %d Watt.\n", self->lightintensity);
+            Lamp_switchOn(self);
+        }
+    }
+
+    void Lamp_destruct(struct Lamp *self) {
+        free(self->name);
+        free(self->state);
+        free(self);
+    }
+
+/* End of class Lamp. */
+
+
+int main(void) {
+    struct Lamp *lamp1 = Lamp_new("First Lamp", 50, "off");
+    struct Lamp *lamp2 = Lamp_new("Second Lamp", 40, "off");
+    Lamp_switchOn(lamp1);
+    Lamp_switchOn(lamp2);
+    Lamp_newLightBulb(lamp2, 100);
+    Lamp_switchOff(lamp2);
+    Lamp_newLightBulb(lamp2, 100);
+    Lamp_destruct(lamp1);
+    Lamp_destruct(lamp2);
+    return 0;
+}</pre>
+<p>Now that's useful, isn't it?
+<p>
+<HR>
+<h3><A NAME="19">19. Unions</A></h3>
+<p>Unions are declared in the same way as structures, just the keyword "<tt>union</tt>" has to be used instead of "<tt>struct</tt>". The difference between the two has to do with memory allocation:
+For a structure, the sum of the memory size of all its members is allocated.
+For a union, memory only of the size of its largest member is allocated.
+<br>So you can save up some memory, when you use an union instead of a structure.
+The price for that is, that only one member of the union can be accessed at a time. I don't use unions, but if you want to try it, you can read <a href="https://www.programiz.com/c-programming/c-unions">here</a>, how it is done.
+<p>
+<HR>
+<h3><A NAME="20">20. Arrays</A></h3>
+<p>As you can see, in my text it took me a long time to get to arrays.
+<br>They aren't very flexible. Their size has to be declared, when declaring the array. Then they can store several units of data of the same type.
+Their memory can't be reallocated to a different size afterwards.
+When arrays are declared inside a function, their memory is automatically destroyed, when the function ends. Therefore they can't be returned from a function. Not even by pointing a pointer to them, because the pointer will basically point to nowhere, if the reservation of the memory, it points to, is lifted.
+<br>So in a way arrays are a simpler way to statically reserve memory and to store data there. But as you know by now, how you can do that with a pointer in combination with "<tt>malloc()</tt>" yourself, you don't really need arrays. And using pointers, you don't have to deal with the drawbacks of arrays.
+Anyway, here are some arrays:
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void) {
+    int n[5] = {10, 11, 12, 13, 14};
+    double f[5] = {1.1, 1.2, 1.3, 1.4, 1.5};
+    /* Also possible: char c[5] = "abcde" */
+    char c[5] = {'a', 'b', 'c', 'd', 'e'};
+    int i;
+    for (i=0; i&lt;5; i++) {
+        printf("%d \t %.1f \t %c \n", n[i], f[i], c[i]);
+    }
+    /* String: */
+    /* Or: char d[20] = "Hello" */
+    char d[20];
+    strcpy(d, "Hello");
+    printf("%s\n", d);
+    return 0;
+}</pre>
+<p>When you combine declaration and definition of the array (like above), you can leave out the number of bytes in the declaration ("<tt>int n[] = ...";</tt>).
+<p>Of course you can (and probably should) reserve more memory for the array than is really needed. You just have to watch out, that you don't define more elements, than the array can carry, as that would lead to a severe bug.
+<p>When you just declare an array, simply nothing is written yet into the reserved memory. Whatever the bytes in the reserved area already hold, is still there, until you write something else into the array.
+<br>That means, if you declare an array of let's say 100 bytes, and you want to fill it with some numbers, there isn't any built-in way to tell, how many numbers the array already holds at the moment, and how many of the bytes are still uninitialized.
+You just have to keep track, of how many numbers you have already written, yourself:
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int a[100];
+    int anum = 0;
+    a[0] = 10;
+    anum++;
+    a[1] = 20;
+    anum++;
+    a[2] = 25;
+    anum++;
+    printf("%d elements in the array.\n", anum);
+    a[2] = 0;
+    anum--;
+    printf("%d elements in the array.\n", anum);
+    return 0;
+}</pre>
+<p>While some compilers allow to declare the size of an array with a variable (like "<tt>int arr[b];</tt>", others require constant values (like literal numbers) for that. It's a good idea to define constants (as compiler macros) for that, if possible:
+<pre>#define ARR_SIZE 5
+
+void main(void) {
+    char arr[ARR_SIZE];
+}</pre>
+<p>The name of an array can be interpreted as a pointer to the first element of the array.
+<br>"<tt>printf("%s\n", arr);</tt>" (like in the first example above) makes use of that for example. But "pointer arithmetic" (see above) isn't possible with the names of arrays though.
+<p>
+<HR>
+<h3><A NAME="21">21. Memory Areas of C-programs</h3</A></h3>
+<p>Let's take a look at the <a href="http://www.geeksforgeeks.org/memory-layout-of-c-program/">memory-layout</a> of a C-program. When a C-program is started, it builds up the following memory-segments in cooperation with the operating-system:
+<ul>
+<li>Text segment
+<br>Contains executable instructions. Usually read-only.
+<p>
+<li>Data segment:
+<p>
+<ul>
+<li>Initialized Data Segment
+<br>Contains global variables and static variables, that are initialized. It is divided into a read-write-part and a read-only-part.
+<p>
+<li>Uninitialized Data Segment
+<br>Contains global variables and static variables, that are initialized to 0 or not initialized. Also called "bss"-segment (especially in the output of the command "size").
+</ul>
+<p>
+<li>Stack
+<br>Contains local variables of functions and additional information on functions, arguments and function-calls. Writeable.
+<p>
+<li>Heap
+<br>Contains memory allocated by "malloc()". Also used by shared libraries. Writeable.
+</ul>
+<p>The shell-command "size" displays the sizes of the text- and data-segments.
+<br>The shell-command "nm" displays more information about memory-usage of variables and other symbols.
+<p>Pointers inside functions are usually stored on the <a href="https://stackoverflow.com/questions/14588767/where-in-memory-are-my-variables-stored-in-c">stack</a>, but the memory they point to is usually on the heap. 
+<p>The <a href="https://stackoverflow.com/questions/7943628/where-will-a-constant-string-be-stored-in-memory">string literal</a> of
+<pre>/* Not a valid string initialization! Use malloc(), then strcpy() instead: */
+char *a = "Hi";</pre>
+<p>is stored in the read-only-section of the initialized data segment or even in the (read-only) text-segment.
+<br>The string literal of
+<pre>char a[] = "Hi";</pre>
+<p>is short for
+<pre>char a[] = {'H', 'i', '\0'};</pre>
+<p>and therefore stored on the stack.
+
+<p>
+<HR>
+<h3><A NAME="22">22. Linked Lists (Dynamically Changeable Lists)</h3</A></h3>
+<p>In languages like Perl or Python, there is the datatype "list". It can just hold different kinds of data, like integers or strings. And these lists can easily be changed lateron, for example extended or reduced at runtime. Consider this fundamental Python code:
+<pre>#!/usr/bin/python3
+# coding: utf-8
+
+a = []
+a.append(3)
+a.append(6)
+a.append("Hello")
+print(len(a))
+print(a)
+
+a.pop()
+print(len(a))
+print(a)</pre>
+<p>The C-language itself doesn't provide such "linked lists" with these features. However, on Linux-systems, there's an implementation, that can be included with "<tt>#include &lt;sys/queue.h&gt;</tt>".
+<a href="https://github.com/TaborKelly/queue-example">Here</a> would be examples, on how to use that library. Not so easy, it seems.
+<p>
+<HR>
+<h3><A NAME="23">23. Getting a Random Number</h3</A></h3>
+<p>Here's an example of getting a random number in the range of 0 to 9.
+<br>There are several ways in C to achieve this. This is just a basic one for average use. If you need higher level randomness, you'll have to look for more sophisticated ways (see discussions like <a href="https://stackoverflow.com/questions/822323/how-to-generate-a-random-int-in-c">this one</a>).
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;time.h&gt;
+
+int main(void) {
+    int i;
+    int r;
+    /* srand() seeds the random generator. Only use it once:  */
+    srand(time(NULL));
+    for (i = 0; i < 20; i++) {
+        r = rand() % 10;
+        printf("%d\n", r);
+    }
+    return 0;
+}</pre>
+<p>On Linux, there are also the functions "random()" and "srandom()". Not sure, what their advantage is. The example above works also on Linux.
+<p>
+<HR>
+<h3><A NAME="24">24. Alternative Syntaxes</h3</A></h3>
+<p>The "<tt>?</tt>"-operator can be used to write certain conditions in a different way. You may see that syntax in other people's code. I wouldn't use it, I'd write the condition in the ordinary way, even if it's longer:
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int a = 2;
+    int b = 10;
+    int max;
+
+    /* Ordinary syntax: */
+    if (a > b) {
+        max = a;
+    } else {
+        max = b;
+    }
+    printf("%d\n", max);
+
+    /* With ? : */
+    max = (a > b) ? a : b;
+
+    printf("%d\n", max);
+}</pre>
+<p>
+<HR>
+<h3><A NAME="25">25. Working with Files</h3</A></h3>
+<p>This is how you read from a text-file (called "test"):
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+ 
+int main(void) {
+    char fname[] = "test";
+    FILE *fp = fopen(fname, "r");
+    if (fp == NULL) {
+        printf("\nCouldn't read file \"%s\". Aborting.\n\n", fname);
+        exit(1);
+    }
+    int c;
+    while ((c = getc(fp)) != EOF) {
+        putc(c, stdout);
+    }
+    fclose(fp);
+    return 0;
+}</pre>
+<p>"EOF" and "stdout" are defined in "stdio.h". "EOF" means "end of file" (it's just an integer, of "-1" in my case).
+<br>"stdout" is the program's standard output-channel. When you send data to stdout, it is usually printed on the screen (in a terminal).
+<br>"getc()" reads in one character.
+<br>"FILE" is a typedef'ed name for a structure defined in "stdio.h". "fp" is a pointer that points to such a structure. "fopen()" returns such a pointer.
+<p>And this is how you write to a text-file (called "test2"):
+<pre>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+ 
+int main(void) {
+    char schiller[] = "Und blicket sie lange verwundert an.\n"
+                      "Drauf spricht er: \"Es ist euch gelungen,\n"
+                      "Ihr habt das Herz mir bezwungen,\n"
+                      "Und die Treue, sie ist doch kein leerer Wahn ...\"\n";
+    char fname[] = "test2";
+    if (access(fname, F_OK) == 0) {
+        printf("\nFile \"%s\" already exists. Aborting.\n\n", fname);
+        exit(1);
+    }
+    FILE *fp = fopen(fname, "w");
+    if (fp == NULL) {
+        printf("\nCouldn't open file \"%s\" for writing. Aborting.\n\n", fname);
+        exit(2);
+    }
+    int i;
+    for (i=0; i &lt; strlen(schiller); i++) {
+        putc(schiller[i], fp);
+    }
+    fclose(fp);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="26">26. Keyword Summary of Variable Datatypes</h3</A></h3>
+<p><b>Variable Declarations</b>:
+<p>Elementary datatypes:
+<ul>
+<li>int (= signed long int (usually))
+<li>short int, long int, long long int
+<li>float, double, long double
+<li>char
+<li>size_t
+<li>void
+</ul>
+<p>A variable of each of these datatypes (except void) can be declared as:
+<ul>
+<li>signed, unsigned
+<li>const
+<li>extern (mostly used in header-files)
+<li>static (mostly used in function declarations)
+<li>an array, for example "<tt>int a[10]</tt>" or "<tt>char b[10]</tt>"
+<li>a pointer, for example "<tt>int *</tt>" or "<tt>char *</tt>"; also "<tt>void *</tt>"
+</ul>
+<p>Special Declarations:
+<ul>
+<li>typedef
+<li>enum
+<li>struct, union
+</ul>
+<hr>
+<br><a href="c_01.html">Back to the first page about C</a>
+<br><center><a href="index.html">Back to the computing-page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>
