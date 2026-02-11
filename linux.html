@@ -1,0 +1,949 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Linux,distribution,OpenSuSE,Ubuntu,Mint,Debian,tips,tricks,installation">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>Using Linux</title>
+</head>
+<body>
+<H2>
+Using Linux</H2>
+<p><center>Date: 2026-02-11</center>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Introduction. Distributions</A>
+<LI><A HREF="#2">Installation</A>
+<LI><A HREF="#3">First Look Around</A>
+<LI><A HREF="#4">Managing Files. Multiple Users and User-Rights. System Administrator "root"</A>
+<LI><A HREF="#5">More about the Linux Directory Tree</A>
+<LI><A HREF="#6">Desktop Environments. Window Managers. GUI-Toolkits</A>
+<LI><A HREF="#7">Dragging Windows</A>
+<LI><A HREF="#8">Terminals. Shells. Pipes. bash-Scripting</A>
+<LI><A HREF="#9">Copying and Pasting Text</A>
+<LI><A HREF="#10">Typical Linux Applications I'm Using</A>
+<LI><A HREF="#11">Editor vim</A>
+<LI><A HREF="#12">grep: Filtering Text (From Output or in Files)</A>
+<LI><A HREF="#13">Managing Processes</A>
+<LI><A HREF="#14">su and sudo: Acting as "root"</A>
+<LI><A HREF="#15">zip, tar: Unpacking and Packing Files</A>
+<LI><A HREF="#16">df and du: Information on Disk Space Usage</A>
+<LI><A HREF="#17">Making Commands and Scripts Available to All Users</A>
+<LI><A HREF="#18">alias: Defining Smaller Commands</A>
+<LI><A HREF="#19">dos2unix, unix2dos, recode: Reformatting Text-Files</A>
+<LI><A HREF="#20">ln: Symbolic Links</A>
+<LI><A HREF="#21">date, cal: Showing Date and Time</A>
+<LI><A HREF="#22">mount, umount: Mounting Devices</A>
+<LI><A HREF="#23">rpm: Managing Software Packages on a rpm-Based Distribution</A>
+<LI><A HREF="#24">X-Server. Tools xrandr, xwininfo, xfontsel, xev, xmodmap, xkill, xkbset</A>
+<LI><A HREF="#25">Login-Manager</A>
+<LI><A HREF="#26">Autostarting Programs Together with the Graphical Desktop</A>
+<LI><A HREF="#27">Playing and Editing Videos</A>
+<LI><A HREF="#28">Midnight Commander</A>
+<LI><A HREF="#29">lpq, lprm, xsane: Managing Printers. Scanning</A>
+<LI><A HREF="#30">cron-Daemon: Run Programs at Other Times</A>
+<LI><A HREF="#31">lsmod, modprobe, rmmod: Managing Kernel Modules</A>
+<LI><A HREF="#32">Making Changes to the Configuration of the Bootloader GRUB2</A>
+<LI><A HREF="#33">bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A>
+<LI><A HREF="#34">Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A>
+<LI><A HREF="#35">Recapitulation, Conclusion</A>
+</OL>
+<p>
+<HR>
+<h3><A NAME="1">1. Introduction. Distributions</A></h3>
+<p>"Linux" is a computer operating system. To be specific, "Linux" is just the kernel (the core), the whole operating system is called "GNU/Linux". But this is even debated, and we ignore it, so we just call operating system, this page is about, "Linux".
+<br>Most Linux-software is socalled "free software". What that means is explained in the penultimate section at the bottom of the page. One principle of free software is, that the program sources are openly visible to everyone, so it is mainly open-source software.
+<br>Linux is somehow a free clone of the earlier, commercial operating system "Unix", which goes back to the very early days of computing in the 1970s. So many concepts of Unix, like its multi-user system or its directory tree can be found in Linux too.
+<br>The Linux software is packed into socalled "distributions". Distributions contain the Linux operating system, but also Linux applications. So when installing a Linux distribution, you basically install all the needed software at once. Of course, you can remove programs you don't want, or add other programs to your installation. It's relatively easy to add programs that are part of the distribution, but it may be more difficult to install other programs that aren't part of the installed distribution, but can be found somewhere else on the internet.
+<br>Today, popular Linux distributions are for example:
+<ul>
+<li>Ubuntu
+<li>Linux Mint
+<li>Debian
+<li>OpenSuSE
+<li>Fedora Linux
+<li>Arch Linux
+</ul>
+<p>In an installed system, the Linux software is packed into socalled "packages". The locations of the files in the directory tree and their affiliations to the packages are stored in a database. There are two different types of these database systems. One uses the program "rpm" ("Redhat Packagage Manager"), the other one "dpkg" ("Debian Package Manager").
+<br>There are larger distributions, which contain a huge collection of software packages, and smaller, reduced distributions, which just contain smaller selections, for example a single application for a certain task.
+<ul>
+<li>Debian and OpenSuSE are larger distributions.
+<br>While Ubuntu and Linux Mint are reduced distributions, which are derived from Debian.
+<p>
+<li>OpenSuSE and Fedora Linux are "rpm"-based distributions.
+<br>While Ubuntu, Linux Mint and Debian are "dpkg"-based.
+<p>
+<li>Arch Linux is a minimal Linux distribution, which is neither based on Debian nor on OpenSuSE, and uses its own packaging tool called "pacman".
+</ul>
+<p>I've been using OpenSuSE for many years, version 15.6 at the moment. It always worked well with my hardware, and I was always content with it.
+<br>Today, many people start with Ubuntu and Linux Mint. But I would recommend a larger distribution, at least Debian, because then it's easier to add other software later, in case you want to use other programs than those in the preselected Ubuntu- or Mint-packages.
+<p>Regarding the most common Linux software, the distributions basically contain the same programs. For example, they offer "Firefox" for web-browsing, "LibreOffice" for word-processing and spreadsheet-tasks, "Audacity" for editing sound, and "GIMP" for editing images. 
+<br>That means, the distributions may look a bit different here and there, but in the end, they don't differ as much from each other as one may think at first. 
+<p>Today it seems, there is some campaign to make new users coming from Windows install Linux Mint. But I don't see any major advantages of Linux Mint over other distributions like for example OpenSuSE. As mentioned, Linux Mint is a reduced distributions, the larger ones like OpenSuSE offer a much wider selection of software. Which makes things easier, especially for beginners.
+<br>Some years ago, everybody was talking about Ubuntu. I didn't see why either.
+<ul>
+<li>The Linux-kernel has been developed by Linus Torvalds since 1991. Of course, today the development of the kernel is a large project, which has many contributors.
+<li>Many fundamental Linux-programs and -tools have been developed by the GNU-project, which is associated with the "Free Software Foundation", founded by Richard Stallman.
+<li>The web-browser "Firefox" and the email-client "Thunderbird" are developed by the Mozilla Foundation.
+<li>"LibreOffice" is developed by "The Document Foundation".
+</ul>
+<p>A very good and well-known reference book about Linux is: "Michael Kofler: 'Linux: The Comprehensive Guide'" (in German "Michael Kofler: 'Linux: Das umfassende Handbuch'"). It is quite large though.
+<p>
+<HR>
+<h3><A NAME="2">2. Installation</A></h3>
+<p>The notes about the installation process of a Linux distribution got in the way a bit here. You can find them <a href="linux_installation.html">here</a>.
+<p>
+<HR>
+<h3><A NAME="3">3. First Look Around</A></h3>
+<p>So after the installation the user finally gets to the desktop. There's probably a task-bar at the bottom, or for example a file dock. Clicking the menu button in the task bar opens a menu, where programs like Firefox can be opened. 
+<p>In the menu, also programs can be found to customize the look and feel and change system settings.
+<br>There are certain customizations, I like to make on my Linux systems. I wrote pages about that topic regarding <a href="leap15_6.html">OpenSuSE Leap 15.6</a> and <a href="suse131.html">SuSE Linux 13.1</a> (which was the system on my previous computer; some of the notes may still be relevant today though). These pages may be of more interest for you, when you already have a little more experience with Linux.
+<p>There are certain applications that are typically used for certain tasks on a Linux system today. Here's an overview:
+<ul>
+<li>Web-Browsing: Mozilla Firefox, Google Chrome (not open-source)
+<p>
+<li>Email-Client: Mozilla Thunderbird, Evolution
+<p>
+<li>File Manager:
+<p>
+<ul>
+<li>Dolphin (KDE),
+<li>Konqueror,
+<li>Nautilus (Gnome),
+<li>Thunar (Xfce),
+<li>PCManFM (LXQt).
+<li>Midnight Commander (a powerful two-window file-manager, which just uses console graphics though)
+</ul>
+<p>
+<li>Text Editor:
+<p>
+<ul>
+<li>vim
+<li>Emacs
+<li>kate
+<li>gedit
+<li>nano
+</ul>
+<p>vim and Emacs are the two classic text editors on Linux. They are both very powerful, but also very unfamiliar to beginners. Both are also very different from each other. The other text editors use the key combinations known from Windows Notepad and such.
+<p>
+<li>Word-processing: LibreOffice Writer
+<p>
+<li>Spreadsheet: LibreOffice Calc
+<p>
+<li>pdf-Viewer: Okular, Evince
+<p>
+<li>Sound-editor: Audacity
+<p>
+<li>Image editor: Gimp
+<p>
+<li>Image viewer: I'm using Geeqie. There are also Gwenview and others.
+<p>
+<li>Movie Player: I'm using MPlayer. VLC-Player is quite common.
+<p>
+<li>System Control: A counterpart to Windows' "Control Panel" can be accessed through the application menu of the task bar. For Xfce, the corresponding console command is "<tt>xfce4-settings-manager</tt>".
+<br>The distribution OpenSuSE traditionally has up to version 15.6 another system control tool called "<tt>YaST2</tt>" that can take care of certain deeper hardware- and systemsettings. In "<tt>YaST2</tt>" especially the graphical module to manage the system's software packages or to install additional distribution software packages can be found. 
+</ul>
+<p>
+<HR>
+<h3><A NAME="4">4. Managing Files. Multiple Users and User-Rights. System Administrator "root"</A></h3>
+<p>Let's say, you created a text document with LibreOffice. Then you want to save it and select "File / Save As" as usual. Then, you're asked for the location to store the file, so the directory tree is presented to you.
+<br>It looks unfamiliar, because it uses slashes ("/") instead of backslashes to separate the directories, and there isn't a drive (like "<tt>C:\</tt>") at the top, just an ordinary slash.
+<br>Where should you save your file?
+<p>Well, during the installation process, a user is created. He has a name and a password. And he also has his own directory in the directory tree, which has been assigned to him during installation.
+<br>The user's directory is called "<tt>/home/username</tt>". So if there's a user with a username "john", his files would be below "<tt>/home/john</tt>". 
+<br>Notice, that unlike Windows, Linux is always <b>case sensitive</b>. That means, "<tt>/home/john</tt>" would be something else than "<tt>/home/John</tt>". They would both exist and would be two completely different directories. 
+<p>Inherited from the Unix-tradition, the Linux system manages the users and the rights they have to the files.
+<br>To each file and directory user-rights are stored. There are three kinds of permissions: To read (r), to write (w) and to execute (x). And there's an ownership to each file and directory.
+<br>If "john" creates a file "hello.txt" (for example in or below his directory called "<tt>/home/john</tt>"), he becomes owner of that file and can set the file-rights for others, that is, determine, if others are allowed to read, write or execute the file. 
+<p>Then, there's a special user, who is the system-administrator. His username is always "<tt>root</tt>". root is allowed to do everything on the system. He can even easily delete system-files, that are essential for the system to run. So root is allowed to break the system in any way.
+<br>root can also access all files of all users, no matter what user-rights they have set.
+<br>And root can also set the user-rights for the owners of files. These are again read (r), write (w) and execute (x).
+<br>If "john" owns a file, "root" can change that, he can give ownership to himself or to a third user, like "paul" maybe. He can also withdraw john's permission to read his own file, for example. 
+<p>Users can also be members of groups. For groups, there are again the three rights mentioned.
+<p>So all in all, the user-rights, that are stored with the file, are: "rwx (owner) rwx (group) rwx (others)".
+<p>An example: Let's say, "john" creates the file "hello.txt". It contains somehow secret text. He, himself, wants to be able to read and write the file, but not to execute it, as it's a text-file. Groups and others shouldn't be able to do anything with the file. So, he would set the rights for the file to: "rw- --- ---".
+<p>Directories can only be accessed, if the right "execute (x)" is set for them. "john" has his home-directory "/home/john", and "paul" has his home-directory "/home/paul". If the "x"-right of john's home-directory is withdrawn for groups and others, and "paul" tries to switch to "/home/john", he will fail and get an error about lacking permissions.
+<p>This system of user-rights contributes to the security of the Linux-system.
+<p>It also improves the security when it comes to viruses. At the moment, viruses aren't that much of a problem for Linux-systems anyway, because globally there are much more installations of Windows-systems, so developers of viruses are more interested in attacking Windows.
+<p>It is also possible to run a Linux-system with just a single user. This user will also have to be the system-administrator "root" then. For security-reasons it is recommended though, to use an account for a normal user as well then. So one person can have multiple accounts on a Linux system, for example one account for an ordinary user, and one account for "root".
+<br>If you run a single-user-system, you usually work as an ordinary user. Only when you have to change system-files, you become "root" for a short while. This is done with the command "su" on the shell ("su" is an abbreviation of "superuser"). 
+<p>
+<HR>
+<h3><A NAME="5">5. More about the Linux Directory Tree</A></h3>
+<p>In the directory tree, the files of a user are in his home-directory, so john's files are in "<tt>/home/john</tt>".
+<p>Only the user "root" has the write-permission for most system-files, which are outside of "<tt>/home</tt>".
+<p>The top level directory (= the directory tree's root) is at just "<tt>/</tt>". If you use one of the file-managers listed above (dolphin, for example), and point it at "<tt>/</tt>", you may see some of the following directories:
+<pre>bin
+boot
+dev
+etc
+home
+lib
+media
+opt
+proc
+root
+tmp
+usr
+var
+windows</pre>
+<p>These directories have the following contents or meanings:
+<ul>
+<li>In "<tt>/home</tt>" are the files of the users.
+The files of the user "root" are in the directory "<tt>/root</tt>".
+<p>
+<li>In "<tt>/media</tt>", external devices like USB-sticks, CDs, DVDs or external hard-drives are mounted. So if you're looking for files stored on these kinds of devices, you should look there.
+<br>On some systems this directory may be called "<tt>/mnt</tt>" instead.
+<br>Other systems may use the directory "<tt>/var/run/media/username</tt>" instead to automatically mount the devices.
+<p>
+<li>Executable files can be found in "<tt>/bin</tt>", "<tt>/usr/bin</tt>" and "<tt>/usr/local/bin</tt>". They are found, because the system-variable <tt>$PATH</tt> contains their names.
+Scripts and programs, that are copied into "<tt>/usr/local/bin</tt>", can be run from everywhere in the directory tree.
+<p>
+<li>Program files, that are not executable (like data- or media-files), are installed in directories below "<tt>/usr/share</tt>" or "<tt>/usr/local/share</tt>".
+<p>
+<li>"<tt>/etc</tt>" mostly contains global configuration-files.
+<p>
+<li>Larger applications used to be installed in "<tt>/opt</tt>".
+<p>
+<li>System-libraries are stored in "<tt>/lib</tt>" or "<tt>/usr/lib</tt>".
+They are mostly also dynamic-link libraries. Their names start with "lib", then comes the identifier, then ".so", and then a version number. So, a library could be called "libexample.so.1" on Linux.
+<p>
+<li>The directory "<tt>/dev</tt>" contains socalled "device nodes". These are files of a special type, that directly represent hardware-devices. You probably don't have to mess with them as a beginner.
+<p>
+<li>"<tt>/var</tt>" and "<tt>/proc</tt>" contain for example log-files of the system, like log-files from the boot-process.
+<p>
+<li>In "<tt>/tmp</tt>", temporary files are created, when the system needs to. Usually not that interesting for the user.
+<p>
+<li>The directory "<tt>/boot</tt>" contains files needed for the boot-process of Linux. Better leave them alone.
+<p>
+<li>If you have a dual-boot-system, that is, there's also an installation of Windows on your harddrive, the Windows-partition may be mounted within the Linux directory tree to the directory "<tt>/windows</tt>". If it is mounted, you can see the files on the Windows-partition there. 
+</ul>
+<p>The Linux directory tree is not connected to a certain diskdrive.
+Instead, the files, from which Linux is booted, are spread across the whole directory tree.
+Most of them are system-files.
+<br>If the files of an external drive or a USB-stick are needed, they can be found in the directory, where the device is mounted.
+That location can be "<tt>/media</tt>" or "<tt>/mnt</tt>", it may also be "<tt>/var/run/media/username</tt>".
+<p>Ordinary users usually stay in their home-directory ("<tt>/home/john</tt>" for user "john"). They can create a (nearly) unlimited number of own sub-directories there.
+<br>From their home-directory, users can execute programs though that are found in the directories "<tt>/usr/bin</tt>" or "<tt>/usr/local/bin</tt>". Because of the <tt>$PATH</tt>-variable, they don't have to switch to these system-directories to execute these programs.
+They can stay in their home-directory, and the system finds the programs for them.
+<p>When you see the Linux directory tree for the first time, it surely will be very unfamiliar to you.
+"What on earth is that?", you may ask.
+<br>But consider: Most of its directories contain files of the type, proprietary operating systems usually hide from the user completely. When was the last time, you looked for such files on other operating systems?
+<br>And: If you continue using Linux, you will get used to its directory tree in maybe a few weeks. But it has been around for decades. It probably will be for some more decades. 
+<br>So, the knowledge about the Linux directory tree is one of those things, you learn for life. You may teach it to your grandchildren one day.
+<p>
+<HR>
+<h3><A NAME="6">6. Desktop Environments. Window Managers. GUI-Toolkits</A></h3>
+<p>On Linux, there are several socalled "window managers". These are programs that are (in connection with another program called "X server") responsible for creating the graphical desktop.
+<br>(For comparison: On Windows, the code for managing the window-system is part of the operating system and doesn't have a special name. As a result, there's only one type of Windows desktop available to the user.)
+<br>These window managers are combined with other software to a socalled "desktop environment". The most common ones on Linux are:
+<ul>
+<li>KDE Plasma (Window manager: KWin)
+<li>Gnome (The desktop environment of the GNU project. Window manager: Mutter)
+<li>Xfce (Window manager: Xfwm4)
+<li>LXQt (formerly called LXDE. Window manager: Openbox)
+<li>Cinnamon (specific to Linux Mint. Window manager: "Muffin")
+</ul>
+<p>KDE and Gnome are the biggest desktop environments, the others are more lightweight. I'm quite happy with Xfce (version 4) at the moment.
+<br>So the graphical desktop of a Linux-system is not fixed. There are many ways it can look.
+Nevertheless, the principles of the Linux system, that is the directory tree, the managment of the users and their rights, and the system-administrator "root" always apply, independently from the used desktop environment.
+<p>It is also possible to install multiple desktop environments on your Linux-system. Then you can just use one of it, for example Xfce. But you can then also start applications from within Xfce, that are written for KDE or Gnome, for example. So you don't have to do without KDE- or Gnome-applications, when you're running other desktop environments than KDE or Gnome.
+<p>Ubuntu's default desktop environment is Gnome. There are other flavours of the distribution that uses one of the other ones: There are "Kubuntu" (KDE), "Xubuntu" (Xfce) and "Lubuntu" (LXQt). Ubuntu's default environment used to be "Unity", which tried to combine elements from KDE and Gnome. But as said, the distribution switched back to just use Gnome. 
+<br>This is a good example of the difference between a reduced distribution (like Ubuntu or Linux Mint) and a large one (like OpenSuSE): On OpenSuSE you can choose one of those four desktop environments during installation, or you can install several (or all four of them if you want), and choose the one, you want to use, at the graphical login-screen.
+While Ubuntu just offers a single desktop environment. And if you want to use another one, you can't just install it in addition (at least not easily), but have to install a different distribution from the Ubuntu-range (which again is a reduced one).
+<p>Linux Mint uses a similar approach like Ubuntu: Its default distribution is "Linux Mint Cinnamon", which uses the desktop environment "Cinnamon" (with the window manager "Muffin"). But there are also the more lightweight distributions "Linux Mint MATE" (with the window manager "Marco") and "Linux Mint Xfce".
+<hr width="30%">
+<p>The way, the windows of Linux applications look, is defined by certain software-layers called "GUI-toolkits". There are:
+<ul>
+<li>Qt: The toolkit for KDE-applications.
+<li>GTK: The toolkit for Gnome-applications.
+<li>Tk: A very small and basic GUI-toolkit, originally combined with the programming language "Tcl".
+</ul>
+<p>These GUI-toolkits are software libraries that provide code for creating socalled "widgets" (= "window gadgets"). Widgets can be for example buttons, entry-fields, sliders or checkboxes. When writing a graphical application, the toolkit-library is accessed to create such widgets, which then define the look and the behaviour of the application's windows.
+<br>(By the way: Microsoft Windows also has a GUI-toolkit, respectively a software library to create widgets. There's the old "Windows API", and the "MFC" ("Microsoft Foundation Classes"). It's just, that the average Windows-user doesn't come in touch with these internals of the operating system.)
+<p>
+<HR>
+<h3><A NAME="7">7. Dragging Windows</A></h3>
+<p>On Linux, there's a special way to drag windows:
+<br>You can press the "<tt>Alt</tt>"-key, click on a window <u>at a any location</u> (not only on the window title) and keep the left mouse-button pressed. Then you can drag the window around at the same time.
+<br>This is a very useful feature, as you can drag windows way outside the screen this way, if it should be necessary. Which in some cases it is.
+<p>
+<HR>
+<h3><A NAME="8">8. Terminals. Shells. Pipes. bash-Scripting</A></h3>
+<p>Maybe it's time to open a terminal program. You should find one in the menu of the task bar in the section "System". 
+<br>A terminal program (also called "console") lets you enter commands, which are then executed. The commands are interpreted by a program called "shell". That way, the user is provided with a "CLI" ("Command Line Interface").
+<p>The term "terminal" goes back to the very early days of computing, and then described electronic devices that only could send data to a central computer, get back its output and display it somehow. Several of those terminals - which weren't computers themselves - could be connected to one large central computer. Which could deal with several terminals and users at once, because it probably ran Unix. <a href="https://www.youtube.com/watch?v=cRM7mUqLiws">This video</a> explains, what the vintage hardware terminals were about.
+<p>The terminal programs on a modern Linux computer are of course just virtual emulations of those old machines, and don't have much in common with them except their purpose.
+<br>There are several terminal programs for Linux. There are "xterm" and "rxvt". "konsole" is KDE's terminal, "gnome-terminal" the one of Gnome. As I'm using Xfce at the moment, I'm using "xfce4-terminal", and am quite happy with it.
+<br>Make sure, you like the terminal's settings, especially the main font and its size. Letters in the terminal should be as easy to read as that in a web-browser. 
+If the terminal opens and runs fast, if the font and its size can be set, and if the settings can be kept for the next time, then it's a good terminal. "xfce4-terminal" is good in that sense. Not all of the others are.
+<br>It's also necessary, to be able to open and close the terminal quickly. I suggest at least putting the terminal's icon on the desktop. But it's even better to define a keyboard shortcut that opens the terminal. How this is done, depends on what window manager is used. I'm using the keyboard shortcut "<tt>Alt-d</tt>" to open the terminal (including all of its user-defined settings).
+"<tt>Ctrl-d</tt>" works by default to close it (as this shortcut is used to log out from the active shell).
+So on my system "<tt>Alt-d</tt>" opens the terminal, "<tt>Ctrl-d</tt>" closes it. That's very fast, and well usable.
+<p>Now that the terminal is well configured, it's time to enter something.
+As mentioned, in the terminal, a program called "shell" is running that interprets the commands, the user enters. The default shell on Linux is "<tt>bash</tt>" (although there also are a bunch of others like "<tt>sh</tt>", "<tt>ksh</tt>", "<tt>tcsh</tt>", "<tt>zsh</tt>").
+Here a some basic commands in bash:
+<ul>
+<li>ls: List the contents of a directory (like "dir" in MS-DOS).
+<li>cd: Change to another directory.
+<li>cp: Copy a file.
+<li>mv: Move a file.
+<li>mkdir: Create a new directory.
+<li>echo: Print some text.
+<li>cat: Print the content of a text file ("cat" is an abbreviation of "concatenate".)
+<li>file: Print information about the type of a file.
+<li>pwd: Print the current working directory.
+<li>whoami: Prints the user's name.
+<li>date: Prints the current date and time.
+<li>cal: Shows a simple calendar on the console.
+<li>su: This command let's you become the superuser "root" in the shell, after you entered root's password.
+</ul>
+<p><u>About deleting files</u>: Files are deleted with the command "<tt>rm</tt>" (remove). It's used with the option "<tt>-r</tt>" to delete directories. There is no safety catch here (like a "recycle bin" or such). Basically, removed data is lost forever. So you are yourself responsible for not deleting your data by accident. Someone once said, in a way, at this point Linux hands you a loaded gun and doesn't protect you, if you shoot yourself in the foot. So be careful with that.
+<p>There's a command "<tt>wipe</tt>" that deletes files in an even more secure way than "<tt>rm</tt>" by also overwriting the files' data.
+<p>There are lots of options to the shell-commands. You can get help on them if you type "<tt>man</tt>" and the command's name ("<tt>man</tt>" for "manual"), like "<tt>man ls</tt>", for example.
+<p>The command "<tt>ls -lisa somefile</tt>" can show more information about the file "<tt>somefile</tt>", especially its size.
+<p>There are some important key combinations in the terminal:
+<ul>
+<li>"<tt>Ctrl+c</tt>": Break the running program ("BREAK into program", as it was called on the Sinclair Spectrum).
+<li>"<tt>Shift+PgUp</tt>", "<tt>Shift+PgDown</tt>": Scroll the contents of the terminal up, respectively down.
+<li>"<tt>Ctrl+l</tt>": Clear the screen of the terminal.
+<li>"<tt>Ctrl+q</tt>": This key-combination can often be used to close larger, graphical applications. So it is similar to "<tt>Alt+F4</tt>" on Windows. Although today, this combination works with most programs too.
+<li>"<tt>Ctrl+d</tt>": Log out. Exit the terminal.
+</ul>
+<p>One feature of bash makes it especially usable. It is called "tab-completion": If you enter a few letters of the name of a command or a file, you want to use, and press TAB then (the tabulator-key), bash automatically completes what you wrote to the command-name or the file-name, it thinks, you wanted. So you don't have to type in all of the filenames. Just a few letters, then TAB, and in many cases, you're done.
+If several names are possible, bash shows them, when you press TAB twice.
+<p>Also, a few symbols can be used in the shell:
+<ul>
+<li>*  : The asterisk is a wildcard. For example matches "<tt>a*</tt>" all files and directories beginning with "<tt>a</tt>" in the current directory. "<tt>*mp3</tt>" matches all files ending with "<tt>mp3</tt>", and so on.
+<li>.  : The single dot is a symbol for the current directory.
+<li>.. : Two dots symbolize the parent directory of the current directory.
+<li>~  : The tilde is a symbol for the user's home directory (like for example "/home/john").
+<li>/  : The slash separates directory names. On its own, it represents the root of the directory-tree.
+</ul>
+<p>So,
+<pre>mv ./myfile.txt ~</pre>
+<p>means: "Move the file '<tt>myfile.txt</tt>' from the current directory to my home directory."
+<p>The symbol "<tt>&</tt>" can be added to a command, to open the called program in a socalled "sub-shell", and to not block the current shell. For example, the command "<tt>firefox &</tt>" opens Firefox, and doesn't wait for it to finish, but lets you continue to use the current command prompt. 
+<p>With the symbol "<tt>;</tt>" several commands can be separated on the command-line. That makes it possible to enter several commands in one line: "<tt>echo "one"; echo "two"</tt>".
+<p><b>Space Characters, Shell Expansion, Variables, Using Quotation Marks</b>
+<p>In the shell, the space character separates file-names (and also commands and options). That means, file-names that contain space characters themselves have to be put into quotation marks to be recognized correctly by the shell.
+<p>Before the shell executes a command, it does something called "shell expansion". The symbols that were used on the command-line (for example "<tt>*</tt>") are expanded to what they represent (for example file-names).
+<br>Also, variables can be used in the shell:
+<pre>a="Hello World"; echo "$a"</pre>
+<p>Because of the meaning of the space character explained above, variables should also be put in quotation marks as shown, when used in the shell. Because they could be expanded to a string containing space characters, and as mentioned such strings should be handled in quotation marks.
+<br>Using single quotation marks tells the string to not perform shell expansion on the expression: "<tt>echo '$a'</tt>" doesn't expand the variable, but literally prints the string "<tt>$a</tt>".
+<p><b>Pipes and Redirection</b>
+<p>The outputs of bash-commands can be redirected. For example, the command
+<pre>echo "Hello World"</pre>
+<p>prints the string to the screen (to the console). But the output can also be redirected with the symbols "<tt>&gt;</tt>" and "<tt>&gt;&gt;</tt>" into a file (called "<tt>test.txt</tt>" - if there already is a file "<tt>text.txt</tt>" in the directory, it is overwritten) here:
+<pre>echo "Hello World" > test.txt</pre>
+<p>You can check the result with "<tt>cat test.txt</tt>".
+<br><u>Important</u>: Another use of "<tt>&gt;</tt>" would overwrite the file.
+<br>But using "<tt>&gt;&gt;</tt>" would append more text to the file:
+<pre>echo "Hello to everybody" >> test.txt</pre>
+<p>So after that, the output of "<tt>cat test.txt</tt>" would be:
+<pre>Hello World
+Hello to everybody</pre>
+<p>The output of a command can also be redirected to another command, using the symbol "<tt>&vert;</tt>". Redirecting in that way is called a "pipe".
+<br>The command "<tt>wc</tt>" can count words, lines or characters of a string. This command is typically used in a pipe, for example to count the words in a string like this:
+<pre>echo "Hello World" | wc -w</pre>
+<p>The result is "<tt>2</tt>" (as there are two words in that string).
+<p>Some background on creating a pipe (which is still basic bash-knowledge): There's a "stream" called "<tt>stdout</tt>", programs can write to. And a stream called "<tt>stdin</tt>", from which programs can read in data. Creating a pipe uses these two streams: Without additions, the command '<tt>echo "Hello World"</tt>' writes to "<tt>stdout</tt>", which leads to displaying the string on the screen (in the terminal). The command "<tt>wc</tt>" reads data from its "<tt>stdin</tt>". The pipe-symbol "<tt>&vert;</tt>" redirects the output of "<tt>echo</tt>" from its "<tt>stdout</tt>" to the "<tt>stdin</tt> of "<tt>wc</tt>".
+<br>Accordingly, the symbols "<tt>&gt;</tt>" and "<tt>&gt;&gt;</tt>" redirect the output of "<tt>echo</tt>" from its "<tt>stdout</tt>" into a file.
+<p>Another example: The tool "<tt>bc</tt>" can do calculations (its program package, which should be part of the distribution, may have to be installed first).
+Then, the line:
+<pre>echo "25 * 5" | bc</pre>
+<p>produces an output of "<tt>125</tt>".
+<p><b>Quick Introduction to bash-Scripting</b>
+<p>Shell-commands can not only be passed on the command-line, but they can also be written into a text-file, which is then executed as a script.
+So bash is in fact a programming-language. Among other things, bash-scripts are often used as installation-routines. They also play an important role in the Linux boot-process.
+<br>Here's a quick introduction, how bash-scripting can be done.
+Consider a text-file called "<tt>examplescript.sh</tt>" with this content:
+<pre>#!/bin/bash
+
+# examplescript.sh - Example of a bash-script.
+
+echo "Let's count to 10:"
+for (( i=1; i&lt;=10; i++ ))
+do
+    echo "$i"
+done</pre>
+<p>
+<p>Then the text-file can be made executable with this command:
+<pre>chmod +x examplescript.sh</pre>
+<p>And after that, the script can be executed with:
+<pre>./examplescript.sh</pre>
+<ul>
+<li>The cryptic first line of the script tells the system to use the program "<tt>/bin/bash</tt>" as the interpreter.
+<li>Text after a "<tt>&num;</tt>" symbol is considered a comment, which is not executed.
+<li>The "<tt>echo</tt>"-command is already known.
+<li>The rest of the code creates a loop, which uses a variable "<tt>$i</tt>".
+</ul>
+<p>
+<HR>
+<h3><A NAME="9">9. Copying and Pasting Text</A></h3>
+<p>The Linux-way to copy and paste text, works as follows: When selecting text with the mouse, the text is automatically copied to a system-wide text-buffer.
+While the text is still selected, the cursor can be positioned at a different position, or even in another window of another application.
+By pressing the middle mouse-button, the text is then pasted from the text-buffer to the window that has the window-focus at the position of the cursor.
+<p>But the "<tt>Ctrl+c, Ctrl+v</tt>" known from Windows often works too. That seems to be a second mechanism.
+<p>
+<HR>
+<h3><A NAME="10">10. Typical Linux Applications I'm Using</A></h3>
+<p>Here's a quick overview of what Linux software I'm using:
+<ul>
+<li>Linux Distribution: OpenSuSE Leap 15.6
+<li>Desktop Environment: Xfce
+<li>Terminal: xfce4-terminal (shell: bash)
+<li>File Management: Is done in the terminal. Sometimes also with mc (= "Midnight Commander").
+<li>Text-Editor: vim
+<li>System configuration: yast2, xfce4-settings-manager
+<li>Web-Browser: firefox, sometimes google-chrome
+<li>Email: thunderbird
+<li>Word-processing: oowriter (LibreOffice Writer)
+<li>Spreadsheet: oocalc (LibreOffice Calc)
+<li>pdf-Viewer: okular
+<li>pdf-editing: pdftk (tool on the console)
+<li>Movie Player: mplayer
+<li>Volume controller: alsamixer, pavucontrol
+<li>Editing Movies: ffmpeg, mencoder, kdenlive
+<li>Sound-editor: audacity
+<li>Image-editor: gimp (and "convert" of "ImageMagick" on the console)
+<li>Image-viewer: geeqie
+<li>Taking Screenshots: xfce4-screenshooter
+<li>Burning DVDs/CDs: k3b
+<li>Creating bootable USB-Sticks from .iso-files: imagewriter
+<li>Scanning: xsane
+<li>Playing mp3s: mpg123, in combination with my own scripts "<tt>m</tt>" and "<tt>shufflemp3.pl</tt>", which can be found on <a href="https://github.com/hlubenow/miscellaneous_linux_scripts">my GitHub-page</a>.
+<li>Download files from the internet: wget. If not firefox.
+<li>Securely deleting files: wipe
+</ul>
+<p>
+<HR>
+<h3><A NAME="11">11. Editor vim</A></h3>
+<p>vim ("vi improved") is a powerful text-editor.
+It's an open-source clone of the Unix-editor "vi" ("vi" for "visual").
+Usually, it's run on the console, so to use it, the terminal program should be configured in a way, that letters can be read easily.
+<br>At first, vim seems very unfamiliar, but with a little practice, using it becomes actually quite easy.
+<br>The console version of vim is installed by default on all good Linux systems (and the ones, where it's not installed by default, aren't good). There's also a graphical version using a GTK-interface called "gvim", but on Linux, the console version is perfectly sufficient.
+This page was written with vim on the console.
+<p>There are two basic modes in vim, a "command mode" and an "insert mode".
+<br>vim is started with
+<pre>vim file.txt</pre>
+<p>in command mode. That means, text can only be entered, if the mode is switched to insert mode. This is done by pressing the key "<tt>i</tt>". Pressing the key "<tt>Escape</tt>" switches back to command mode.
+<p>A file can be saved, by entering "<tt>:w</tt>" in command mode.
+<br>"<tt>:sav f2.txt</tt>" does "Save as", also overwriting an existing file.
+<br>vim can be exited without saving by entering "<tt>:q!</tt>" in command mode. Entering "<tt>:wq</tt>" saves the file and exits vim, which is pretty straightforward.
+<p>The cursor can be moved "<tt>left, down, up, right</tt>" with the keys "<tt>h, j, k, l</tt>", but the cursor keys also work.
+<p>"<tt>^</tt>" pressed in command mode moves the cursor to the beginning of the line, "<tt>$</tt>" moves it to the end of the line. "<tt>w</tt>" moves the cursor one word further, "<tt>b</tt>" moves it one word back.
+"<tt>gg</tt>" in command mode moves the cursor to the beginning of the document, "<tt>G</tt>" moves it to the end of the document.
+<p>When pressing "<tt>%</tt>" in command mode, while the cursor is on a bracket, moves the cursor to the corresponding bracket.
+<p>Copying and pasting text works as follows:
+<br>"<tt>y$</tt>" in command mode copies the text up to the end of the current line into a text buffer. "<tt>10y$</tt>" copies the next ten lines. "<tt>yG</tt>" copies the text from the cursor position to the end of the document. "<tt>yw</tt>" copies one word, "<tt>5yw</tt>" the next 5 words.
+<br>Then, "<tt>p</tt>" is used to paste the text from the buffer into the document at the current cursor position.
+<p>There's also a "visual mode", which is entered pressing "<tt>v</tt>".
+In this mode, text can be selected, for example with the cursor keys. Then commands like "<tt>y</tt>" (copy), but also "<tt>d</tt>" or "<tt>x</tt>" (cut) can be applied to the selected text. By pressing "<tt>v</tt>" again, the visual mode can be left again.
+<p>It's also possible to switch into insert mode with "<tt>i</tt>", and then copy text from other applications into the document by pressing the middle mouse button.
+<p>"<tt>dd</tt>" deletes the current line. "<tt>dw</tt>" the current word up to its end. Text that is deleted that way, is also copied, so it can be pasted elsewhere using "<tt>p</tt>".
+<p>"<tt>u</tt>" undoes the last action.
+<br>"<tt>Ctrl+r</tt>" redoes the last action that was undone.
+<p>"<tt>/expression</tt>" searches the document for "<tt>expression</tt>"
+<br>"<tt>n</tt>" finds the next occurence of the expression.
+<br>If there are special characters in the expression like "<tt>.</tt>" or "<tt>/</tt>", a backslash has to be written in front of them.
+<p>With the command "<tt>:set ignorecase</tt>", case sensitivity is switched off for search operations.
+<pre>:% s/expression1/expression2/gc"</pre>
+<p>replaces "<tt>expression1</tt>" with "<tt>expression2</tt>" throughout the document, but asks the user before replacing.
+<p>With "<tt>:set nu</tt>" line numbers are shown, with "<tt>:set nonu</tt>" they're hidden again.
+<p>"<tt>a</tt>" moves the cursor behind the current word and switches to insert mode.
+<br>"<tt>o</tt>" moves the cursor one line down and switches to insert mode.
+<br>"<tt>x</tt>" deletes the current character.
+<br>"<tt>r</tt>" in command mode replaces the current character with another one without changing to insert mode.
+<br>"<tt>cw</tt>" deletes the current word and switches to insert mode.
+<p>"<tt>.</tt>" repeats execution of the last command.
+<p>"<tt>J</tt>" joins the next line to the current one (This command is used more often than one might expect).
+<p>"<tt>:r file.txt</tt>" loads the content of "<tt>file.txt</tt>" into the document at the current cursor position.
+<p>"<tt>gU</tt>" in combination with a movement of the cursor (like "<tt>w</tt>") changes the characters of the word into capital letters.
+"<tt>gu</tt>" in combination with a cursor movement (like "<tt>w</tt>") changes them to lowercase letters.
+<br>This also works with other movement commands, for example "<tt>gUG</tt>".
+<p>The options and configurations of vim are saved in a file "<tt>/home/user/.vimrc</tt>".
+<p>A line in that file
+<pre>iab ts test</pre>
+<p>has the effect, that if the word "<tt>ts</tt>" is written in the document followed by a space character, the word is replaced with "<tt>test</tt>".
+<p>The entry "<tt>set backspace=2</tt>" in "<tt>/home/user/.vimrc</tt>" has the effect, that the backspace-key can be used beyond the beginning of the current line (which is the default behaviour in other editors).
+<p>If vim at first doesn't behave the way you expect, you may find a configuration file for it on the internet that contains just the option, you're looking for.
+<p>
+<HR>
+<h3><A NAME="12">12. grep: Filtering Text (From Output or in Files)</A></h3>
+<p>"<tt>grep</tt>" is an often-used console program. It filters lines of text from the output of other programs. It can also filter lines from text files.
+Consider this command:
+<pre>echo -e "one\ntwo\nthree\nfour\nthirty"</pre>
+<p>It prints "<tt>one two three four thirty</tt>" in five lines. "<tt>\n</tt>" is the newline-character on Linux.
+<br>Now let's pipe the output of this command into "<tt>grep</tt>", and make it filter all lines that contain "<tt>th</tt>":
+<pre>echo -e "one\ntwo\nthree\nfour\nthirty" | grep "th"</pre>
+<p>The result is "<tt>three thirty</tt>" (written in two lines).
+<p>"<tt>grep</tt>" has an option "<tt>-i</tt>", which makes it ignore case sensitivity.
+<br>There's also an option "<tt>-v</tt>", which makes "<tt>grep</tt>" output only those lines, that <u>don't</u> contain the passed string.
+So with the "<tt>-v</tt>" option, the result of the command would be "<tt>one two four</tt>" (written in three lines).
+<p>"<tt>grep</tt>" is often used in combination with the command "<tt>find</tt>", which prints the names of all files and directories in and below the current directory. So if you're looking for a file called "<tt>test.txt</tt>" somewhere in or below the current directory, you could run
+<pre>find | grep "test"</pre>
+<p>and it may print the location of the file.
+<p>"<tt>grep</tt>" can also be used on files, like "<tt>grep -i hello test.txt</tt>". That would print all lines in the file "<tt>test.txt</tt>" that contain "<tt>hello</tt>" or "<tt>Hello</tt>".
+<br>There's also an option "<tt>-r</tt>", which makes "<tt>grep</tt>" search recursively for files, and apply the filtering to their contents.
+<p>
+<HR>
+<h3><A NAME="13">13. Managing Processes</A></h3>
+<p>The command "<tt>ps</tt>" lists the processes that are running at the moment. Without options, it only shows the user's processes related to the user's terminal.
+<pre>ps xa</pre>
+<p>lists all processes. As this list of processes can be quite long, it's useful to use "<tt>grep</tt>" together with "<tt>ps</tt>". For example: Start Firefox, open another terminal and run:
+<pre>ps xa | grep -i firefox</pre>
+<p>That should show a number of processes related to Firefox.
+<p>In the first column of the list, the "process ID" (PID) of each process is shown. This PID can be used to kill a process. This is for example useful, if the process is broken and doesn't react any more. The command "<tt>kill -9</tt>" is then used in combination with the process' number (the PID).
+<br>There's also a command "<tt>killall</tt>", which can be used in combination with the name of the program, for example "<tt>firefox</tt>".
+<p>A graphical list of processes, sorted by CPU- and memory-consumption, is displayed by the command
+<pre>top</pre>
+<p>"<tt>top</tt>" can be exited by pressing "<tt>q</tt>".
+<p>Today, it seems, there are also graphical task managers, like for example "<tt>xfce4-taskmanager</tt>" for Xfce.
+<p>
+<HR>
+<h3><A NAME="14">14. su and sudo: Acting as "root"</A></h3>
+<p>Often, it's not sufficient to run tools and programs as an ordinary user.
+<p>To become "root", the command "<tt>su</tt>" ("<tt>su</tt>" for "substitute user" or "switch user") can be run on the console. After entering root's password, the user's identity is then changed to "root", and it's then possible to work with system-files.
+Of course, the person who has root's full system-access should act with care, or things may get broken.
+<p>There's also a system to enable an ordinary user to just run certain commands as root, without becoming root for a longer period of time. The user can enter "<tt>sudo somecommand</tt>", and if it was predefined that he's allowed to run "<tt>somecommand</tt>" as root, he can.
+<p>root can define with the command "<tt>visudo</tt>", which commands users can run with "<tt>sudo</tt>". This command changes (on OpenSuSE Linux) the file "<tt>/etc/sudoers</tt>". To use "<tt>visudo</tt>", root should be familiar with how the editor "<tt>vim</tt>" is used - which is described in another section on this page.
+<br>The entries in the file "<tt>/etc/sudoers</tt>" have the following format:
+<pre>username computername= NOPASSWD: command</pre>
+<p>Where the command "<tt>hostname</tt>" tells the name of the computer.
+<p>So if root defines the line
+<pre>john linuxbox= NOPASSWD: /usr/sbin/userdel</pre>
+<p>with "<tt>visudo</tt>", the user called "<tt>john</tt>" can run the command "<tt>/usr/sbin/userdel</tt>" as "<tt>root</tt>" on the computer called "<tt>linuxbox</tt>" by writing "<tt>sudo /usr/sbin/userdel</tt>".
+<p>On my system, I hardly mess with "<tt>sudo</tt>", but just become root with "<tt>su</tt>", and I'm good to go.
+<p>
+<HR>
+<h3><A NAME="15">15. zip, tar: Unpacking and Packing Files</A></h3>
+<p>"<tt>.zip</tt>"-files can be unpacked with:
+<pre>unzip somefile.zip</pre>
+<p>A new "<tt>.zip</tt>"-file can be created from a directory with:
+<pre>zip -r archive.zip somedirectory</pre>
+<p>On Linux, archive files are often in the format "<tt>.tar.gz</tt>" or "<tt>.tgz</tt>" (tar: "Tape Archive", gz of "<tt>gzip</tt>"). These files can be unpacked with:
+<pre>tar -xzvf archive.tar.gz</pre>
+<p>There are also archives in the format "<tt>.tar.bz2</tt>". They can be unpacked with:
+<pre>tar -xjvf Datei.tar.bz2</pre>
+<p>And there are archives in the format "<tt>.tar.xz</tt>". They can be unpacked with:
+<pre>tar -xf Datei.tar.xz</pre>
+<p>A "<tt>.tar.gz</tt>"-archive can be created from a directory with:
+<pre>tar -czvf archive.tar.gz somedirectory</pre>
+<p>"<tt>mc</tt>", the Midnight Commander, can also handle archive files. It can be used to browse archives or extract single files or directories from them. It can also add files or directories into already existing archives. 
+<p>
+<HR>
+<h3><A NAME="16">16. df and du: Information on Disk Space Usage</A></h3>
+<p>The command "<tt>df</tt>" shows the mounted file systems, how much space is used on them, and how much is still available.
+<p>The command "<tt>du</tt>" shows, how much disk space the files in the current directory and below it use. You can also pass the name of another directory to be examined to it. There's an option "<tt>-h</tt>" to make the output of "<tt>du</tt>" better readable for humans. So, typically "<tt>du</tt>" is used like this:
+<pre>du -h .</pre>
+<p>With the point symbolizing the current directory.
+<p>
+<HR>
+<h3><A NAME="17">17. Making Commands and Scripts Available to All Users</A></h3>
+<p>There's a mechanism, where the shell looks for commands.
+<br>In the shell, there can be variables. They are for example defined and used like that (the code should be entered one line after the other here):
+<pre>a="Hello"
+echo "$a"</pre>
+<p>Notice, there aren't space characters left and right to the equal-sign (if there were, it wouldn't work).
+<br>Also notice, that the variable is used with the dollar sign in front (<tt>$a</tt>), but defined without it.
+<br>And then, it's a good idea to use quotation marks around the variable, when using it (<tt>"$a"</tt>), because of shell expansion (which was already described above).
+<p>There are also system variables, which are predefined by default. There is a system variable "<tt>$PATH</tt>". On my system, executing "<tt>echo "$PATH</tt>" leads to this result:
+<pre>/home/user/bin:/usr/local/bin:/usr/bin:/bin</pre>
+<p>So the system variable "<tt>$PATH</tt>" contains the directories, where the shell is looking for the commands, separated by colons.
+<br>That means, if "<tt>.</tt>" isn't in "<tt>$PATH</tt>", a command (for example a script called "<tt>somescript.sh</tt>") that is in the current working directory, can't be executed by just typing its name. Instead, a point and a slash have to be entered in front of its name, to tell the shell, that it is the command in the current working directory, that should be executed. So writing
+<pre>./somescript.sh</pre>
+<p>would execute the script (provided, that the file attribute "executable" is set - which can be done by running "<tt>chmod +x somescript.sh</tt>").
+<p>One of the directories in "<tt>$PATH</tt>", where the shell is looking for commands, is the directory
+<pre>/usr/local/bin</pre>
+<p>This setting can be found in most Linux-distributions.
+So if you've written a script, made it executable, and want all users to be able to execute it on the console, you can just copy it as root to "<tt>/usr/local/bin</tt>". Then the shell finds it, regardless of the current working directory.
+<p>The shell-command "<tt>which</tt>" tells, in which directory an available command is located. For example prints the command "<tt>which ls</tt>" the string "<tt>/usr/bin/ls</tt>".
+<p>
+<HR>
+<h3><A NAME="18">18. alias: Defining Smaller Commands</A></h3>
+<p>As mentioned, larger scripts should be made executable, and then put into "<tt>/usr/local/bin</tt>".
+<br>Smaller commands can be create as "aliases". For example, the command
+<pre>alias show_usrlocalbin="cd /usr/local/bin;ls"</pre>
+<p>defines an alias called "<tt>show_usrlocalbin</tt>" that executes the part in quotation marks. So after running the alias-command, you can use a new command "<tt>show_usrlocalbin</tt>" to print the contents of that directory.
+Of course, this is only an example of what can be done with "<tt>alias</tt>".
+<p>For now, the new command is only available in the current shell. So when you close the terminal, the alias is gone again. To make the alias permanent, it can be written into the file
+<pre>/home/username/.bashrc</pre>
+<p>This file is executed, every time the shell is started, that is when opening a terminal.
+<br>The leading point of the filename "<tt>.bashrc</tt>" means, that the file is hidden. It is not visible to a simple "<tt>ls</tt>". It is visible to "<tt>ls -lisa</tt>" though, so these files aren't completely hidden from the user.
+Such hidden visibles are mostly configuration files. Typically, they can be found in the directory "<tt>/home/username</tt>".
+<br>Today, there's also often a directory "<tt>/home/username/.config</tt>". This directory contains the user-specific configration files of applications. 
+<p>Writing the alias-line into "<tt>/home/username/.bashrc</tt>" makes the new command available to the specific user.
+<br>Writing it as root into the file
+<pre>/etc/bash.bashrc.local</pre>
+<p>makes it available to all of the system's users. It may be necessary, to create this file first. Alternatively, the file "<tt>/etc/bash.bashrc</tt>" can be used.
+<p>
+<HR>
+<h3><A NAME="19">19. dos2unix, unix2dos, recode: Reformatting Text-Files</A></h3>
+<p>On Linux, the character for "<tt>End of Line</tt>" is "<tt>\n</tt>".
+<br>DOS and Windows use a different character. So when exchanging text-files with these systems, the files have to be reformatted. This is done with the commands "<tt>unix2dos</tt>" and "<tt>dos2unix</tt>".
+<p>Text-files also have a certain encoding. This is of importance for text-files in other languages as English, for example in the German language, which may contain vowels such as "<tt>&auml;</tt>" and "<tt>&ouml;</tt>".
+<br>The most common encodings are "ASCII", "ISO-8859-1" and "UTF-8" (which is related to Unicode).
+<br>The command "<tt>file textfile.txt</tt>" gives information about the encoding of a text-file.
+<br>The encoding can be changed with the command "<tt>recode</tt>".
+For example this command can be used to recode a text-file from "ISO-8859-1" to "UTF-8":
+<pre>recode ISO-8859-1..UTF-8 textfile.txt</pre>
+<p>On modern Linux-systems, the default-encoding is usually "UTF-8". It can handle characters such as German vowels easily. 
+<p>
+<HR>
+<h3><A NAME="20">20. ln: Symbolic Links</A></h3>
+<p>Besides files and directories, there can be socalled "symbolic links" in the directories of a Linux file system. Symbolic links are small files that point to other files or directories. Accessing the links is then redirected to the target-files and -directories.
+<br>If for example there is a file "<tt>test.txt</tt>" in the directory "<tt>/home/username</tt>", which was created with
+<pre>echo "Hello" > /home/username/test.txt</pre>
+<p>then a link called "<tt>linktotest</tt>" can be created with:
+<pre>ln -s /home/username/test.txt /home/username/linktotest</pre>
+<p>Afterwards, the content of "<tt>test.txt</tt>" can be copied to a file "<tt>test2.txt</tt>" using the link:
+<pre>cp -v /home/username/linktotest /home/username/test2.txt</pre>
+<p>So "<tt>test.txt</tt>" was then accessed using the symbolic link "<tt>linktotest</tt>".
+<p><u>Note</u>: When I delete the symbolic link "<tt>linktotest</tt>" on my system with "<tt>rm -v /home/username/linktotest</tt>", the target file "<tt>test.txt</tt>" isn't affected.
+<p>
+<HR>
+<h3><A NAME="21">21. date, cal: Showing Date and Time</A></h3>
+<p>The command "<tt>date</tt>" shows the date and time.
+Of course, there's also a clock in the task-bar.
+The system clock is updated by services via internet.
+<p>The command "<tt>cal</tt>" shows a "graphical" calendar on the console. "<tt>cal -3</tt>" expands the calendar to the three months nearby.
+The command can also show the calendar of other years (or this year), then printing the calendar for all 12 months. So be careful not to just write "<tt>cal 3</tt>", as that would be the calendar of the year 3, more than 2.000 years ago.
+<p>
+<HR>
+<h3><A NAME="22">22. mount, umount: Mounting Devices</A></h3>
+<p>Today, most devices like for example USB-sticks are mounted automatically, when connecting them to the computer. That is, a directory is created for them in the directory tree, and their contents can then be accessed there.
+<br>On my OpenSuSE 15.6-system, these directories are dynamically created and removed by the system below the directory "<tt>/var/run/media/username</tt>".
+<p>In some cases it may be useful to know, how to mount and unmount devices by hand.
+<br>Running the command "<tt>mount</tt>" without options shows the mounted devices. There's another command "<tt>lsusb</tt>", which gives information about the mounted USB-devices. 
+<br>The command to unmount devices is called "<tt>umount</tt>". Notice, there is no "<tt>n</tt>": It's "<tt>umount</tt>".
+<br>When there isn't any read/write-activity regarding the devices any more, it's also possible to use "<tt>umount</tt>" on the directories below "<tt>/var/run/media/username</tt>".
+<p>In some cases, it may be of use to mount devices manually. This is typically done as "root". The "<tt>mount</tt>"-command then needs the information about the device: Its file system, its device-node (which is located somewhere in the directory "<tt>/dev</tt>") and the directory, where to mount its contents.
+<br>USB-sticks up to 32GB memory often use the old Windows files-system called "FAT32". This is supported by "<tt>mount</tt>" using the option "<tt>-t vfat</tt>".
+<br>The option for Linux-partitions (on external devices to be mounted) is often "<tt>-t ext3</tt>" or "<tt>-t ext4</tt>".
+<br>Often, it's possible to mount "<tt>.iso</tt>"-files for example, and examine and copy their contents from the directory, where they were mounted. The mount-command to do that would be:
+<pre>mount -t iso9660 -o loop,ro imagefile.iso imagedir</pre>
+<p>In the earlier Linux-days, when mounting devices by hand was more common, the information about the devices was written into a system-wide file called
+<pre>/etc/fstab</pre>
+<p>That way, writing the mount-command on the console became much easier, as the device-information was read from that file.
+The file still exists on today's Linux-system, and it's also still possible to store device information there. It seems, if devices are listed there, the system feature to automatically mount and umount them, is deactivated.
+<br>The lines in the file "<tt>/etc/fstab</tt>" have a certain format, but I don't have to describe it here, because the information can easily be found on the internet elsewhere.
+<p>
+<HR>
+<h3><A NAME="23">23. rpm: Managing Software Packages on a rpm-Based Distribution</A></h3>
+<p>On OpenSuSE Leap (up to version 15.6), software packages can be managed with the distribution's system tool YaST2. There's also the high-level software managing tool called "<tt>zypper</tt>" on the console.
+<p>"<tt>apt</tt>" is the main software installation tool on Ubuntu. It's designed to manage "<tt>dpkg</tt>"-packages. There are also the graphical tools "Synaptic" and "Ubuntu Software Center", but it seems on Ubuntu it's still common to use "<tt>apt</tt>" on the console.
+<p>Unlike Ubuntu, OpenSuSE uses software packages in "rpm"-format. The traditional tool to manage these packages (being root) is called "<tt>rpm</tt>". Here are some useful rpm-commands:
+<ul>
+<li>"<tt>rpm -qa | grep -i [packagename]</tt>": Check, if a package is installed (listing all found packages).
+<li>"<tt>rpm -i [package.rpm]</tt>": Install a rpm-file that's in a directory.
+<li>"<tt>rpm -Uvh [package.rpm]</tt>": Updates an already installed package with a rpm-file that's in a directory.
+<li>"<tt>rpm -qi [packagename]</tt>": Prints information on an installed package.
+<li>"<tt>rpm -qpi [package.rpm]</tt>": Prints information on a rpm-file that's in a directory.
+<li>"<tt>rpm -ql [packagename]</tt>": Lists the files in an installed package.
+<li>"<tt>rpm -qpl [package.rpm]</tt>": Lists the files inside a rpm-file in a directory.
+<li>"<tt>rpm -qf /usr/bin/ls</tt>": Shows the package, the given file (here "<tt>/usr/bin/ls</tt>") belongs to.
+<li>"<tt>rpm -e [packagename]</tt>": Deinstall an installed package.
+</ul>
+<p>Software packages often depend on other software packages being installed. In general, all dependencies should be resolved, that is, a package should only be installed, if the packages, it depends on, have already been installed. YaST2 can take care of that. But if you want to install a rpm-package in a directory anyway, you can use the command (as root) "<tt>rpm -i [package.rpm] --nodeps --force</tt>".
+<br>"<tt>--force</tt>" can also be applied with "<tt>rpm -e</tt>", if the system wants to prevent you from deinstalling a package.
+<p>With the Midnight Commander (mc), it's possible to browse rpm-files, and to extract single files from them.
+The following command copies all files of a rpm to the current directory:
+<pre>rpm2cpio package.rpm | cpio -i --make-directories</pre>
+<p>
+<HR>
+<h3><A NAME="24">24. X-Server. Tools xrandr, xwininfo, xfontsel, xev, xmodmap, xkill, xkbset</A></h3>
+<p>On Linux, the window manager of desktop environments is not the only program that creates the graphical desktop. Instead, the window manager is a client to another program called the X-server.
+Most Linux systems use a X-server called "X.Org". And there's a protocol called "X11". Some systems use a newer protocol called "Wayland" instead, but up to now it couldn't fully replace "X11".
+<p>There are a number of small and old, but capable tools, which give access to certain functions of the X-server:
+<ul>
+<li>When called without options, the tool "<tt>xrandr</tt>" displays information about the screen, the outputs of the graphics card, and shows the available resolutions. Using the option "<tt>-s</tt>" of "<tt>xrandr</tt>", it's possible to change the screen resolution.
+<p>
+<li>When running "<tt>xwininfo</tt>", it's possible to click on a window, and then get detailed information about this window, especially about its size and its position.
+<p>
+<li>The X-server is also responsible for managing key presses using key codes. The program "<tt>xev</tt>" can show information about these key codes.
+<p>
+<li>The program "<tt>xmodmap</tt>" can be used to redefine the assignment of keys. Which can potentially lead to a lot of trouble, if done in a wrong way, so this program should only be used with great care.
+<br>The command "<tt>xmodmap -pke</tt>" shows the current assignment of the keys.
+<p>
+<li>The tool "<tt>xfontsel</tt>" shows information about the fonts that are installed on the system.
+<p>
+<li>"<tt>xkill</tt>" let's you click on a window, and terminate its process that way.
+<p>
+<li>"<a href="https://github.com/stephenmontgomerysmith/xkbset">xkbset</a>" can (among several things) enable and disable "mouse keys" by console command.
+<br>"Mouse keys" means to use the keys of the numeric key pad of the keyboard to move the mouse cursor, and to click the left mouse button with the key "<tt>5</tt>" of the numeric key pad. Which is something, I'm interested in, so for many years "<tt>xkbset</tt>" has been one of the first programs I'm compiling after having installed a new Linux system.
+</ul>
+<p>
+<HR>
+<h3><A NAME="25">25. Login-Manager</A></h3>
+<p>Before entering the graphical desktop, there's a login-screen. It is created by a special program called "display manager". The desktop environments usually come with their own program of that type. There are for example "KDM" (KDE), "GDM" (Gnome), "LightDM" (Xfce) and "SDDM" (LXQt).
+<p>The feature to automatically login a user without entering the password (autologin) is often related to the display manager. I don't explain here, how this feature is activated, the information depends on the used display manager. In general, it's better for security reasons not to use autologin, but to always enter user name and password.
+<p>
+<HR>
+<h3><A NAME="26">26. Autostarting Programs Together with the Graphical Desktop</A></h3>
+<p>Programs can be started automatically together with the graphical desktop. To do that, a socalled "<tt>.desktop</tt>"-file has to be created in a special directory, which is:
+<pre>/home/username/.config/autostart</pre>
+<p>The content of a "<tt>.desktop</tt>"-file has a certain format. Take a look at other "<tt>.desktop</tt>"-files to find out, how they are written.
+<p>
+<HR>
+<h3><A NAME="27">27. Playing and Editing Videos</A></h3>
+<p>For playing videos, the large, well-known, commercial internet platforms just use the webbrowser and provide their own video player.
+<p>For playing videos outside the webbrowser, "VLC player" is popular on Linux.
+<br>I'm using a different program called "MPlayer" though. There are a lot of options to the "<tt>mplayer</tt>"-command. Here are just a few:
+<ul>
+<li>"<tt>-af volnorm</tt>": "af" means "audio filter". The option normalizes the volume of the audio of the video, so that it can be set to a pleasant level.
+<li>"<tt>-fs</tt>": Play fullscreen.
+<li>"<tt>-alang en</tt>": Set the language to English. There's for example also "<tt>-alang de</tt>" for German. This of course only works, if the video has multiple audio tracks for the different languages.
+<li>"<tt>-forcedsubsonly</tt>": Don't show subtitles.
+<li>"<tt>-loop 0</tt>": Loop a file infinitely (until stopped).
+</ul>
+<p>While playing, "MPlayer" can be controlled with keys:
+<ul>
+<li>The cursor keys move forward and backwards in the video. The "<tt>Up</tt>"-key by one minute for example.
+<li>"<tt>PageUp</tt>" moves 10 minutes forward, "<tt>PageDown</tt>" 10 minutes backwards.
+<li>"<tt>9</tt>" reduces the volume, "<tt>0</tt>" increases it.
+<li>"<tt>o</tt>" displays times, like the play position and the total length of video.
+<li>"<tt>q</tt>" exits MPlayer.
+</ul>
+<p>"<tt>ffmpeg</tt>" is a powerful console tool to recode media files (which is the basis of cutting videos for example). "<tt>mencoder</tt>" does a similar thing, but today, "<tt>ffmpeg</tt>" is often the better choice.
+<p>"Kdenlive" is a larger graphical application for editing videos.
+<p>"OBS Studio" is a larger graphical application for recording videos and performing live-streams. As far as I know, it can also combine images of the user's desktop with the webcam-recording of the user himself (which would be nice, if someone wanted to create a Youtube-tutorial about how to use Linux for example).
+<p>
+<HR>
+<h3><A NAME="28">28. Midnight Commander</A></h3>
+<p>The "Midnight Commander" (shell-command "<tt>mc</tt>") is a graphical file-manager, running on the console. It looks similar to the ancient "Norton Commander" for DOS, so by today's standard it may look a bit ugly.
+Nevertheless, it's quite powerful.
+<br>Two directories are shown in two (sub-)windows at once, which makes managing files fast and convenient.
+<p>Two things first:
+<ol>
+<li>"Midnight Commander" should be opened with "<tt>mc -b</tt>", so that the colours are "white on black", instead of the blue blackground, which is the default otherwise.
+<br>To use Midnight Commander, of course the font size of the terminal has to be set to a decent value, so that the names of the files and directories can be read easily (see above about configuring the terminal program).
+<p>
+<li>To be able to navigate the directories properly, the option "<tt>Lynx-like motions</tt>" should be activated in the <tt>F9</tt>-menu of Midnight Commander, at "<tt>Options / Panel Options / Navigation</tt>". Then, the cursor key "<tt>Right</tt>" can be used to enter a directory, and "<tt>Left</tt>" to move to the parent directory. That's quite essential for using the program.
+</ol>
+<p>Here are some often used key combinations in Midnight Commander:
+<ul>
+<li>"<tt>F5</tt>" copies the selected file or directory.
+<li>"<tt>F6</tt>" moves the selected file or directory.
+<li>"<tt>F8</tt>" deletes the selected file or directory.
+<li>The <tt>tabulator</tt>-key switches back and forth between the two directory-windows.
+<li>"<tt>Alt-i</tt>" sets the directory of the other window to the one of the current window.
+<li>The <tt>insert</tt>-key is used to mark files and directories. The <tt>F-key</tt>-operations then apply to the marked files.
+<li>"<tt>Return</tt>" executes the selected file, if it is executable (so be careful with that).
+<br>If the file is not executable, and it is an archive-file, the Midnight Commander delves into that archive (see below).
+<li>Pressing "<tt>Ctrl-s</tt>" and then a character: Moves the cursor to the first file, whose name begins with the specified character.
+<li>Pressing "<tt>Ctrl-x</tt>" and then "<tt>o</tt>": Opens a window to set the owner of the selected file (like the shell-command "<tt>chown</tt>").
+<li>Pressing "<tt>Ctrl-x</tt>" and then "<tt>c</tt>": Opens a window to set the file permissions of the selected file (like the shell-command "<tt>chmod</tt>").
+<li>"<tt>Ctrl-Alt-?</tt>": Opens a directory hotlist.
+<li>Pressing "<tt>Ctrl-x</tt>" and then "<tt>h</tt>": Adds the current file or directory to the directory hotlist.
+<li>"<tt>ALT+Shift+?</tt>": Opens a mask for searching for files.
+<li>"<tt>F9</tt>" opens a menu.
+<li>"<tt>F10</tt>" exits the program.
+</ul>
+<p>Midnight Commander can be used to browse archive files like ".zip"-files, ".tar.gz"-files and so on. Also ".rpm"-files are supported. If the cursor is on the archive-file (whose file-permissions have to be set to "not executable"), the <tt>Return</tt>-key can be pressed to move inside the archive. There, the usual keys like <tt>F5</tt> and so on can be used, as if the location was just another directory in the directory tree (at least that's the idea).
+<p>
+<HR>
+<h3><A NAME="29">29. lpq, lprm, xsane: Managing Printers. Scanning</A></h3>
+<p>Printing on paper and printers themselves have become less relevant in recent years, as communication is moving more and more towards email and web formulars.
+<br>For installing and managing printers, there should be graphical tools in the distribution.
+<br>On the console, there are two traditional tools that can still be useful sometimes:
+<ul>
+<li>"<tt>lpq</tt>": Shows the current printer queue.
+<li>"<tt>lprm</tt>": Removes tasks from the printer queue.
+</ul>
+<p>(There's also "<tt>lp</tt>", which sends raw data to a printer, but that can be considered obsolete today, as to print something an application like "LibreOffice Writer" would be used.)
+<p>On many Linux system, a printer daemon called "CUPS" ("Common Unix Printing System") is running in the background. It also acts as a local webserver, so clients can connect to it to configure printers. CUPS can be accessed by pointing a web-browser like Firefox to the address "<tt>http://localhost:631</tt>" (that is to <a href="http://localhost:631">here</a>). It should be possible to configure some printer settings there. But as said, the distribution may have other graphical tools to do that, too.
+<p>Printing to paper may have become less relevant, but scanning paper documents still is. On Linux, there's an application called "<tt>xsane</tt>", which basically takes care of every aspect of this process.
+<p>
+<HR>
+<h3><A NAME="30">30. cron-Daemon: Run Programs at Other Times</A></h3>
+<p>On Linux-systems, a service called the "cron daemon" is running in the background that can start programs on its own at predefined times.
+<br>The cron daemon checks the following directories for programs to run in the specified intervals:
+<pre>/etc/cron.hourly/
+/etc/cron.daily/
+/etc/cron.weekly/
+/etc/cron.monthly/</pre>
+<p>If the cron daemon should do something at another time or in another interval, there's a file called
+<pre>/etc/crontab</pre>
+<p>in which these tasks can be configured. Lines in that file have to be in a certain format. I don't explain that format here, the information can be found on the internet.
+<p>Another way to run programs at other times, used to be the "at daemon", and the command "<tt>at</tt>". But it seems, on OpenSuSE Leap 15.6 this isn't available any more.
+<p>
+<HR>
+<h3><A NAME="31">31. lsmod, modprobe, rmmod: Managing Kernel Modules</A></h3>
+<p>There are some special files called "modules" that can add certain functionality to the kernel. These are mostly drivers for hardware devices. The modules can somehow be attached to the kernel or removed from it. They are usually managed being "root".
+<br>The command "<tt>lsmod</tt>" shows the modules that are currently attached to the kernel.
+<br>"<tt>modprobe [modulname]</tt>" probes, if the given module is currently attached to the kernel, and if it is not, it is attached to it.
+<br>"<tt>rmmod [modulname]</tt>" removes the given module from the kernel. As a result, some functionality of the kernel may not work any more.
+<p>
+<HR>
+<h3><A NAME="32">32. Making Changes to the Configuration of the Bootloader GRUB2</A></h3>
+<p>Bootloaders (also called "boot managers") are the programs that control the boot-process of the operating system.
+<ul>
+<li>Traditionally, the "BIOS" ("Basic Input/Output System") was responsible for the first stage of the boot process. The BIOS is built into the computer, and is not part of Linux. The BIOS can be started, without Linux ever having been installed or run on the computer. 
+Today, another environment called "UEFI" might be responsible for the first stage of the boot process.
+<p>
+<li>On most Linux distributions, today the second stage bootloader is called "GRUB2" ("Grand Unified Bootloader, version 2"). At some point in the boot-process, it takes over control from the BIOS or UEFI.
+</ul>
+<p>From a running Linux, changes to the configuration of GRUB2 can be made, which take effect at the next boot-time. But of course, making these kind of changes has its risks, as the system may not boot anymore, if done incorrectly. 
+On OpenSuSE Leap 15.6 for example, there's a template-file called
+<pre>/etc/default/grub</pre>
+<p>where these kind of changes could me made (being root, of course). Before changing this file, in any case a backup of it should be made.
+<br>In the file, there are lines with options for GRUB2.
+<br>Lines starting with "<tt>#</tt>" are just comments, which are ignored.
+<br>On my system, the most important line in the file looks like this:
+<pre>GRUB_CMDLINE_LINUX_DEFAULT="splash=silent quiet security=apparmor mitigations=auto"</pre>
+<p>These are the kernel-options. The line has to be exactly in this format. That is especially, there mustn't be space characters around the equal-signs ("<tt>=</tt>").
+<p>On some systems, there may also be a kernel-option "<tt>preempt=full</tt>". What these kernel-options do, and what options would be best for the system, should be investigated, before making any changes.
+<p>When all changes are done, the settings can be written from the template-file into the bootloader-configuration with the command (run as root):
+<pre>update-bootloader</pre>
+<p>(On older distributions, the corresponding command used to be "<tt>grub2-mkconfig -o /boot/grub2/grub.cfg</tt>".)
+<p>So the real configuration-file of GRUB2 is "<tt>/boot/grub2/grub.cfg</tt>". But this file shouldn't be edited directly. Instead changes should be made only as described above, that is by editing the template-file "<tt>/etc/default/grub</tt>", and then running the command "<tt>update-bootloader</tt>".
+<p>
+<HR>
+<h3><A NAME="33">33. bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A></h3>
+<p>Above, you've read about <b>bash</b>, the common programming language of the Linux shell. Especially installation scripts have been written in that language for decades.
+<br>But to be honest, I don't like it much: Everywhere you have to write those quotation marks. You have to be careful, when using space characters, and have to know, when you must not. Support for data arrays is only rudimentary. Socalled sub-shells may open surprisingly and lead to unexpected and unwanted results. Overall, creating pipes of shell-commands is rather coarse, when it comes to data processing.
+<br>There are are other programming languages that are better suited for that.
+<p><b>Perl</b> for example is another interpreted programming language (with a much larger interpreter than bash). It has some elements of bash, but has full support for lists (arrays) and functions, and data processing works as expected. Perl can do many things, with thousands of modules in the "<a href="https://en.wikipedia.org/wiki/CPAN">CPAN</a>", the "Comprehensive Perl Archive Network".
+<p>So Perl is pretty good, but the better thing is always the enemy of the good one. So <b>Python</b> came around, which is yet another interpreted programming language, and made the same things even easier than in Perl. It left out the variable sigils like "<tt>$</tt>" and all those semicolons at the end of lines, and so the code became very clear and readable. 
+<br>Python is very suitable for programming beginners, and at the same time it's rather powerful. That made it the most widely used programming language worldwide today (!). It's even used in professional AI-projects. So it's sure worth learning it.
+<p>The interpreters of bash, Perl and Python are written in <b>C</b>. Most Linux commands are too, and also large parts of the Linux kernel. C-code, being compiled, runs faster than that of the interpreted languages. But C has a drawback: It's not easy to use. Often, data structures have to be manipulated at the level of single bytes. So C is somehow the programming language of the professionals, but using it can be tough, and may require more effort than one might expect.
+<p>Maybe because of that, <b>C++</b> was developed (in the 1980s). It is a different language than C, but a superset of it. C++ has classes (= object oriented programming) (Python has classes too). C++-code is also compiled (like C-code is). There are C++-libraries, that make the things that make C difficult, a little easier. But unfortunately sometimes at the price of less speed; depending, on how the programmer chooses to write the code. C++ is widely used in the modern commercial software industry, for example the company "Electronic Arts" writes many of their games in C++.
+<p>So that was a little overview of the programming languages that are available - usually for free, mind you - on Linux distributions. About all languages above (except bash), there are more, much more detailed webpages on my websites. Just go to the <a href="index.html">main-page</a>, and look for the pages about the programming language, you're interested in.
+</ul>
+<p>
+<HR>
+<h3><A NAME="34">34. Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A></h3>
+<p>So what is this Linux anyway, and why can it (usually) be downloaded and used for free?
+<br>Well, Linux, being "free software", takes a rather different approach to the distribution of software than proprietary software.
+And that happened like this:
+<p>Once upon a time, in the 1970s, a computer-scientist named Richard Stallman worked in a computer laboratory somewhere in the USA.
+As computing power was very limited back then, several people had to work on a single machine. Each person had his or her own workspace and his or her own keyboard (called "terminal"), but all keyboards were attached to one computer.
+These people shared the software on that computer, and everybody could read its source-code and change it, if he or she wanted to.
+<br>Then, one day, the laboratory bought a program from an external commercial software-company. It was closed source-software. So the people at the laboratory (the user) couldn't read its sources or change the program.
+More and more companies produced proprietary software, and more and more programs of this kind were bought.
+<br>Richard Stallman was annoyed by that. He wanted software to be like it had been before for him. He wanted software, whose sources could be read and changed by everyone.
+So he became an activist and founded the "Free Software Foundation". 
+The foundation said: "Commercial companies may produce proprietary software, but we produce our own kind of software, free software."
+<p>In the English language, the word "free" has two meanings: Either as in "free beer" (you don't have to pay for it) or as in "freedom". "Free software" means "free as in freedom" - so it doesn't necessarily mean, you don't have to pay for it: Maybe you have.
+<p>So, the Free Software Foundation wanted to defend and promote the rights of the user. They demanded, that free software should give four freedoms to the user: The user should have the right to:
+<ul>
+<li>Run the program for any purpose (for example install it on as many machines as he (or she) wanted),
+<p>
+<li>Read the source code and make changes to the program,
+<p>
+<li>Redistribute copies of the program (as long as the source code is included too),
+<p>
+<li>Distribute copies of modified versions of the program (as long as the source code is included too).
+</ul>
+<p>Proprietary software can control the computing of the user. Free software enables the user, to control his own computing.
+<p>The Free Software Foundation developed a license for that kind of software, which guaranteed the user these four freedoms (or rights). It is called the "GNU General Public License" (GPL).
+<p>Notice, that this license also grants the user the right to <b>sell</b> copies of the program (as part of the right to distribute it).
+That means, although today most free software is available somewhere on the internet legally without any charge, someone else may try to sell you the same software for a charge, be it in a store or on the internet. He is allowed to do that, and if you buy the software from him, you'll have to pay for it.
+<p>Then, the Free Software Foundation launched the GNU Project to develop free software. Many command-line programs for an operating system were written, but also programs like "GNU Chess".
+Richard Stallman wrote the powerful editor "GNU Emacs".
+<p>The GNU Project wanted to develop a whole free operating system.
+But the GNU kernel was not yet finished, when in 1991 Linus Torvalds started a project to develop his own kernel called "Linux".
+<br>Many developer joined Linus Torvalds using the internet, that just started back then.
+<p>The kernel "Linux" finally became usable, and the system-utilities of the GNU Project were added. So, a free Unix-like operating system for Intel-processors was created. Its name should be GNU/Linux, but as just "Linux" is shorter, most people call it just that. The Linux-kernel also uses the "GNU General Public License" (GPL, version 2).
+<p>So the way of developing new software is rather different:
+<ul>
+<li><u>Proprietary Software</u>: Someone has an idea for a software. He thinks: "This is a good software. I can sell it to a lot of people and become rich".
+He starts a company, invests money, hires other developers and meets a lot of legal requirements. Finally he releases his products through stores or on the internet. He probably should do some advertising. Customers buy his product, and maybe he can make a profit of all that, after having paid taxes. 
+<p>
+<li><u>Free Software</u>: Someone has an idea for a software. He describes the project on a website and releases some lines of code under the GNU license (GPL). Another developer reads the website and wants to support the project. He downloads the code and adds his code to it. He sends it to the project-leader (or maintainer), who adds the new code to the project. Or the other developer adds the code himself, if the project maintainer has provided him with the required rights to do that. More and more developers join the project, so that the code-base gets bigger and bigger. Maybe one day the program becomes usable. Maybe not.
+Everybody can at any time download the code. Nobody owns it. Everybody can use, change or distribute it. Either developers or just ordinary users of the software.
+</ul>
+<p>The internet increased the development of more complex programs of free software drastically. "Linux is a child of the internet."
+<p>The principles above also mean, that the developer of proprietary software has a strong interest in market share. He wants to sell as many copies as possible, as that's how he earns money.
+<br>To free software or its developers on the other hand, market share is totally irrelevant. Also, the user, who downloads free software (especially without charge) isn't a customer of anybody. "The Customer is King" - that may apply to someone, who has bought proprietary software. But not to someone, who downloaded free software.
+If he doesn't like it, if the software doesn't do, what he expects from it, if he won't download it again: The free software simply doesn't care.
+<br>Free software doesn't have to look good or be modern either. It doesn't have to survive on the market. There is no market for it. If a free program is that bad, that it doesn't have a single user, it still doesn't care.
+<br>Now you should be able to understand, why many free programs for Linux may seem kind of unfinished, unpolished, old-fashioned or experimental, and that that's a result of the underlying principles of their development, which are rather different from the common principles of capitalism.
+<p>When a software is free, it doesn't necessarily mean, that it's technically better. Maybe the proprietary software does the job better. But still the issue remains, that proprietary software can make you, the user, lose control over your own computing, and - for example - spy on you.
+<br>Or like Linus Torvalds put it: "Software is like sex: It's better when it's free."
+<p>In <a href="https://www.youtube.com/watch?v=jUibaPTXSHk">this interview</a> Richard Stallman explains in detail, what Free Software is about.
+<p>In <a href="https://youtu.be/SNBMdDaYhZA?t=421">another lecture</a> at the University von Calgary (2009-02-03) Stallman also explains, that the postulation of the "Four Freedoms" can only relate to software, because these freedoms depend on its very nature.
+Only when dealing with compiled software, there is an executable program and a source code that belongs to it, which may be held back or changed. Only software and other digital data can be copied countlessly and can be distributed quickly and easily.
+<br>That's not the case with the things of everyday life like a table or a chair, for example. A table itself doesn't have a source code, and it can't be copied easily millions of times.
+There may be a technical manual, how to produce the table, but that would be something else than the table itself.
+<br>So the imbalance in the relation between the producer and the user of a program, and the claim of the "Four Freedoms" of the user is a problem, that only occurs with computer software and hasn't caught the attention it deserves yet.
+But the more the digitalization of the world progresses, the more important these questions become.
+<p><b>A Bit of History about Unix and Linux</b>
+<p>At the beginning of the 1970s, in the very early days of computing, scientists needed a professional operating system for their large machines too.
+So an operating system called "Unix" was developed by AT&amp;T Bell Laboratories, by people like Ken Thompson, Dennis Ritchie and Brian Kernighan. 
+The first version of Unix was released in 1973.
+To be able to write commands for Unix, Dennis Ritchie created the programming language C.
+<p>In 1991, Linus Torvalds was a student of computer science at the university of Helsinki. As a teenager in the 1980s, he had the home-computers Commodore VIC-20 and Sinclair QL. There wasn't much software for these kind of exotic and limited machines, so unlike most other teenagers he didn't spend his time playing games, but learnt how to program these computers on a fundamental level, so that he could write his own programs.
+As a student, he bought a PC with a 386-processor. At university, there was a course about Unix, based on the book "The Design of the UNIX Operating System" (Maurice Bach, 1986).
+<br>So Linus Torvalds had the idea to write a Unix-like operating system for his 386-PC.
+He announced his plans in a newsgroup, got help and succeeded.
+<br>So Linux is basically a free clone of Unix. Back then, nobody thought, it would one day kind of replace the well-respected commercial Unix.
+Linux' mascot is a penguin called "Tux":
+<p><center><img SRC="tux.png" height=36 width=30>&nbsp;
+</center>
+<p>Unix had some rather advanced features and therefore was in the 1970s way ahead of its time. Especially it supported multi-tasking and the management of multiple users and user-rights.
+While most other operating systems of the time supported just a single task and a single user.
+<p>In Linux the support of multi-tasking means, that tasks run in separated environments. They can crash like in every other operating system, but in Linux, the rest of the system usually isn't affected by this, but stays intact. Therefore, Linux is known to be a rather stable operating system.
+<p>
+<HR>
+<h3><A NAME="35">35. Recapitulation, Conclusion</A></h3>
+<p>So what have we learnt about Linux on this page?
+<ul>
+<li>Strictly speaking, Linux is the Linux kernel. In a wider sense, it's a computer operating system plus tools and applications, combined into a distribution.
+<li>There are several distributions to choose from, but in the end they all lead to using the same applications. Using "Firefox" and "LibreOffice Writer" on "Linux Mint" isn't much different from using them on "OpenSuSE Leap".
+<li>In the directory tree, a user usually works in and below "/home/username".
+<li>There's a system to manage user rights and file permissions.
+<li>root is allowed to do everything on the system.
+<li>"su" lets you become root.
+<li>There are several "desktop environments" to choose from.
+<li>Different "toolkits" determine the look and feel of the windows.
+<li>In terminal-programs shell-commands can be entered.
+<li>The shell "bash" is also a programming-language. You can write and execute your own scripts.
+<li>A point at the beginning of a file-name indicates that a file is hidden.
+<li>The configuration files of applications may be found in "/home/username/.config".
+<li>Other files of applications may be found in "/usr/share" or "/usr/local/share".
+<li>Programs that have a corresponding ".desktop"-file in "/home/username/.config/autostart" are started automatically together with the graphical desktop.
+<li>"vim" is a capable and widely-used text editor, but it takes some effort to get used to it.
+<li>Commands can be piped into each other, and "grep" can be used to filter information that way.
+<li>"ps" and "top" show the processes that are currently running.
+<li>A ".tar.gz"-archive can be unpacked with "tar -xzvf".
+<li>In the variable "$PATH", the directories where to look for commands are stored.
+<li>Executable programs copied into "/usr/local/bin" can be run by ever user.
+<li> In "/home/username/.bashrc" and "/etc/bash.bashrc.local" settings for bash can be stored, such as aliases for commands.
+<li>"dos2unix" and "unix2dos" may be needed, when working with text-files from Windows.
+<li>There can be symbolic links, which are small files that point to other files or directories.
+<li>"date" shows date and time, "cal" shows a calendar.
+<li>There's a system to automatically mount external devices. The settings of those devices used to be stored in "/etc/fstab".
+<li>On OpenSuSE, the software packages can be managed with "YaST2", "rpm" and "zypper".
+<br>"apt" is the corresponding tool on Debian-based distributions such as Ubuntu.
+<li>The X-server and the window manager of the desktop environment work together to create the graphical desktop.
+<li>"xrandr" can be used to query the available screen resolutions, and to switch between them.
+<li>A login manager is shown by the display manager, before the graphical desktop is started.
+<li>"VLC Player" and "MPlayer" can play videos and other media.
+<li>"Midnight Commander" is a capable graphical file-manager on the console.
+<li>There are tools to setup a printer, and to do scanning.
+<li>The cron daemon can start programs on its own, in intervals or at certain times.
+<li>Kernel modules are mostly device drivers. They can be attached to the kernel to make a device work.
+<li>If required, changes can be made to the configuration of the bootloader GRUB2.
+<li>Perl, Python, C and C++ are decent programming languages, which are available on a Linux system.
+</ul>
+<p>Well, that should be enough information to get you started with Linux, if you wanted to.
+<br>&nbsp;
+<p>
+<hr width="30%">
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is copyright 2026-02-11 and belongs to Hauke Lubenow.
+<br>It is licensed and may be redistributed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)</a>.
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net</a>
+<br><center><a href="index.html">Back to the main-page</a></center>
+</body>
+</html>

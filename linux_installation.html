@@ -1,0 +1,60 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Linux,distribution,OpenSuSE,Ubuntu,Mint,Debian,tips,tricks,installation">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>Linux: Installation</title>
+</head>
+<body>
+<p><center>Date: 2016-01-31</center>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Using Linux: Installation</h3>
+<b>Getting the ".iso"-file</b>
+<p>The way to install a Linux distribution today, is to visit its website and download a suitable ".iso"-file of the distribution.
+<br>Make sure, you've really visited the correct website: Due to the special license of free software, it would also be legal for anybody, to <b>sell</b> you the distribution for money; so make sure, you visit the distribution's original website, where you should get the distribution-file for free.
+<p><b>Extracting the ".iso"-file to a USB-Stick or a DVD</b>
+<p>When you have the ".iso"-file, it needs to be extraced in the right way to a USB-stick, or it can be burnt to a DVD including extraction. It is not sufficient, to just copy the ".iso"-file to the USB-stick or the DVD unextracted, because the computer is supposed to be booted from that medium.
+<br>To find a tool to create the bootable USB-stick, search the web for "tools to create bootable usb from iso".
+<br>I'm using the tool "imagewriter" on OpenSuSE for this (that is, I'm creating the boot medium for a Linux distribution from another Linux distribution), but this tool can only be found on this distribution.
+(By the way, when I wanted to install "Microsoft Windows 10" from a corresponding iso-file, I had to use the special tool "woeusb" to create the USB-stick. "imagewriter" couldn't do it in that case.)
+<br>Sometimes I'm just going old-school, and burn a DVD from the ".iso"-file, using the option "burn image" in the tool "k3b", again on OpenSuSE. "k3b" can't write to USB-sticks though, it's just for burning CDs/DVDs.
+<p><b>Rebooting from USB-Stick or DVD. UEFI</b>
+<p>After the boot medium has been created, the computer has to be rebooted using that medium. That is, the medium (USB-Stick or DVD-drive) has to be selected as the current boot device in the BIOS of the computer.
+<br>There may also be problems with "UEFI", a newer boot system, introduced in the 2000s. It has a feature called "secure boot", which for some time tried to prevent people from installing and running Linux. Today, "secure boot" can either be disabled in the BIOS of the computer. Or it can be kept in an enabled state, but the Linux distribution supports dealing with it.
+I can't fix all problems regarding UEFI and Linux, so there's not much more, I can write about that subject here, although there would be a lot to say. 
+<p><b>Running the Installation Program</b>
+<p>If the computer boots from the new medium, the installation program is started. You can just follow the instructions and answer a few questions.
+<ul>
+<li>Of importance is the name of the main user and his or her passwort.
+<br>And the passwort of "<tt>root</tt>", who is the system-wide administrator. In real life "<tt>root</tt>" and the main user can also be the same person: It's just all about having at least two different accounts on the Linux system.
+<br>Both passworts have to be remembered; written down on paper, if necessary.
+<p>
+<li>Attention should also be given to the way, the installation program will create partitions on the destination hard disk. If the partitioning is wrong, it can only be corrected by re-installing the system again. If important data is deleted during partitioning, it may not be possible to recover it.
+<p>
+<li>If Windows and Linux are supposed to be installed on the same hard disk, it is recommended to install Windows first, and Linux afterwards.
+Today, it may even be the better option to leave the internal hard disk to Windows, and just buy a second, external USB-hard disk, which will then be dedicated to Linux. This will also make partitioning much easier.
+<p>
+<li>Another important topic is the bootloader. This is a program that is run immediately when booting the computer. It presents a menu, where can be selected, which operating system to load. Today, the bootloader is in most cases GRUB2 (= "Grand Unified Bootloader", version 2). The installation program will ask, where to install this program. Actually, I'm mainly guessing at this point, so I can't really give advice about that. The answer depends for example on whether your system uses UEFI or not. In the worst case, a wrong bootloader installation may result in nothing booting, not even Windows, even if it's installed and used to boot, before the new bootloader was installed. Then, some repair work may be needed. But fortunately, these cases are rare, and I don't remember having run too deep into these problems. Most of the times, I managed to install GRUB2 without too many complications.
+<p>
+<li>And then the installation program will ask, which graphical environment to install (at least it does on OpenSuSE). In my experience, it's important to select a window manager at this point, so for example select "KDE-system", "Gnome-system" or "Xfce-system". Don't select "Basical graphical system", that was not enough (for me), and lead to problems. While on Windows, the desktop has a certain look that was previously defined, on Linux, there are different "window managers" that produce different "look & feels" of the desktop. 
+Some window managers use more system resources than others. The two "big" desktop environments on Linux are called "KDE" and "GNOME". They offer more eye-candy and desktop effects. And then there are smaller window managers that are simpler and more frugal. "Xfce" is one of those. There's also "LXQt". On my previous PC I used the predecessor of "LXQt", but on my current one I switched to "Xfce". I'm quite happy with "Xfce" now, so I can recommend it. Notice, that the choice of the window manager doesn't limit the programs that can be used. That is, even if my window manager is "Xfce", I can also use programs that were written for KDE or GNOME.
+</ul>
+When all questions have been answered, the installation program does the partitioning as selected, installs the software packages of the system and the applications (this may be more than 2.000 software packages), and installs the bootloader. All of this may take some time. When all is done, the system needs to be rebooted. At some point, the USB-stick or the installation DVD have to be removed, and the newly installed system has to boot on its own. As a prerequisite, the correct hard disk has to be selected as the first boot device in the computer's BIOS.
+<br>If everything works well, the graphical environment should start, and the login manager should be displayed. After entering the user-name and the user-passwort, the startup-process should finally reach the Linux desktop for the first time.
+<p>As you may have noticed, there are quite a few things, that could go wrong during the installation process. It's also a pity, that of all things this complicated process is what an absolute beginner is confronted with, when encountering Linux for the first time.
+It's also not possible to cover all problems that could occur on this page.
+If you're an absolute beginner, and the installation of one distribution fails, my suggestion would simply be to try another one. When I began, I had to try several, until I found a suitable distribution, which was SuSE Linux back then.
+<br>Regarding the page, I'm just going on to describe, what the user awaits after a successful installation.
+<hr width="30%">
+<br><center><a href="linux.html">Back to the Linux-page</a></center>
+<br><center><a href="index.html">To the main-page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>
