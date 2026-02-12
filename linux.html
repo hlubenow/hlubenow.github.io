@@ -52,7 +52,8 @@ Using Linux</H2>
 <LI><A HREF="#32">Making Changes to the Configuration of the Bootloader GRUB2</A>
 <LI><A HREF="#33">bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A>
 <LI><A HREF="#34">Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A>
-<LI><A HREF="#35">Recapitulation, Conclusion</A>
+<LI><A HREF="#35">Recapitulation</A>
+<LI><A HREF="#36">Notable Files and Directories on a Linux System. Conclusion</A>
 </OL>
 <p>
 <HR>
@@ -316,8 +317,14 @@ Here a some basic commands in bash:
 <li>"<tt>Ctrl+q</tt>": This key-combination can often be used to close larger, graphical applications. So it is similar to "<tt>Alt+F4</tt>" on Windows. Although today, this combination works with most programs too.
 <li>"<tt>Ctrl+d</tt>": Log out. Exit the terminal.
 </ul>
-<p>One feature of bash makes it especially usable. It is called "tab-completion": If you enter a few letters of the name of a command or a file, you want to use, and press TAB then (the tabulator-key), bash automatically completes what you wrote to the command-name or the file-name, it thinks, you wanted. So you don't have to type in all of the filenames. Just a few letters, then TAB, and in many cases, you're done.
+<p>Two features of bash make it especially usable.
+<ol>
+<li>With the cursor keys "<tt>Up</tt>" and "<tt>Down</tt>", the user can cycle through the previously entered shell-commands.
+The entered commands are stored in the file "<tt>/home/username/.bash_history</tt>".
+<p>
+<li>"TAB-completion": If you enter a few letters of the name of a command or a file, you want to use, and press TAB then (the tabulator-key), bash automatically completes what you wrote to the command-name or the file-name, it thinks, you wanted. So you don't have to type in all of the filenames. Just a few letters, then TAB, and in many cases, you're done.
 If several names are possible, bash shows them, when you press TAB twice.
+</ol>
 <p>Also, a few symbols can be used in the shell:
 <ul>
 <li>*  : The asterisk is a wildcard. For example matches "<tt>a*</tt>" all files and directories beginning with "<tt>a</tt>" in the current directory. "<tt>*mp3</tt>" matches all files ending with "<tt>mp3</tt>", and so on.
@@ -663,6 +670,9 @@ The following command copies all files of a rpm to the current directory:
 <h3><A NAME="24">24. X-Server. Tools xrandr, xwininfo, xfontsel, xev, xmodmap, xkill, xkbset</A></h3>
 <p>On Linux, the window manager of desktop environments is not the only program that creates the graphical desktop. Instead, the window manager is a client to another program called the X-server.
 Most Linux systems use a X-server called "X.Org". And there's a protocol called "X11". Some systems use a newer protocol called "Wayland" instead, but up to now it couldn't fully replace "X11".
+<p>The main configuration-file of the X-Server used to be "<tt>/etc/X11/xorg.conf</tt>". Now, the contents of this file are spread into several files in the directory
+<pre>/etc/X11/xorg.conf.d</pre>
+<p>So, in this directory configuration files for the graphics card, the monitor and the keyboard can be found. The graphical tools of the distribution to configure these devices may make changes to these files. The user probably shouldn't interfere by hand.
 <p>There are a number of small and old, but capable tools, which give access to certain functions of the X-server:
 <ul>
 <li>When called without options, the tool "<tt>xrandr</tt>" displays information about the screen, the outputs of the graphics card, and shows the available resolutions. Using the option "<tt>-s</tt>" of "<tt>xrandr</tt>", it's possible to change the screen resolution.
@@ -733,6 +743,7 @@ Nevertheless, it's quite powerful.
 <ul>
 <li>"<tt>F5</tt>" copies the selected file or directory.
 <li>"<tt>F6</tt>" moves the selected file or directory.
+<li>"<tt>F7</tt>" creates a new directory.
 <li>"<tt>F8</tt>" deletes the selected file or directory.
 <li>The <tt>tabulator</tt>-key switches back and forth between the two directory-windows.
 <li>"<tt>Alt-i</tt>" sets the directory of the other window to the one of the current window.
@@ -895,7 +906,7 @@ While most other operating systems of the time supported just a single task and 
 <p>In Linux the support of multi-tasking means, that tasks run in separated environments. They can crash like in every other operating system, but in Linux, the rest of the system usually isn't affected by this, but stays intact. Therefore, Linux is known to be a rather stable operating system.
 <p>
 <HR>
-<h3><A NAME="35">35. Recapitulation, Conclusion</A></h3>
+<h3><A NAME="35">35. Recapitulation</A></h3>
 <p>So what have we learnt about Linux on this page?
 <ul>
 <li>Strictly speaking, Linux is the Linux kernel. In a wider sense, it's a computer operating system plus tools and applications, combined into a distribution.
@@ -936,6 +947,37 @@ While most other operating systems of the time supported just a single task and 
 <li>If required, changes can be made to the configuration of the bootloader GRUB2.
 <li>Perl, Python, C and C++ are decent programming languages, which are available on a Linux system.
 </ul>
+<p>
+<HR>
+<h3><A NAME="36">36. Notable Files and Directories on a Linux System. Conclusion</A></h3>
+<p>Here's a list of notable files and directories on a Linux-system. The files and directories have already been mentioned in the previous sections of the website.
+The list is in alphabetical order:
+<p>
+<table border="1">
+<tr><td><tt>/bin</tt></td><td>A directory with executable commands. Other directories with commands are "<tt>/usr/bin</tt>", "<tt>/usr/local/bin</tt>" and "<tt>/usr/sbin</tt>" (see below).</td></tr>
+<tr></tr>
+<tr><td><tt>/boot/grub2/grub.cfg</tt></td><td>This is the real configuration-file of the bootloader GRUB2. The file should not be edited directly. Damaging this file may prevent the operating system from booting. Better leave it alone.
+<tr><td><tt>/etc/bash.bashrc</tt></td><td>The system-wide configuration-file for the shell "bash".</td></tr>
+<tr><td><tt>/etc/bash.bashrc.local</tt></td><td>Another system-wide configuration-file for bash, used to separate local entries from the main configuration-file.</td></tr>
+<tr><td><tt>/etc/cron.daily<br>/etc/cron.hourly</tt><br><tt>/etc/cron.monthly</tt><br><tt>/etc/cron.weekly</tt></td><td>Executable files in this directory are executed by the cron-daemon on a daily/hourly/monthly/weekly basis.</td></tr>
+<tr><td><tt>/etc/crontab</tt></td><td>This file can be used to program more tasks for the cron-daemon.</td></tr>
+<tr><td><tt>/etc/default/grub</tt></td><td>The template-file that can be edited to make changes to the bootloader GRUB2.</td></tr>
+<tr><td><tt>/etc/fstab</tt></td><td>This file used to hold the technical specifications of mountable devices, to be read by the "<tt>mount</tt>"-command.</td></tr>
+<tr><td><tt>/etc/sudoers</tt></td><td>This file can be used to define commands that users can execute as root using the "<tt>sudo</tt>"-commmand. The special program "<tt>visudo</tt>" should be used to edit this file.</td></tr>
+<tr><td><tt>/etc/X11/xorg.conf.d</tt></td><td>In this directory, there are configuration files for the graphics card, the keyboard and the monitor. These files shouldn't be changed by hand without reason.</td></tr>
+<tr><td><tt>/home/username</tt></td><td>The home-directory, in which the user is usually working. Inside this directory, the user can create as many subdirectories as wanted.</td></tr>
+<tr><td><tt>/home/username/.bash_history</tt></td><td>In this file, bash keeps track of the commands, the user entered, to provide the feature of cycling through previously entered commands with the cursor keys on the command-line.</td></tr>
+<tr><td><tt>/home/username/.bashrc</tt></td><td>The user's configuration-file for the shell "bash".</td></tr>
+<tr><td><tt>/home/username/.config</tt></td><td>In this directory, many applications store their configuration files.</td></tr>
+<tr><td><tt>/home/username/.config/autostart</tt></td><td>Programs, that have a corresponding "<tt>.desktop</tt>"-file in this directory, are executed automatically right after the start of the graphical desktop.</td></tr>
+<tr><td><tt>/root</tt></td><td>This is the home-directory of "root", the system-administrator.</td></tr>
+<tr><td><tt>/usr/bin</tt></td><td>The default-directory of the system-commands.</td></tr>
+<tr><td><tt>/usr/local/bin</tt></td><td>Another important directory with commands. As it is listed in the <tt>$PATH</tt>-variable, executable files that are copied here, can be executed from anywhere in the system.</td></tr>
+<tr><td><tt>/usr/local/share</tt></td><td>Similar to "<tt>/usr/share</tt>".</td></tr>
+<tr><td><tt>/usr/sbin</tt></td><td>A directory with system-commands only to be used by root.</td></tr>
+<tr><td><tt>/usr/share</tt></td><td>In this directory, applications store their program data, like for example the image-files of their window-icons.</td></tr>
+<tr><td><tt>/var/run/media/username</tt></td><td>On my distribution OpenSuSE Leap 15.6, inside this directory, the directories of automatically mounted external devices such as USB-sticks can be found.</td></tr>
+</table>
 <p>Well, that should be enough information to get you started with Linux, if you wanted to.
 <br>&nbsp;
 <p>
