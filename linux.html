@@ -7,9 +7,11 @@
    <title>Using Linux</title>
 </head>
 <body>
-<H2>
-Using Linux</H2>
-<p><center>Date: 2026-02-11</center>
+<h2>
+<img src="tux.png" height="36" width="30">&nbsp;
+Using Linux
+</h2>
+<p><center>Date: 2026-02-14</center>
 <p>
 <hr width="70%">
 <p>
@@ -50,10 +52,11 @@ Using Linux</H2>
 <LI><A HREF="#30">cron-Daemon: Run Programs at Other Times</A>
 <LI><A HREF="#31">lsmod, modprobe, rmmod: Managing Kernel Modules</A>
 <LI><A HREF="#32">Making Changes to the Configuration of the Bootloader GRUB2</A>
-<LI><A HREF="#33">bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A>
-<LI><A HREF="#34">Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A>
-<LI><A HREF="#35">Recapitulation</A>
-<LI><A HREF="#36">Notable Files and Directories on a Linux System. Conclusion</A>
+<LI><A HREF="#33">Customizing the Linux Installation</A>
+<LI><A HREF="#34">bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A>
+<LI><A HREF="#35">Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A>
+<LI><A HREF="#36">Recapitulation</A>
+<LI><A HREF="#37">Notable Files and Directories on a Linux System. Conclusion</A>
 </OL>
 <p>
 <HR>
@@ -104,7 +107,6 @@ Using Linux</H2>
 <h3><A NAME="3">3. First Look Around</A></h3>
 <p>So after the installation the user finally gets to the desktop. There's probably a task-bar at the bottom, or for example a file dock. Clicking the menu button in the task bar opens a menu, where programs like Firefox can be opened. 
 <p>In the menu, also programs can be found to customize the look and feel and change system settings.
-<br>There are certain customizations, I like to make on my Linux systems. I wrote pages about that topic regarding <a href="leap15_6.html">OpenSuSE Leap 15.6</a> and <a href="suse131.html">SuSE Linux 13.1</a> (which was the system on my previous computer; some of the notes may still be relevant today though). These pages may be of more interest for you, when you already have a little more experience with Linux.
 <p>There are certain applications that are typically used for certain tasks on a Linux system today. Here's an overview:
 <ul>
 <li>Web-Browsing: Mozilla Firefox, Google Chrome (not open-source)
@@ -819,20 +821,36 @@ On OpenSuSE Leap 15.6 for example, there's a template-file called
 <p>So the real configuration-file of GRUB2 is "<tt>/boot/grub2/grub.cfg</tt>". But this file shouldn't be edited directly. Instead changes should be made only as described above, that is by editing the template-file "<tt>/etc/default/grub</tt>", and then running the command "<tt>update-bootloader</tt>".
 <p>
 <HR>
-<h3><A NAME="33">33. bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A></h3>
-<p>Above, you've read about <b>bash</b>, the common programming language of the Linux shell. Especially installation scripts have been written in that language for decades.
-<br>But to be honest, I don't like it much: Everywhere you have to write those quotation marks. You have to be careful, when using space characters, and have to know, when you must not. Support for data arrays is only rudimentary. Socalled sub-shells may open surprisingly and lead to unexpected and unwanted results. Overall, creating pipes of shell-commands is rather coarse, when it comes to data processing.
-<br>There are are other programming languages that are better suited for that.
-<p><b>Perl</b> for example is another interpreted programming language (with a much larger interpreter than bash). It has some elements of bash, but has full support for lists (arrays) and functions, and data processing works as expected. Perl can do many things, with thousands of modules in the "<a href="https://en.wikipedia.org/wiki/CPAN">CPAN</a>", the "Comprehensive Perl Archive Network".
-<p>So Perl is pretty good, but the better thing is always the enemy of the good one. So <b>Python</b> came around, which is yet another interpreted programming language, and made the same things even easier than in Perl. It left out the variable sigils like "<tt>$</tt>" and all those semicolons at the end of lines, and so the code became very clear and readable. 
+<h3><A NAME="33">33. Customizing the Linux Installation</A></h3>
+<p>Linux distributions can be customized to the taste of the user. They come with graphical tools to change settings for example of the look and feel of the windows. In the desktop environment Xfce4, these graphical tools can be found in "<tt>xfce4-settings-manager</tt>".
+<p>There were a number of more complex things, I changed for me in my OpenSuSE-distributions. So I took notes of these changes, that is, I wrote other web-pages about customizing the system to my personal needs.
+There are:
+<ul>
+<li><a href="leap15_6.html">Installation-Notes on OpenSuSE Leap 15.6</a> 
+<p>
+<li><a href="suse131.html">Installation-Notes on OpenSuSE 13.1 (Bottle)</a> 
+</ul>
+<p>Of course, to make changes to a system, some basic knowledge about how it works in general is required. I hope the page "Using Linux" could provide this information.
+<p>
+<HR>
+<h3><A NAME="34">34. bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A></h3>
+<p>Above, you've read about bash, the common programming language of the Linux shell. Especially installation scripts have been written in that language for decades.
+<p>But to be honest, I don't like it much: Everywhere you have to write those quotation marks. You have to be careful, when using space characters, and have to know, when you must not. Support for data arrays is only rudimentary. Socalled sub-shells may open surprisingly and lead to unexpected and unwanted results. Overall, creating pipes of shell-commands is rather coarse, when it comes to data processing.
+<p>There are other programming languages that are better suited for that.
+Actually, I wrote other web-pages, how to use them for programming. I'll put links to my pages about these languages, while quickly describing them:
+<ul>
+<li><a href="perl1_introduction.html">Perl</a> is another interpreted programming language (with a much larger interpreter than bash). It has some elements of bash, but has full support for lists (arrays) and functions, and data processing works as expected. Perl can do many things, with thousands of modules in the "<a href="https://en.wikipedia.org/wiki/CPAN">CPAN</a>", the "Comprehensive Perl Archive Network".
+<p>
+<li>Then, <a href="python1_introduction.html">Python</a> came around, which is yet another interpreted programming language, and made the same things even easier than in Perl. It left out the variable sigils like "<tt>$</tt>" and all those semicolons at the end of lines, and so the code became very clear and readable. 
 <br>Python is very suitable for programming beginners, and at the same time it's rather powerful. That made it the most widely used programming language worldwide today (!). It's even used in professional AI-projects. So it's sure worth learning it.
-<p>The interpreters of bash, Perl and Python are written in <b>C</b>. Most Linux commands are too, and also large parts of the Linux kernel. C-code, being compiled, runs faster than that of the interpreted languages. But C has a drawback: It's not easy to use. Often, data structures have to be manipulated at the level of single bytes. So C is somehow the programming language of the professionals, but using it can be tough, and may require more effort than one might expect.
-<p>Maybe because of that, <b>C++</b> was developed (in the 1980s). It is a different language than C, but a superset of it. C++ has classes (= object oriented programming) (Python has classes too). C++-code is also compiled (like C-code is). There are C++-libraries, that make the things that make C difficult, a little easier. But unfortunately sometimes at the price of less speed; depending, on how the programmer chooses to write the code. C++ is widely used in the modern commercial software industry, for example the company "Electronic Arts" writes many of their games in C++.
-<p>So that was a little overview of the programming languages that are available - usually for free, mind you - on Linux distributions. About all languages above (except bash), there are more, much more detailed webpages on my websites. Just go to the <a href="index.html">main-page</a>, and look for the pages about the programming language, you're interested in.
+<p>
+<li><a href="c_01.html">C</a> is the language, the interpreters of bash, Perl and Python are written in. Most Linux commands are too, and also large parts of the Linux kernel. C-code, being compiled, runs faster than that of the interpreted languages. But C has a drawback: It's not easy to use. Often, data structures have to be manipulated at the level of single bytes. So C is somehow the programming language of the professionals, but using it can be tough, and may require more effort than one might expect.
+<p>
+<li>Maybe because of that, <a href="cpp_01.html">C++</a> was developed (in the 1980s). It is a different language than C, but a superset of it. C++ has classes (= object oriented programming) (Python has classes too). C++-code is also compiled (like C-code is). There are C++-libraries, that make the things that make C difficult, a little easier. But unfortunately sometimes at the price of less speed; depending, on how the programmer chooses to write the code. C++ is widely used in the modern commercial software industry, for example the company "Electronic Arts" writes many of their games in C++.
 </ul>
 <p>
 <HR>
-<h3><A NAME="34">34. Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A></h3>
+<h3><A NAME="35">35. Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A></h3>
 <p>So what is this Linux anyway, and why can it (usually) be downloaded and used for free?
 <br>Well, Linux, being "free software", takes a rather different approach to the distribution of software than proprietary software.
 And that happened like this:
@@ -906,7 +924,7 @@ While most other operating systems of the time supported just a single task and 
 <p>In Linux the support of multi-tasking means, that tasks run in separated environments. They can crash like in every other operating system, but in Linux, the rest of the system usually isn't affected by this, but stays intact. Therefore, Linux is known to be a rather stable operating system.
 <p>
 <HR>
-<h3><A NAME="35">35. Recapitulation</A></h3>
+<h3><A NAME="36">36. Recapitulation</A></h3>
 <p>So what have we learnt about Linux on this page?
 <ul>
 <li>Strictly speaking, Linux is the Linux kernel. In a wider sense, it's a computer operating system plus tools and applications, combined into a distribution.
@@ -949,7 +967,7 @@ While most other operating systems of the time supported just a single task and 
 </ul>
 <p>
 <HR>
-<h3><A NAME="36">36. Notable Files and Directories on a Linux System. Conclusion</A></h3>
+<h3><A NAME="37">37. Notable Files and Directories on a Linux System. Conclusion</A></h3>
 <p>Here's a list of notable files and directories on a Linux-system. The files and directories have already been mentioned in the previous sections of the website.
 The list is in alphabetical order:
 <p>
@@ -982,7 +1000,7 @@ The list is in alphabetical order:
 <br>&nbsp;
 <p>
 <hr width="30%">
-<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is copyright 2026-02-11 and belongs to Hauke Lubenow.
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is copyright 2026-02-14 and belongs to Hauke Lubenow.
 <br>It is licensed and may be redistributed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)</a>.
 <hr width="70%">
 <br>Email: hlubenow2 {at-symbol} gmx.net</a>
