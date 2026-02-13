@@ -1,0 +1,305 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="C, plus, programming language, Bjarne, classes, pointer, segfault, segmentation fault, Speicherzugriffsfehler, array, char">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>C++ Page #2: Object-Oriented Programming</title>
+</head>
+<body>
+<H2>
+C++ Page #2: Object-Oriented Programming</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>
+<p>
+<p>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Creating Classes in C++</A>
+<LI><A HREF="#2">"Lamp"-Class Examples</A>
+<LI><A HREF="#3">Pointers to Objects</A>
+<LI><A HREF="#4">Inheritance</A>
+<LI><A HREF="#5">Further Reading</A>
+</OL>
+<p>
+<HR>
+<h3><A NAME="1">1. Creating Classes in C++</A></h3>
+<p>What object oriented programming (programming with classes and objects) is about, I've already explained for Perl on my site "<a href="perl2_oop.html">Object-Oriented Programming in Perl Made Easy</a>". In Python, classes and objects are defined and used in a rather similar way, it's even a little easier there, as I've explained <a href="python1_introduction.html#16">here</a>.
+<br>In C++, it's actually not much different either.
+<p>In a class, there's a special function called a "constructor". It is called, when an object is instantiated. In Python this special function is called "<tt>__init__</tt>". In C++, constructors have the same name as the class itself.
+<br>When you want to use a constructor that doesn't expect any arguments, you call the constructor at instantiation without any arguments - and also without any brackets. That's a rather unusual function-call.
+<p>The code inside a class is divided by two special lines:
+<pre>private:</pre>
+<p>and 
+<pre>public:</pre>
+<p>The attributes and methods in the "<tt>private</tt>" part can only be accessed from inside the class. While the code in the "<tt>public</tt>" part can also be accessed from other classes or functions.
+<br>If for example you try to access a private variable of a class directly from the function "<tt>main()</tt>" of the program (that is from outside the class), you get an error at compilation time.
+<p>I'm giving the special lines "<tt>private:</tt>" and "<tt>public:</tt>" an indentation level of two characters, so that the declarations of attributes and methods inside the class can start at the ordinary indentation level of four characters. But I don't know, if that's common to do.
+<p>As the code inside the class is by default private, unless it is written below the "<tt>public:</tt>" statement, the statement "<tt>private:</tt>" can also be left out. But I suggest writing it anyway to make things clearer.
+<br>The "<tt>private:</tt>" section can also be left empty, so this code is valid and compiles:
+<pre>class Test {
+  private:
+    // pass
+  public:
+    Test() {
+    }
+};
+
+int main() {
+    Test t = Test();
+    return 0;
+}</pre>
+<p>The constructor function (which has the same name as the class itself) should be in the "public"-part of the class (like it is in the example above).
+<p>When a class in C++ is defined, it automatically receives a special pointer called "<tt>this</tt>". The attributes and methods of the class are normally defined and used without this pointer. But they can also be accessed through it when necessary. For example, an "<tt>int</tt>"-variable called "<tt>a</tt>" can be accessed inside the class like this:
+<pre>this->a</pre>
+<p>The attributes can be declared either in the "private"-part or in the "public"-part, depending on whether they should be accessed from outside the class or not.
+<p>The constructor function (which is in the "public"-part of the class) can also receive ordinary function arguments. The values of these arguments can then be assigned to the attributes.
+<p>Just like you'd do for example <u>in Python</u>:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+class Test:
+    def __init__(self, argument):
+        self.attribute = argument
+
+t = Test("a_test")
+print t.attribute</pre>
+<p>Or <u>in Perl</u>:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+package Test {
+   sub new {
+        my $classname = shift;
+        my $self = {};
+        my $argument = shift;
+        $self-&gt;{attribute} = $argument;
+        return bless($self, $classname);
+    }
+}
+my $t = Test-&gt;new("a_test");
+print $t-&gt;{attribute} . "\n";</pre>
+<p><u>In C++</u>, you'd do:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+class Test {
+  private:
+    // pass
+  public:
+    string attribute;
+    Test(string argument) {
+        attribute = argument;
+    }
+};
+int main() {
+    Test t("a_test");
+    cout &lt;&lt; t.attribute &lt;&lt; endl;
+    return 0;
+}</pre>
+<p>The syntaxes may be a bit different, but the principles and the results are rather similar. Though C++-code may run quite a bit faster.
+<p>There has to be a semicolon after the closing bracket of the class-definiton (similar to <tt>struct</tt>-definitions in C).
+<p>Notice, that in Python, variables that are supposed to be visible throughout the class, are usually defined in the "<tt>__init__</tt>"-function using the syntax
+<pre>self.variable = ...</pre>
+<p>while in C++, these variables have to be declared <b>outside the constructor</b> function, directly under the keywords "<tt>private</tt>" or "<tt>public</tt>".
+<br>Inside the class' methods, they can then just be used, without writing "<tt>this->variable</tt>" all the time. They are recognized as class-wide variables, because local variables would have been declared in the method itself or in the methods's parameter list. 
+So the syntax "<tt>this->variable</tt>" is only needed, when in rare cases the class-wide variables need to be distinguished from local variables.
+<p>
+<HR>
+<h3><A NAME="2">2. "Lamp"-Class Examples</A></h3>
+<p>Here are the first of two OOP-examples on my Perl-page (example number 2 and 3), now translated to C++:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+// OOP-example 2
+
+class Lamp {
+
+  private:
+    string name;
+    string state;
+    int lightintensity;
+
+  public:
+
+    Lamp(string name, int light) {
+        // To distinguish between the attribute and the function parameter:
+        this-&gt;name = name;
+        lightintensity = light;
+        state = "off";
+    }
+
+    void switchOn() {
+        state = "on";
+        cout &lt;&lt; "'" &lt;&lt; name &lt;&lt; "' is on at " &lt;&lt; lightintensity &lt;&lt; " Watt." &lt;&lt; endl;
+    }
+
+    void switchOff() {
+        state = "off";
+        cout &lt;&lt; "'" &lt;&lt; name &lt;&lt; "' is off." &lt;&lt; endl;
+    }
+
+    void newLightBulb(int light) {
+        if (state == "on") {
+            cout &lt;&lt; "Light bulb can not be changed. ";
+            cout &lt;&lt; "First, '" &lt;&lt; name &lt;&lt; "' has to be switched off." &lt;&lt; endl;
+        } else {
+            lightintensity = light;
+            cout &lt;&lt; "Light bulb in '" &lt;&lt; name &lt;&lt; "' has been changed. ";
+            cout &lt;&lt; "The new bulb has " &lt;&lt; light &lt;&lt; " Watt." &lt;&lt; endl;
+            switchOn();
+        }
+    }
+};
+
+int main() {
+    Lamp lamp1("First Lamp", 50);
+    Lamp lamp2("Second Lamp", 40);
+    lamp1.switchOn();
+    lamp2.switchOn();
+    lamp2.newLightBulb(100);
+    lamp2.switchOff();
+    lamp2.newLightBulb(100);
+    return 0;
+}</pre>
+<p>And the second one:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+// OOP-example 3
+
+class Lamp { 
+
+  private:
+    int lightintensity;
+    string name;
+
+  public: 
+
+    Lamp(int lightintensity = 40, string name = "Default lamp") {
+        this-&gt;lightintensity = lightintensity;
+        this-&gt;name = name;
+    }
+
+    void showLightIntensity() {
+        cout &lt;&lt; "'" &lt;&lt; name &lt;&lt; "' has a light bulb with ";
+        cout &lt;&lt; lightintensity &lt;&lt; " Watt." &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Lamp lamp1(11, "1");
+    lamp1.showLightIntensity();
+    // This is a weird function call (no brackets):
+    Lamp lamp2;
+    lamp2.showLightIntensity();
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="3">3. Pointers to Objects</A></h3>
+<p>You can also set a pointer to an existing object:
+<pre>Lamp *pLamp = &amp;lamp1;</pre>
+<p>It is also possible to instantiate an object directly with a pointer. Then, the keyword "<tt>new</tt>" has to used:
+<pre>MyClass *p = new MyClass();</pre>
+<p>In this line of code, the "<tt>new</tt>" first allocates the memory required for the object on the heap. Then the constructor of the class is called. Finally the pointer is pointed to the object's memory location.
+<p>The attributes and methods of the object can then be accessed through the pointer with the "<tt>-></tt>" operator (instead of "<tt>.</tt>"). Here's an example:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+class MyClass { 
+
+  public: 
+    int a;
+
+    MyClass() {
+        a = 5;
+    }
+
+    void printHello() {
+        cout &lt;&lt; "Hello from class." &lt;&lt; endl;
+    }
+};
+
+int main() {
+    MyClass *p = new MyClass();
+    cout << p->a << endl;
+    p->printHello();
+    return 0;
+}</pre>
+<p>This technique is for example used when creating new widget objects with the GUI-library "wxWidgets".
+<p>The discussion about the keyword "<tt>new</tt>" <a href="https://stackoverflow.com/questions/655065/when-should-i-use-the-new-keyword-in-c">here</a> says, using it allocates memory on the heap, while not using it in many cases allocates memory on the stack.
+And the pointer is of course useful, when the objects are meant to be passed around functions by reference.
+<br>It also says, it is a general rule to call "<tt>delete</tt>" after having used "<tt>new</tt>" earlier.
+<br>Calling "<tt>delete</tt>" on the pointer may not be necessary for wxWidgets-objects, because the classes of the library may already take care of freeing the memory in the end (when calling "<tt>Close()</tt>" on the "<tt>wxFrame</tt>"-object).
+<p>
+<HR>
+<h3><A NAME="4">4. Inheritance</A></h3>
+<p>If a subclass should inherit from a superclass, the following syntax can be used. The constructor of the subclass also has to call the constructor of the superclass:
+<pre>class Subclass : public Superclass {
+  public:
+    // Constructor:
+    Subclass([parameter-list of Subclass' constructor]) : Superclass {[arguments for Superclass' constructor]} {
+    }
+};</pre>
+<p>Here I translated the little inheritance-example from the Perl-OOP-page mentioned above:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+class Animal {
+  public:
+    string name;
+    Animal(string animalname) {
+        this->name = animalname;
+    }
+    void startMoving() {
+        cout &lt;&lt; name + " is walking." &lt;&lt; endl;
+    }
+    void makeNoise() {
+        cout &lt;&lt; "Woof! Woof!" &lt;&lt; endl;
+    }
+};
+
+class Cat : public Animal {
+
+  public:
+
+    Cat(string catname) : Animal {catname} {
+    }
+
+    void showName() {
+        cout &lt;&lt; name &lt;&lt; endl;
+    }
+    void makeNoise() {
+        cout &lt;&lt; "Meow!" &lt;&lt; endl;
+    }
+};
+
+int main() {
+    Cat c = Cat("Tibby");
+    c.showName();
+    c.startMoving();
+    c.makeNoise();
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="5">5. Further Reading</A></h3>
+<p>The last page deals with <a href="cpp_03.html">special topics</a>.
+<hr width=70%>
+<br><center><a href="index.html">Back to the computing-page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="C++, plus, programming language, Bjarne, classes, pointer, segfault, segmentation fault, Speicherzugriffsfehler, array, char, vector, cout">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>C++ Page #1: Introduction</title>
+</head>
+<body>
+<H2>C++ Page #1: Introduction</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>
+<p>
+<p>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">About C++</A>
+<LI><A HREF="#2">Compiler. Different Versions of C++</A>
+<LI><A HREF="#3">A First Program - Hello World</A>
+<LI><A HREF="#4">Comments</A>
+<LI><A HREF="#5">for-Loops, while-Loops, if-Statements, break and continue</A>
+<LI><A HREF="#6">Strings and String-Functions</A>
+<LI><A HREF="#7">Getting User-Input on the Command-Line</A>
+<LI><A HREF="#8">Example-Program "Cookie Monster"</A>
+<LI><A HREF="#9">Pointers. nullptr</A>
+<LI><A HREF="#10">References</A>
+<LI><A HREF="#11">Vectors: Dynamic Lists</A>
+<LI><A HREF="#12">An Example of a "split()"-Function</A>
+<LI><A HREF="#13">STL-Arrays</A>
+<LI><A HREF="#14">unordered_map (Hashes / Dictionaries)</A>
+<LI><A HREF="#15">Vectors of Vectors</A>
+<LI><A HREF="#16">Managing Memory with new and delete</A>
+<LI><A HREF="#17">Further Reading</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. About C++</A></h3>
+<p>C++ was designed by Bjarne Stroustrup in the early 1980s. It was first published in 1985. Since then it has received many revisions, there was especially a major update in 2011.
+<br>C++ is an object-orientated language, based on <a href="c_01.html">C</a>. In the early days (up to 1983) it was called "C with Classes".
+<br>But although C++ is compatible to C, it is considered to be a different language than C.
+<br>If you write a program in C++, and have the choice to either use C-constructions or C++-constructions, it is suggested to prefer the latter ones.
+<p>Here's a timeline, when these common programming languages were created, respectively first released:
+<p>
+<table style="width:100%">
+<tr><td>C</td><td>Around 1970</td></tr>
+<tr><td>C++</td><td>Around 1980 to 1985</td></tr>
+<tr><td>Perl</td><td>1987</td></tr>
+<tr><td>Python</td><td>1991</td></tr>
+<tr><td>Lua</td><td>1993</td></tr>
+<tr><td>Java</td><td>1995</td></tr>
+<tr><td>JavaScript</td><td>1995</td></tr>
+<tr><td>PHP</td><td>1995</td></tr>
+<tr><td>C#</td><td>2001</td></tr>
+</table>
+<p>Back to C++: Obviously it has some constructions in common with C. But with its classes, it sometimes also feels a bit similar to Python. Python is of course an interpreted language, and easier to use than C++. On the other hand, C++-code runs faster. So it may be a good idea to write prototypes of object-oriented programs in Python first, and then translate them to C++ later.
+<p>It seems, throughout the years there have been many changes to the language. "C++23" is the recent version at the moment, but "C++26" is already planned. Especially since the update of 2011, C++ seems to be a lot easier to use than earlier versions. Older tutorials may show deprecated syntax that has been replaced by much more convenient language constructions. 
+<br>So when reading a tutorial that is too old, you may get the wrong impression, that programming in C++ is much more difficult than it actually is today.
+<br>Especially explicitly managing memory (which is essential in C) seems only rarely be needed in C++ any more, and in many cases, you can use references instead of pointers, which makes things a lot easier.
+<p>How fast a program written in C++ runs, depends on the way, the code was written. The developer has a lot of options to optimize the code for speed. Without optimization, the program might not even run that fast.
+<p>So C++ is a compiled language. It's suited for large projects as well as C is. It has classes and objects. In general, it may be bit easier to write in C++ than in C. All these features combined make C++ one of the favourite languages of the professional software industry. For example, the company "Electronic Arts" uses C++ for its modern, commercial computer games.
+This company even released its own version of the C++ "Standard Template Library" (STL), which is optimized for speed. This version is called "<a href="https://github.com/electronicarts/EASTL">EASTL</a>". 
+<p><a href="https://cplusplus.com/doc/tutorial/">Here</a>'s a general tutorial about C++ I can recommend.
+<P>
+<HR>
+<h3><A NAME="2">2. Compiler. Different Versions of C++</A></h3>
+<p>The compiler-executable for C++ in the gcc-distribution is called "g++".
+<p>If you have a file "h.cpp", you can run
+<pre>g++ h.cpp</pre>
+<p>and get a file "a.out", which you can run then with
+<pre>./a.out</pre>
+<p>C++ has evolved over the years. There has been a major update in 2011.
+<br>If code doesn't compile, the reason may be, that modern constructions of this update were used. Then it may help to compile with:
+<pre>g++ -std=c++11 source.cpp</pre>
+<p>Actually, for my Linux distribution (OpenSuSE Leap 15.6) there are different versions of the gcc/g++-compiler. By default
+<pre>g++ -v</pre>
+<p>shows version 7.5.0. But version 14 is also available. It can be installed in addition to version 7.5.0. When compiling a new program, version 14 can then simply be selected by running
+<pre>g++-14 [yourfile.cpp]</pre>
+<p>For example the useful library "<tt>std::filesystem</tt>" has entered the official C++-language just in 2017 with "C++17". Running "<tt>g++-14</tt>" can handle the line "<tt>#include &lt;filesystem&gt</tt>", while "<tt>g++-7</tt>" can't.
+<br>So the g++ compiler version 14 can handle at least the language version "C++17".
+<p>
+<HR>
+<h3><A NAME="3">3. A First Program - Hello World</A></h3>
+<p>Here's a "Hello World" in C++:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello World." &lt;&lt; endl;
+    return 0;
+}</pre>
+<p>"cout" is the program's output stream. "cout" means "character output". So characters are redirected there with "&lt;&lt;".
+<br>"cout" and "endl" are part of the namespace "std" and could also be written as "std::cout" and "std::endl". If you wrote them that way, you wouldn't need the "<tt>using namespace ...</tt>"-line above.
+<hr width=30%>
+<p>It's also possible to define your own namespaces. You can use single variables from that namespace by just using "<tt>using</tt>" (not "<tt>using namespace</tt>"), followed by two colons, and then the name of the variable. Like that:
+<pre>using my_namespace::a;</pre>
+Or you can introduce the whole namespace with "<tt>using namespace</tt>" followed by the name of your namespace:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+namespace my_namespace {
+    int a = 1;
+    int b = 2;
+}
+
+int main () {
+    using namespace my_namespace;
+    cout &lt;&lt; a &lt;&lt; endl;
+    cout &lt;&lt; b &lt;&lt; endl;
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="4">4. Comments</A></h3>
+<p>In addition to C's syntax:
+<pre>/* ..... */</pre>
+in C++ you can use:
+<pre>// ...</pre>
+<p>Then all characters after the double-slashes in a line are considered to be comment.
+<p>
+<HR>
+<h3><A NAME="5">5. for-Loops, while-Loops, if-Statements, break and continue</A></h3>
+<p>The following constructions work just like in C:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+int main() {
+    int i;
+    for (i = 0; i &lt;= 10; i++) {
+        if (i == 5) {
+            continue;
+        }
+        cout &lt;&lt; i &lt;&lt; endl;
+    }
+    i = 0;
+    while (i &lt; 10) {
+        cout &lt;&lt; i &lt;&lt; endl;
+        if (i == 5) {
+            break;
+        }
+        i++;
+    }
+    return 0;
+}</pre>
+<p>It's also possible to iterate over "collections" (such as vectors or STL-arrays, see below) with:
+<pre>for (int i : vec) { ... }</pre>
+<p>If "vec" contains strings, you'd have to write respectively:
+<pre>for (string i : vec) { ... }</pre>
+<p>In this case, you can also use the "<tt>auto</tt>"-feature, which tries to identify the data type of a variable from its context:
+<pre>for (auto i : vec) { ... }</pre>
+<p>
+<HR>
+<h3><A NAME="6">6. Strings and String-Functions</A></h3>
+<p>In C++, there's a datatype "string". Such strings are objects, so they have methods. These methods can be called using the "."-operator (like in Python).
+Useful methods are:
+<ul>
+<li>.length()
+<br>Returns the number of characters of the string.
+<p>
+<li>.compare([string])
+<br>Returns 0, if both strings are equal. "<tt> == </tt>" is also supported.
+<p>
+<li>.find([string], [start])
+<br>Searches the string for [string] from position [start] and returns the index of [string] inside string, if [string] is found.
+<p>
+<li>.substr([start], [end])
+<br>Returns a substring of string.
+<p>
+<p>
+<li>.starts_with(), .ends_with() (C++20)
+<p>
+<li>stoi([string]): Usage: "<tt>int a = stoi(s);</tt>"
+<br>Converts the C++-string to an integer. (Like "atoi()" in C.)
+<br>There are also "stof()", "stod()" and "stold()" for conversion to "float", "double" and so on.
+<br>These functions are part of the namespace "std".
+<p>
+</ul>
+<p>If a string is equal to another string can also simply be checked with the "=="-operator.
+<p>There can be "string constants" in the code, that aren't assigned to any variable.
+<p>Single characters in a string are of datatype 'char' and can be accessed by using square brackets like in "a[0]". This can also be used for replacing single characters in a string.
+
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+int main() {
+    string a = "Hello";
+    cout &lt;&lt; a.length() &lt;&lt; endl;
+    cout &lt;&lt; a.substr(1, 3) &lt;&lt; endl;
+    string b = "Hello";
+    if (a.compare(b) == 0) {
+        cout &lt;&lt; "a is \"" &lt;&lt; b &lt;&lt; "\"." &lt;&lt; endl;
+    }
+    cout &lt;&lt; a[1] &lt;&lt; endl;
+    a[1] = 'x';
+    cout &lt;&lt; a &lt;&lt; endl;
+    cout &lt;&lt; a.find("l", 0) &lt;&lt; endl;
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="7">7. Getting User-Input on the Command-Line</A></h3>
+<p>"cin", the counterpart to "cout",  can be used to ask the user for an integer (or a double / floating point number) on the console.
+<pre>int a;
+cin &gt;&gt; a;</pre>
+<p>If the user should enter a string, the function
+<pre>getline(cin, [string])</pre>
+<p>has to be used.
+In practice, it's probably better to always use "<tt>geline()</tt>", and if necessary convert the input with "<tt>stoi()</tt>" later.
+<p>
+<HR>
+<h3><A NAME="8">8. Example-Program "Cookie Monster"</A></h3>
+<p>This is a nice little program from a good Perl-book (Laura Lemay: "Sams Teach Yourself Perl in 21 Days"), I can recommend. If you get to this program and can run it, you already know some of the constructions, a programming-language uses:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+int main() {
+    // Cookie Monster
+    string cookies;
+    while (cookies != "COOKIES") {
+        cout &lt;&lt; "I want COOKIES: ";
+        getline(cin, cookies);
+    }
+    cout &lt;&lt; "Mmmm. COOKIES." &lt;&lt; endl;
+}</pre>
+<p>This is actually not much more difficult than in Perl or Python.
+<p>
+<HR>
+<h3><A NAME="9">9. Pointers. nullptr</A></h3>
+<p>Pointers are basically declared and used as they are in C.
+<p>The keyword for null-pointers is "<tt>nullptr</tt>" (instead of "<tt>NULL</tt>" in C).
+<p>
+<HR>
+<h3><A NAME="10">10. References</A></h3>
+<p>In addition to pointers, in C++ there are also references. Their operator is "<tt>&</tt>".
+<br>They are more restricted than pointers, but easier to use.
+<p>References are tied to a variable at definition, and can't be pointed somewhere else afterwards.
+<br>Unlike pointers, references can't be "<tt>NULL</tt>".
+<br>There isn't something similar to "pointer arithmetics".
+<br>References can also appear as function parameters.
+<br>After definition, references can just be used synonymously to the original variable.
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+void myfunc(int &ref) {
+    cout &lt;&lt; ref &lt;&lt; endl;
+}
+
+int main() {
+    int a = 10;
+    int &b = a;
+    cout &lt;&lt; b &lt;&lt; endl;
+
+    /* Passing a variable to a reference that is used
+       as a function parameter (see above): */
+    myfunc(a);
+    return 0;
+}</pre>
+<p>So references as function parameters can especially make sure, that variables are passed to functions <b>by reference</b>. In most cases, that is what developers want, because larger objects such as vectors would otherwise get copied in full when passed <b>by value</b>.
+<p>To be able to also pass string literals such as "<tt>"Hello"</tt>" to a function by reference, the term "<tt>const string &s</tt>" can be used as a function parameter (where "<tt>s</tt>" is the variable name).
+<p>According to an internet-discussion, the compiler makes it possible to just return a larger local variable like for example a vector from a function. It also takes care of efficiency. (In C, you would have to allocate memory in the function yourself, and return a pointer from the function.)
+So when you create a vector inside a function in C++, and want to return it from there, you just return it by value. You don't need to return a pointer to it (although that would be an option, if you used a pointer to a vector from the beginning, like that:
+<pre>vector&lt;string&gt; *vecp = new vector&lt;string&gt;;</pre>
+<p>and later you'd have to call
+<pre>delete vecp;</pre>
+<p>somewhere then.) But especially, you don't return a reference to the vector from the function. Because the local vector may vanish, when the function ends, and then the reference may not reference anything useful any more.
+<p>
+<HR>
+<h3><A NAME="11">11. Vectors: Dynamic Lists</A></h3>
+<p>If you want to store a known amount of data of a single type, you can use C-arrays or STL-arrays, that are described in the next section.
+<p>Vectors can be used, when a dynamic list is required. Then, the line
+<pre>#include &lt;vector&gt;</pre>
+<p>has to be added. And to make it all work, in most cases the code has to be compiled with:
+<pre>g++ -std=c++11 source.cpp</pre>
+<p>Vectors are declared with the keyword "<tt>vector</tt>", followed by the type of data to be stored in the vector included between "lesser than" and "greater than"-characters, followed by the name of the vector:
+<pre>vector&lt;int&gt; my_vector;</pre>
+<p>In "<tt>-std=c++11</tt>", they can be initialized with values in curly brackets (similar to C-arrays):
+<pre>vector&lt;int&gt; my_vector = {1, 2, 3};</pre>
+<p>Useful methods of vectors are:
+<ul>
+<li>.size()
+<br>Returns the number of elements of the vector.
+<p>
+<li>.push_back([variable])
+<br>Adds an element to the end of the vector.
+<p>
+<li>.pop_back()
+<br>Deletes the last element of the vector. The element is not returned.
+</ul>
+<p>If you want to store strings, floats and doubles together in a vector, you can declare the vector for "string" altogether, and convert the strings that store the numbers with the functions "stoi()", "stof()" and "stod()" (found in namespace "std") later.
+<p>Vectors can also be arguments to functions.
+Here's an example: 
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Compile with: g++ -std=c++11 source.cpp
+
+using namespace std;
+
+void printIntVector(vector&lt;int&gt; vec) {
+    int i;
+    int vecsize = vec.size();
+    cout &lt;&lt; "[";
+    for (i=0; i &lt; vecsize; i++) {
+        cout &lt;&lt; vec[i];
+        if (i &lt; vecsize - 1) {
+            cout &lt;&lt; ", ";
+        }
+    }
+    cout &lt;&lt; "]" &lt;&lt; endl;
+}
+
+int main() {
+    vector&lt;int&gt; items = {1, 2, 3};
+    items.push_back(100);
+    printIntVector(items);
+    items.pop_back();
+    printIntVector(items);
+    return 0;
+}</pre>
+<p>If not specified otherwise, the vector is passed to a function <b>by value</b>. That means, that for use in the function a copy of the vector is created, and the function just operates on that copy.
+<br>If you want to pass the vector <b>by reference</b> instead, an "&amp;" has to be added in the function's declaration. Then the function operates on the same vector, that exists outside the functions, and changes made to that vector inside the function also effect the vector in the rest of the program:
+<pre>void printIntVector(vector&lt;int&gt; <b>&amp;</b>vec) {...}</pre>
+<p>A vector can be assigned to another vector (with "="). This creates a copy of the vector.
+<hr width=30%>
+<p>Here I translated the example about lists from my <a href="https://hlubenow.lima-city.de/perl1_introduction.html#9">Perl-page</a> to C++:
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+int main() {
+
+    // Initialize a vector of strings:
+    vector&lt;string&gt; fruits = {"apple", "banana"};
+
+    // Add an element at the end of the vector:
+    fruits.push_back("peach");
+
+    // Create a loop, that iterates through the vector (printing it).
+    for (auto i : fruits) {
+        cout &lt;&lt; i &lt;&lt; endl;
+    }
+    cout &lt;&lt; endl;
+
+    // Get the last element of the vector, then remove it from there:
+    string l = fruits.back();
+    fruits.pop_back();
+    int fruitslen = fruits.size();
+    cout &lt;&lt; fruitslen &lt;&lt; endl;
+    cout &lt;&lt; l &lt;&lt; endl;
+
+    // Get the first element of the vector, then remove it from there:
+    l = fruits.front();
+    fruits.erase(fruits.begin());
+    fruitslen = fruits.size();
+    cout &lt;&lt; fruitslen &lt;&lt; endl;
+    cout &lt;&lt; l &lt;&lt; endl;
+
+    // Add an element at the beginning of the vector:
+    fruits.insert(fruits.begin(), "peach");
+    fruits.insert(fruits.begin(), "apple");
+
+    // Iterate through the vector again:
+    cout &lt;&lt; endl;
+    for (auto i : fruits) {
+        cout &lt;&lt; i &lt;&lt; endl;
+    }
+    cout &lt;&lt; endl;
+
+    // Get the number of elements of the vector:
+    fruitslen = fruits.size();
+    cout &lt;&lt; fruitslen &lt;&lt; endl &lt;&lt; endl;
+
+    // Erase an element in the middle of the vector:
+    fruits.erase(fruits.begin() + 1);
+
+    // Add an element in the middle of the vector:
+    fruits.insert(fruits.begin() + 1, "cherry");
+
+    // Iterate through the vector again:
+    cout &lt;&lt; endl;
+    for (auto i : fruits) {
+        cout &lt;&lt; i &lt;&lt; endl;
+    }
+    cout &lt;&lt; endl;
+
+    // Access an element by element number.
+    // Notice that the element numbers are in the range from 0 to the number of elements minus 1,
+    // so "fruits.at(1)" is the second element of the list:
+    cout &lt;&lt; fruits.at(1) &lt;&lt; endl;
+    fruits.at(1) = "strawberry";
+    cout &lt;&lt; fruits.at(1) &lt;&lt; endl;
+
+    return 0;
+}</pre>
+<p>Many vector-operations like for example
+<pre>vector&lt;string&gt; v;
+v.push_back("Hello");</pre>
+<p>of the default "Standard Template Library" (STL) imply reallocation of memory and may be relatively time-consuming at runtime. If you care for speed optimization, you may want to think about other, more complex constructions that are more difficult to use though.
+<br>When in doubt, of course you always have the option to fall back to pure C. But there just isn't a STL-vector there.
+<p>
+<HR>
+<h3><A NAME="12">12. An Example of a "split()"-Function</A></h3>
+<p>It seems, there isn't a dedicated "split()"-function in the C++ standard library that splits a string at a substring (a "delimiter"), and stores the parts in a vector of strings.
+<br>There are several proposals for such a function on the internet.
+<br>Here's an approach of mine making use of C's "strtok()"-function. But remember, I'm just a C/C++-beginner, so don't use this code in a "real" project such as productivity software or such.
+<br>I'm also using pointers (to vectors of strings) here, so the vectors don't have to be copied when passing them from or to functions. So the "<tt>mysplit()</tt>"-function returns a "pointer to a vector of strings". The elements can then be accessed through the pointer (using the "<tt>-></tt>"-operator"), or the pointer can be dereferenced to get back an ordinary vector of strings:
+<pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;cstring&gt;
+
+using namespace std;
+
+/* Example of a split()-function.
+   Code may be buggy, do not use in real projects.
+   License: GNU GPL 3. */
+
+void printStringVector(vector&lt;string&gt; &vecref) {
+    int vecsize = vecref.size();
+    cout &lt;&lt; "[";
+    for (int i=0; i &lt; vecsize; i++) {
+        cout &lt;&lt; "\"";
+        cout &lt;&lt; vecref[i];
+        cout &lt;&lt; "\"";
+        if (i &lt; vecsize - 1) {
+            cout &lt;&lt; ", ";
+        }
+    }
+    cout &lt;&lt; "]" &lt;&lt; endl;
+}
+
+char *getCString(string &cpps) {
+    // Allocates memory for a C-string, copies the C++-string there
+    // and returns a pointer to it.
+
+    int slength = cpps.size();
+    char *cs = (char *) malloc(slength + 1);
+    if (cs == NULL) {
+        return NULL;
+    }
+    strcpy(cs, cpps.c_str());
+    /* An internet discussion says, C++-strings
+       may not automatically get the null-terminator character
+       when returned by ".c_str()", so I make sure the hard way: */
+    char *p = cs;
+    p += slength;
+    *p = '\0';
+    return cs;
+}
+
+vector&lt;string&gt; mysplit(string &splitstring, string delim) {
+
+    /* Splits a string, storing its parts/tokens in a vector.
+       The delimiter can only be an ordinary string,
+       not a regular expression. */
+
+    vector&lt;string&gt; v;
+    char *str = getCString(splitstring);
+    char *delimiter = getCString(delim);
+    char *token;
+    token = strtok(str, delimiter);
+    while (token != NULL) {
+        v.push_back(token);
+        token = strtok(NULL, delimiter);
+    }
+    free(delimiter);
+    free(str);
+    return v;
+}
+
+int main() {
+    string s = "Split me into a number of substrings";
+    vector&lt;string&gt; v = mysplit(s, " ");
+    printStringVector(v);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="13">13. STL-Arrays</A></h3>
+<p>Similar to vectors, static arrays can be defined in a C++-way using the "Standard Template Library" (STL). These STL-arrays are more comfortable than C-arrays.
+The line
+<pre>#include &lt;array&gt;</pre>
+<p>has to be added, and compiling with
+<pre>g++ -std=c++11 source.cpp</pre>
+<p>is probably also needed.
+<p>Then you can define an array of 10 elements with:
+<pre>array&lt;int,10&gt; items = {1, 2, 3};</pre>
+<p>It has a ".size()" function and (unlike C-arrays) can be passed directly to functions like vectors (by value or - with "&amp;" - by reference):
+<pre>void printIntSTLArray(array&lt;int,10&gt; arr) {...}</pre>
+<p>There isn't a push-method for STL-arrays, but elements can be written directly like in:
+<pre>arr[9] = 25;</pre>
+<p>A quick example:
+<pre>#include &lt;iostream&gt;
+#include &lt;array&gt;
+
+using namespace std;
+
+void printArray(array&lt;int,3&gt; arr) {
+    for (auto i: arr) {
+        cout &lt;&lt; i &lt;&lt; endl;
+    }
+}
+
+int main() {
+    array&lt;int,3&gt; arr = {1, 2, 3};
+    printArray(arr);
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="14">14. unordered_map (Hashes / Dictionaries)</A></h3>
+<p>To implement a data type with pairs of keys and values that are not in a specific order (something that would be called a "hash" in Perl or a "dictionary" in Python), there is the data type called "unordered_map" in C++.
+Here's an example:
+<pre>#include &lt;iostream&gt;
+#include &lt;unordered_map&gt;
+
+using namespace std;
+
+int main() {
+    unordered_map&lt;string, int&gt; a = { {"One", 1},
+                                     {"Two", 2},
+                                     {"Three", 3} }; 
+    cout &lt;&lt; a["One"] &lt;&lt; endl;
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="15">15. Vectors of Vectors</A></h3>
+<p>In C++, you can also have vectors of vectors (and so on):
+<pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Compile with: g++ -std=c++11
+
+using namespace std;
+
+void printIntVector(vector&lt;int&gt; vec) {
+    int i;
+    int vecsize = vec.size();
+    cout &lt;&lt; "[";
+    for (i=0; i &lt; vecsize; i++) {
+        cout &lt;&lt; vec[i];
+        if (i &lt; vecsize - 1) {
+            cout &lt;&lt; ", ";
+        }
+    }
+    cout &lt;&lt; "]" &lt;&lt; endl;
+}
+
+int main() {
+    vector&lt;vector&lt;int&gt; &gt; items = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    for (vector&lt;int&gt; i : items) {
+        printIntVector(i);
+    }
+    return 0;
+}
+</pre>
+<p>Notice, there has to be the space character between the two "<tt>&gt;</tt>" in "<tt>vector&lt;vector&lt;int&gt; &gt; ...</tt>", which is a bit odd. Maybe to avoid confusing the characters "<tt>&gt;&gt;</tt>" with the operator that looks the same.
+<p>
+<HR>
+<h3><A NAME="16">16. Managing Memory with new and delete</A></h3>
+<p>Memory can be managed by using the keywords "<tt>new</tt>" and "<tt>delete</tt>" in combination with a pointer.
+<br>Here's an example:
+<pre>#include &lt;iostream&gt;
+
+using namespace std;
+
+int main() {
+    char *p = new char[10];
+    p[0] = 'H';
+    p[1] = 'e';
+    p[2] = 'l';
+    p[3] = 'l';
+    p[4] = 'o';
+    p[5] = '\0';
+    printf("%s\n", p);
+    delete(p);
+    return 0;
+}</pre>
+<p>So "<tt>new</tt>" and "<tt>delete</tt>" basically work similar to the functions "<tt>malloc()</tt>" and "<tt>free()</tt>" in C.
+<br>Of course, you must not mix the two allocation-systems, that is, you must not call "<tt>delete</tt>" on something that has been allocated with "<tt>new</tt>".
+<p>But it seems, in recent versions of C++ it's not that often necessary to manage memory that way. As shown in the chapters above, for example strings (C++-strings), vectors and STL-arrays can be used without explicitly managing memory. This also applies to classes and objects.
+<p>
+<HR>
+<h3><A NAME="17">17. Further Reading</A></h3>
+<p>The next page deals with creating <a href="cpp_02.html">classes and objects</a>.
+<hr width=70%>
+<br><center><a href="index.html">Back to the computing-page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>

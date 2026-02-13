@@ -1,0 +1,328 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <meta name="KeyWords" content="C, plus, programming language, Bjarne, classes, pointer, segfault, segmentation fault, Speicherzugriffsfehler, array, char">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>C++ Page #3: Special Topics</title>
+</head>
+<body>
+<H2>
+C++ Page #3: Special Topics</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>
+<p>
+<p>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">Processing Command-Line Options</A>
+<LI><A HREF="#2">Using Regular Expressions</A>
+<LI><A HREF="#3">Reading and Writing Text-Files</A>
+<LI><A HREF="#4">"filesystem"-operations: getcwd; listdir; exists</A>
+<LI><A HREF="#5">Creating Dynamic Libraries on Linux (.so-Files)</A>
+</OL>
+<p>
+<HR>
+<h3><A NAME="1">1. Processing Command-Line Options</A></h3>
+<p>The program's "<tt>main()</tt>"-function can also have the parameters "<tt>int argc</tt>" and "<tt>char *argv[]</tt>".
+<br>"<tt>argv</tt>" is an array of "<tt>pointers to char</tt>". So it's an array of C-strings.
+<br>The first of these strings is the name of the script.
+<br>"<tt>argc</tt>" is the number of elements of "<tt>argv</tt>". It is at least 1. Neither the programmer, nor the user passes the number "<tt>argc</tt>" (or "<tt>argv</tt>") explicitely to the "<tt>main()</tt>"-function. Instead, the user passes options on the command-line, and "<tt>argc</tt>" and "<tt>argv</tt>" are automatically set accordingly.
+<br>It is relatively easy to convert the C-strings in "<tt>argv</tt>" to C++-strings (which are of type "<tt>std::string</tt>"). Here's an example:
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+int main(int argc, char *argv[]) {
+    cout &lt;&lt; argc &lt;&lt; endl;
+    vector&lt;string&gt; v;
+    string s;
+    for (int i = 0; i &lt; argc; i++) {
+        s = argv[i];
+        // "v.push_back(argv[i]);" would also be possible:
+        v.push_back(s);
+    }
+    for (string i : v) {
+        cout &lt;&lt; i &lt;&lt; endl;
+    }
+    return 0;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="2">2. Using Regular Expressions</A></h3>
+<p>For simpler search- and replace-operations in C++strings, the methods
+<pre>string.find()</pre>
+<p>and
+<pre>string.replace()</pre>
+<p>can be used.
+Since C++-20, there are also
+<pre>string.starts_with()</pre>
+<p>and
+<pre>string.ends_with()</pre>
+Since C++11, it is also possible to use more complicated regular expressions.
+<br>The function "<tt>regex.search()</tt>" returns "<tt>true</tt>", if a pattern in a string is matched. Arguments are a C++-string and a "<tt>std::regex</tt>"-object, created from a regular expression. Here's an example:
+<pre>#include &lt;iostream&gt;
+#include &lt;regex&gt;
+
+using namespace std;
+
+int main() {
+    if (regex_search("Hello", regex("He"))) {
+        cout &lt;&lt; "Found." &lt;&lt; endl;
+    }
+}</pre>
+<p>This searches for characters that aren't numbers:
+<pre>#include &lt;iostream&gt;
+#include &lt;regex&gt;
+
+using namespace std;
+
+int main() {
+    if (regex_search("123a", regex(R"(\D)"))) {
+        cout &lt;&lt; "Found." &lt;&lt; endl;
+    }
+}</pre>
+<p>The "<tt>R</tt>" somehow indicates a raw string. Otherwise you'd have to write "<tt>\\D</tt>" all the time.
+<p>As can be expected, there's also "<tt>regex_replace()</tt>".
+<p>
+<HR>
+<h3><A NAME="3">3. Reading and Writing Text-Files</A></h3>
+<p>Here we're writing some lines of text to a file called "schiller.txt", then we read in the contents of that file into a vector and print it:
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;fstream&gt;
+
+using namespace std;
+
+void printStringVector(vector&lt;string&gt; &vecref) {
+    int vecsize = vecref.size();
+    cout &lt;&lt; "[";
+    for (int i=0; i &lt; vecsize; i++) {
+        cout &lt;&lt; "\"";
+        cout &lt;&lt; vecref[i];
+        cout &lt;&lt; "\"";
+        if (i &lt; vecsize - 1) {
+            cout &lt;&lt; ", ";
+        }
+    }
+    cout &lt;&lt; "]" &lt;&lt; endl;
+}
+
+vector&lt;string&gt; readfile(string filename) {
+    vector&lt;string&gt; a;
+    string buf;
+    ifstream fh(filename);
+    if (fh.good() == false) {
+        cout &lt;&lt; "Warning: Couldn't read from file '" &lt;&lt; filename &lt;&lt; "'." &lt;&lt; endl;
+        fh.close();
+        return a;
+    }
+    while (getline(fh, buf)) {
+        a.push_back(buf);
+    }
+    fh.close();
+    return a;
+}
+
+void writefile(const string &filename, vector&lt;string&gt; &text) {
+    ofstream fh;
+    fh.open(filename);
+    if (fh.good() == false) {
+        cout &lt;&lt; "Warning: Cannot write to file '" &lt;&lt; filename &lt;&lt; "'. Nothing done." &lt;&lt; endl;
+        fh.close();
+        return;
+    }
+    for (string i: text) {
+        fh &lt;&lt; i &lt;&lt; endl;
+    }
+    fh.close();
+}
+
+int main() {
+    string filename = "schiller.txt";
+    vector&lt;string&gt; schiller = {"Und blicket sie lange verwundert an.", 
+                               "Drauf spricht er: 'Es ist euch gelungen,",
+                               "Ihr habt das Herz mir bezwungen,",
+                               "Und die Treue, sie ist doch kein leerer Wahn.'"};
+    // Writing to file:
+    // Commented out for security reasons. If you want to write the file
+    // "schiller.txt", delete the leading "//" of the next line:
+    // writefile(filename, schiller);
+
+    // Reading from file:
+    vector&lt;string&gt; a = readfile(filename);
+    printStringVector(a);
+    return 0;
+}</pre>
+<p>Notice, that you have to use "<tt>getline(fh, [string]);</tt>" to read a line from a file, just like you have to use <tt>getline()</tt>, when reading a line from "<tt>cin</tt>".
+If you just did "<tt>fh2 &gt;&gt; buf</tt>", it would read the file word by word.
+<p>
+<HR>
+<h3><A NAME="4">4. "filesystem"-operations: getcwd; listdir; exists</A></h3>
+<p>The language update "C++17" introduced "<tt>std::filesystem</tt>", which made certain important file-operations in C++ a lot easier. (Before C++17, these functions could be found in the C++-library "Booth"; some people also kept solving the problem in C-style.)
+<br>Here's an example program. As "C++17" is required, it has to be compiled using the compiler-executable "<tt>g++-14</tt>" or such.
+The example program then shows, how the following operations can be done:
+<ul>
+<li>Getting the name of the current working directory as a string.
+<p>
+<li>Getting a list (a vector of strings) containing  the filenames inside a directory. Either only the filenames or the full pathnames to the files are stored.
+<p>
+<li>Check, if a file exists.
+</ul>
+<p>
+<pre>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;filesystem&gt;
+
+// Compile with g++-14 (C++17 and above)
+
+using namespace std;
+
+void printStringVector(vector&lt;string&gt; &vecref) {
+    int vecsize = vecref.size();
+    cout &lt;&lt; "[";
+    for (int i=0; i &lt; vecsize; i++) {
+        cout &lt;&lt; "\"";
+        cout &lt;&lt; vecref[i];
+        cout &lt;&lt; "\"";
+        if (i &lt; vecsize - 1) {
+            cout &lt;&lt; ", ";
+        }
+    }
+    cout &lt;&lt; "]" &lt;&lt; endl;
+}
+
+vector&lt;string&gt; listdir(string &path, bool wantfullpath = false) {
+    vector&lt;string&gt; v;
+    std::filesystem::path p;
+    // Code from: https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
+    for (const auto & entry : std::filesystem::directory_iterator(path)) {
+        p = entry.path();
+        if (wantfullpath) {
+            v.push_back(p);
+        } else {
+            v.push_back(p.filename());
+        }
+    }
+    return v;
+}
+
+int main() {
+
+    // Getting the current working directory:
+    string cwd = std::filesystem::current_path();
+    cout &lt;&lt; endl &lt;&lt; "The current working directory is '";
+    cout &lt;&lt; cwd &lt;&lt; "'." &lt;&lt; endl;
+    cout &lt;&lt; endl;
+
+    // Printing the contents of the current working directory:
+    vector&lt;string&gt; v = listdir(cwd);
+    cout &lt;&lt; "The content of the current working directory is:" &lt;&lt; endl;
+    printStringVector(v);
+    cout &lt;&lt; endl;
+
+    // Check, if a file exists:
+    string filename;
+    if (v.size() &gt; 0) {
+        filename = cwd + "/" + v[0];
+        if (std::filesystem::exists(filename)) {
+            cout &lt;&lt; "The file '" &lt;&lt; filename &lt;&lt; "' exists." &lt;&lt; endl;
+        } else {
+            cout &lt;&lt; "The file '" &lt;&lt; filename &lt;&lt; "' doesn't exist." &lt;&lt; endl;
+        }
+    }
+    cout &lt;&lt; endl;
+}</pre>
+<p>
+<HR>
+<h3><A NAME="5">5. Creating Dynamic Libraries on Linux (.so-Files)</A></h3>
+<p>Creating a library from a ".cpp"-source-file isn't as difficult as one might think. <a href="https://www.geeksforgeeks.org/cpp/how-do-i-create-a-library-in-cpp/">This tutorial</a> explained, how it's done.
+<p>To create and use a dynamic C++-library on Linux, two files are needed: One is the library-file, which is called something like "<tt>libsomelibrary.so</tt>", the other one is a header-file with an extension "<tt>.h</tt>" (or as we are in C++ with no extension at all).
+<br>The "<tt>.so</tt>"-file is copied to the directory "<tt>/usr/lib64</tt>", the header-file to a directory under "<tt>/usr/include</tt>".
+<br>Then, the header file is included in a new source-file with "<tt>#include &lt;somelibrary&gt;</tt>".
+<br>And finally, the compiler has to be told to use the library: "<tt>g++ -lsomelibrary sourcefile.cpp</tt>".
+<p>Ok, let's create the two mentioned files first: If you have a source-file "<tt>somelibrary.cpp</tt>" that contains all the functions of the library, you just need to run these commands:
+<pre>g++ -fPIC -c somelibrary.cpp -o somelibrary.o
+g++ -shared -o libsomelibrary.so somelibrary.o</pre>
+<p>This creates a file "<tt>libsomelibrary.so</tt>". Here's a little Perl-script around the two commands above:
+<pre>#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+my $LIBNAME = "somelibrary";
+
+my $e;
+$e = "g++ -fPIC -c ";
+$e .= $LIBNAME;
+$e .= ".cpp -o ";
+$e .= $LIBNAME;
+$e .= ".o";
+print "$e\n";
+# system($e);
+
+$e = "g++ -shared -o lib";
+$e .= $LIBNAME;
+$e .= ".so ";
+$e .= $LIBNAME;
+$e .= ".o";
+print "$e\n";
+# system($e);</pre>
+<p>Then you need a file "<tt>somelibrary.h</tt>". This file basically exposes the available functions to a developer, who wants to use the library. The "<tt>.h</tt>"-file shows what's there, while the "<tt>.cpp</tt>"-file defines, how it works.
+<br>In general, definitions say, how a thing works, while declarations just say that the thing exists.
+<p>The file "<tt>somelibrary.h</tt>" could for example look like this:
+<pre>// somelibrary.h
+// This is a C++ Library header.
+
+#ifndef SOME_LIBRARY
+#define SOME_LIBRARY
+
+using namespace std;
+
+// Functions:
+void someFunction(string &amp;parameter);
+
+#endif</pre>
+<hr width=20%>
+<ul>
+<li>The "<tt>#ifndef</tt>", "<tt>#define</tt>", "<tt>#endif</tt>"-lines are socalled preprocessor-directives. As their result, the main content of the header-file is only read in, if "SOME_LIBRARY" isn't defined yet. This mechanism makes sure, that the declarations aren't read in more often than necessary during compilation.
+<p>
+<li>Function declarations end just with "<tt>;</tt>" instead of the "<tt>{...}</tt>" of the full function definitions.
+</ul>
+<p>When you have "<tt>libsomelibrary.so</tt>" and "<tt>somelibrary.h</tt>", these files should be copied to directories in the path of the compiler. "<tt>.so</tt>"-files are typically in
+<pre>/usr/lib64</pre>
+<p>while header files ("<tt>.h</tt>") are in or below
+<pre>/usr/include</pre>
+<p>On my system there is for example a directory
+<pre>/usr/include/c++/7</pre>
+<p>that contains files like "<tt>iostream</tt>", which should sound familiar.
+<br>The "<tt>.h</tt>"-suffix of the header file can also be left out, so you can for example do as root:
+<pre>#!/bin/bash
+
+if [[ $EUID -ne 0 ]]; then
+   echo 
+   echo "Error: This script must be run as root." 
+   echo 
+   exit 1
+fi
+
+cp -v libsomelibrary.so /usr/lib64
+cp -v somelibrary.h /usr/include/c++/7/somelibrary</pre>
+<p>After that, the library is ready to use.
+<br>In the "<tt>.cpp</tt>"-file that uses it, the headerfile can be included with
+<pre>#include &lt;somelibrary&gt;</pre>
+<p>And when a new program is compiled, to use the library, the command-line option "<tt>-lsomelibrary</tt>" has to be added to the compilation-line like this:
+<pre>g++ -lsomelibrary newprogram.cpp</pre>
+<p>
+<p>
+<hr width=70%>
+<br><center><a href="index.html">Back to the computing-page</a></center>
+<hr width="70%">
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>
