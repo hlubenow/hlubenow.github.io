@@ -1,0 +1,552 @@
+<html><head>
+   <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+   <meta name="KeyWords" content="OpenSuse,Leap,15.6,Linux">
+   <meta name="Author" content="hlubenow2 {at-symbol} gmx.net">
+   <title>Installation-Notes on OpenSuSE Leap 15.6</title>
+</head>
+<body>
+<h2><img src="tux.png" height="36" width="30">&nbsp;
+Installation-Notes on OpenSuSE Leap 15.6</h2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size="-1">There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.
+I can not be held responsible, if you damage your system by using any of the information provided her.
+</font></font></b>
+<hr width="70%">
+<p>
+<h3>Contents:</h3>
+<ol>
+<li><a href="#1">Introduction</a>
+<li><a href="#2">UEFI. Using the Distribution's Installer</a>
+<li><a href="#3">Setting Screen Resolutions</a>
+<li><a href="#4">Soundcard Configuration</a>
+<li><a href="#5">Disabling or Deinstalling Expendable Services</a>
+<li><a href="#6">Editing Configuration Files</a>
+<li><a href="#7">Editing Keyboard Shortcuts</a>
+<li><a href="#8">Font-Settings in LXDE</a>
+<li><a href="#9">Resizing the Mouse Pointer in LXDE</a>
+<li><a href="#10">Resizing the Icons and Menu Fonts in Firefox</a>
+<li><a href="#11">Desktop Messages in LXDE</a>
+<li><a href="#12">Disabling IPv6</a>
+<li><a href="#13">Fixing Display Access. Setting the Hostname</a>
+<li><a href="#14">Enabling Video Players</a>
+<li><a href="#15">Installing Important Packages</a>
+<li><a href="#16">Additional Software</a>
+<li><a href="#17">xfce-terminal. lxterminal. wmctrl</a>
+<li><a href="#18">Configuring Xfce (and LightDM)</a>
+<li><a href="#19">Making Changes to Boot Loader Options</a>
+<li><a href="#20">Recording Internal Audio with Pulseaudio and Audacity</a>
+<li><a href="#21">Make "convert" Convert pdf-Files to jpg-Files</a>
+<li><a href="#22">Pipewire, Pulseaudio and Jack</a>
+<li><a href="#23">Activating WiFi-USB-Stick "TL-WN823N" - Realtek RTL8192EU</a>
+<li><a href="#24">Activating WiFi-USB-Stick "TP-Link AC600 (Archer T2U)" - Realtek RTL8821AU</a>
+</ol>
+<p>
+<hr>
+<h3><a name="1">1. Introduction</a></h3>
+<p>These are my installation notes about the Linux distribution "OpenSuSE Leap 15.6". I installed it in October 2024, and several more times up to May 2025.
+<p>There are also <a href="https://hlubenow.lima-city.de/suse131.html">notes on my previous distribution "OpenSuSE 13.1"</a>.
+ Here, I've only covered topics, that differ from the old installation. 
+So if something's missing here, take a look at the previous website. 
+<p>
+<hr>
+<h3><a name="2">2. UEFI. Using the Distribution's Installer</a></h3>
+<p>In most cases, today's PCs come with a UEFI-Bios. It seems, it 
+requires a separate boot partition, which is created by the SuSE 
+installer. There's also a feature called "Secure Boot". that has to be 
+disabled, to boot something else than Windows. I could boot Linux, when 
+setting "<tt>Secure Boot</tt>" in the Bios/UEFI to "<tt>Other OS</tt>". It may be possible, that Leap 15.6 could also handle "Secure Boot", but I haven't tried that yet.
+<br><u>Edit</u>: When installing on my other PC, it was necessary to 
+activate "Secure Boot" support in the Linux installation program. 
+Otherwise, the PC wouldn't boot lateron, and I had to reinstall all over
+ again.
+<p>When installing Leap 15.4 earlier, I had this problem: The 
+installer couldn't identify my monitor, so it set a bad resolution by 
+default, that caused unwanted lines on the screen.
+<br>On the first screen, it was possible to press "e" to configure the 
+boot settings of the installer program. Here, I added the word "<tt>nomodeset</tt>" to the boot line, that starts with "<tt>linux</tt>
+ ...". This disables a feature of the kernel called "KMS". The result 
+here was, that a correct resolution was set, and the screen of the 
+installer was fine.
+<p>The installer then recognized the network as one of the first 
+steps. Fortunately, it could handle my Wi-Fi-hardware (which the at the 
+moment also recent Puppy Linux distribution "FossaPup64 9.5" couldn't).
+<br>When letting the installer fully configure the network, it started 
+installing package updates from internet repositories. Unfortunately, 
+this also installed a new kernel, that didn't work with my system at 
+all. So I had to restart, and then make the installer skip the 
+network-configuration, and install everything from DVD at first. 
+Even with the more recent kernel installed (that didn't work), it was 
+still possible though, to select the previous kernel in the boot-loader 
+menu of GRUB2. So the original kernel wasn't deinstalled. But that was 
+not, what I wanted, so I still skipped network configuration.
+<p>Partitioning: I wanted to install Leap on an external 
+USB-hard-drive. So I selected "guided" and chose the wanted hard drive 
+for partitioning. The default suggestions for partitioning would have 
+installed to the Windows hard drive, so that was something to pay 
+attention to.
+<p>From the kernel options, I took out the words "splash=silent", "nomodeset" and "quiet".
+<p>I deactivated setting up a firewall and AppArmor.
+<p>I selected to install a "Xfce4"-system. Xfce4 is a lightweight, but capable window manager.
+<p>All in all, I had to try several times, until the installer 
+worked and my settings were the way I wanted them, but in the end it 
+worked.
+<br><u>Edit</u>: On my other PC, I'm using this content in the file "<tt>/etc/default/grub</tt>" at the moment:
+<pre>GRUB_DISTRIBUTOR=
+# Selection of boot-item in the menu:
+GRUB_DEFAULT=0
+# Time before booting selected item:
+GRUB_TIMEOUT=5
+GRUB_CMDLINE_LINUX_DEFAULT="resume=/dev/disk/by-uuid/... preempt=full security=apparmor mitigations=on video=DP-1:640x480@60 video=DP-2:d video=DP-3:d"
+GRUB_CMDLINE_LINUX=""
+GRUB_TERMINAL="gfxterm"
+GRUB_GFXMODE="640x480"
+GRUB_BACKGROUND=
+GRUB_THEME=
+SUSE_BTRFS_SNAPSHOT_BOOTING="false"
+GRUB_USE_LINUXEFI="true"
+GRUB_DISABLE_OS_PROBER="false"
+GRUB_ENABLE_CRYPTODISK="n"</pre>
+<p>"AppArmor" and Mitigation are activated. This makes the system a bit 
+slower, but it is said that it's the better option for security reasons.
+ "Mitigation" disables some features of the CPU, to make it less 
+vulnerable against socalled "Spectre/Meltdown"-attacks. If performance 
+was really a problem, it would be possible to deactivate these 
+protections again.
+<br>The "<tt>video=</tt>"-options in the kernel-line refer to the circumstances on my PC, where I'm using a standard VGA-output called "<tt>DP-1</tt>". The command "<tt>xrandr</tt>" would tell you the name of your video output. "<tt>video=</tt>" leaves "KMS" intact, that is, I'm not using "<tt>nomodeset</tt>" here (which would deactivate it). Somehow my graphics card seem to need KMS to find the screen resolutions.
+<p>
+<hr>
+<h3><a name="3">3. Setting Screen Resolutions</a></h3>
+<p>On first boot, I selected "Settings / Display" from the menu to set 
+the screen resolution. I noticed, that the tool is part of Xfce4, not of
+ YaST2. 
+<br>I selected the theme "Adwaita light".
+<p>Setting the resolution of the displaymanager (the program, that 
+displays the login-screen), was a bit more tricky. In my case, the 
+displaymanager is called "LightDM". To set its resolution, a file
+<pre>/usr/share/X11/xorg.conf.d/52-myres.conf</pre>
+<p>can be created, with this content:
+<pre>Section "Monitor"
+    Identifier "HDMI-2"
+    Option "PreferredMode" "1280x720"
+EndSection</pre>
+<p>This sets a "preferred resolution", that is respected by LightDM. Use the command "<tt>xrandr -q</tt>" to find out, which term you have to use for the "Identifier". It's "<tt>HDMI-2</tt>" in my case, but it may be a different term on your system, depending on the connection to your monitor.
+<br>When logged into the X-server afterwards, the command "<tt>xrandr -s</tt>"
+ can be used to manually change resolutions on the console. Also the 
+selection "Settings / Display" of the Xfce4 menu can be used to do that,
+ making the settings more permanent.
+<p>Actually, my monitor has a preferred resolution of "1920x1080". I
+ decided to set this resolution now, and increase all fonts a lot.
+<p>
+<hr>
+<h3><a name="4">4. Soundcard Configuration</a></h3>
+<p>The soundcard is setup automatically at startup now, so it seems, the
+ corresponding module of YaST2 isn't used any more. It may even cause 
+conflicts.
+<p>Everything is working with "pulseaudio" now.
+<br>"alsa" with "alsamixer" is also still available though.
+<p>To get the file "<tt>/dev/dsp</tt>", install the package "<tt>alsa-oss...rpm</tt>". Actually, also running
+<pre>modprobe snd_pcm_oss</pre>
+<p>as root is needed for that. If only "<tt>/dev/dsp1</tt>" is created then, just create a symbolic link with "<tt>ln -s /dev/dsp1 /dev/dsp</tt>" as root.
+<p>
+<hr>
+<h3><a name="5">5. Disabling or Deinstalling Expendable Services</a></h3>
+<p>I chose "<tt>Session and autostart</tt>" (German version: "<tt>Sitzung und Startverhalten / Automatisch gestartete Anwendungen</tt>")
+ from the program menu. Everything except the printer-applet, the 
+network-applet, the Xfce-configuration-service and the 
+Xfce-notification-service wasn't useful to me, so I just deactivated 
+these other services.
+The bluetooth-stuff may be useful, when bluetooth is used.
+<p>The "<tt>package update indicator</tt>" in the system tray of the
+ task-bar suggested installing lots of updates (because I had installed 
+from the original, older DVD). When I let it do the updates, after 
+reboot the new kernel was started, and nothing worked any more. I then 
+reinstalled the whole system from scratch once more, and deinstalled "<tt>package-update-indicator...rpm</tt>".
+<p>
+<hr>
+<h3><a name="6">6. Editing Configuration Files</a></h3>
+<p>"aliases" can be defined in "/etc/profile.d/alias.bash". But you can also use the tradtitional file "/etc/bash.bashrc.local".
+<p>
+<hr>
+<h3><a name="7">7. Editing Keyboard Shortcuts</a></h3>
+<p>The keyboard shortcuts for Xfce4 can be edited in
+<pre>/home/user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml</pre>
+<p>But that was actually quite painful this time. So I attach my whole file, that finally worked, <a href="https://hlubenow.lima-city.de/mykeyboardshortcuts.txt">here</a>. Rename it accordingly, after making a backup of the original file.
+<p>Notice, there's also a file 
+<pre>/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml</pre>
+<p>If the file in the "/home"-directory doesn't exist, the file from the
+ "/etc"-directory is copied to the "/home"-directory, which may be 
+unexpected.
+<p>On OpenSuSE Leap 15.6, it is also possible to install and use 
+LXDE instead of Xfce4 as the window-manager. For setting the keyboard 
+shortcuts in LXDE, I can rely on my <a href="https://hlubenow.lima-city.de/suse131.html#18">old notes</a> about it.
+<p>
+<hr>
+<h3><a name="8">8. Font-Settings in LXDE</a></h3>
+<p>This should set most fonts in LXDE:
+<ul>
+<li>Set general screen resolution: Menu-Button/ System / Settings / Display.
+<p>
+<li>Main font: Menu-Button / System / Settings / Appearance: Set theme (like "Adwaita"), and there's an option for the main font.
+<p>
+<li>Several window fonts: Menu-Button / System / Settings / Openbox Configuration Manager / Appearance.
+<p>
+<li>Fonts in panel (like the font of the watch): Right-click on the panel, Panel-Settings / Appearance / Font.
+<p>
+<li>Fonts of desktop-icons: To set the size of fonts referring to the desktop-icons, right-click on the desktop. 
+<p>
+<li>Thunderbird menu-font: In Thunderbird, there's the menu 
+item "View / Zoom" that sets the font-size in emails, but there's also 
+the menu item "View / Font Size" to set the overall menu font.
+<br>I really like that menu item, because it's so simple and easy to use, but it's also very easy to overlook.
+</ul>
+<p>
+<hr>
+<h3><a name="9">9. Resizing the Mouse Pointer in LXDE</a></h3>
+<p>To set a new size of the mouse pointer in LXDE, change this line in "<tt>/home/user/.gtkrc-2.0</tt>":
+<pre>gtk-cursor-theme-size=18</pre>
+<p>There's a similar line in "<tt>/home/user/.config/lxsession/LXDE/desktop.conf</tt>":
+<pre>iGtk/CursorThemeSize=18</pre>
+<p>Changing the numbers from 18 to 32 and restarting LXDE increases the 
+size of the mouse pointer in a reasonable way (that is, not as much as 
+you would think).
+<p>
+<hr>
+<h3><a name="10">10. Resizing the Icons and Menu Fonts in Firefox</a></h3>
+<p>In Firefox 129, the size of the icons in the toolbar (like the icon of the "<tt>Home</tt>" button) was way too small.
+<p>To fix it, I pointed Firefox to "<tt>about:config</tt>" and searched with the term "<tt>devp</tt>" for the setting "<tt>layout.css.devPixelsPerPx</tt>". Default is "<tt>-1.0</tt>". Setting this value to "<tt>2</tt>" zoomed the whole user interface including the toolbar icons to 200%.
+<p>Now the size of the icons was fine, but the menu fonts were way too big.
+I went to the profile folder
+<pre>/home/user/.mozilla/firefox/[somenumbers].default-release</pre>
+<p>Inside it, I created a new folder called "<tt>chrome</tt>". I changed to that folder and created a file called "<tt>userChrome.css</tt>". It had this content:
+<pre>@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+* {
+  font-size: 10pt !important;
+}</pre>
+<p>It is also possible to set a certain font-family by adding for example the line
+<pre>font-family: DejaVu Sans !important;</pre>
+<p>inside the curly brackets.
+<br>Then I had to make Firefox recognize the file "<tt>userChrome.css</tt>" at startup. I pointed Firefox to "<tt>about:config</tt>" and searched with the term "<tt>userprof</tt>" for the preference "<tt>toolkit.legacyUserProfileCustomizations.stylesheets</tt>" and changed its value from "<tt>false</tt>" to "<tt>true</tt>".
+<p>I also changed the "<tt>Zoom</tt>" setting in the graphical Firefox preferences.
+<br>The text of websites can be changed at runtime with "<tt>Ctrl++</tt>" and "<tt>Ctrl+-</tt>".
+<p>Then I restarted Firefox. That way I finally had suitable sizes of icons and fonts, which is of importance to me.
+<p>
+<hr>
+<h3><a name="11">11. Desktop Messages in LXDE</a></h3>
+<p>LXDE makes use of the file manager "pcmanfm". pcmanfm is also 
+responsible for starting applications from desktop icons or for dealing 
+with inserted USB-devices.
+<br>If suddenly windows are popping up on the desktop with messages 
+about these kind of processes, you can prevent this by checking the 
+settings in "pcmanfm".
+<p>
+<hr>
+<h3><a name="12">12. Disabling IPv6</a></h3>
+<p>IPv6 has something to do with longer web-adresses. When IPv6-support 
+is enabled, it can slow down accessing websites significantly. So when I
+ notice, that the web-browser takes some time before it opens a website,
+ I disable IPv6 on my system.
+<br>On Leap 15.6, I added the following lines as root to the file "<tt>/etc/sysctl.conf</tt>":
+<pre>net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1</pre>
+<p>Then I ran the command
+<pre>sysctl -p</pre>
+<p>After that, IPv6-support was disabled, and websited opened quickly again.
+<p>
+<hr>
+<h3><a name="13">13. Fixing Display Access. Setting the Hostname</a></h3>
+<p>The "hostname", that is the name of the computer, can be set as root just by typing it into the file "<tt>/etc/hostname</tt>".
+<p>When the error
+<pre>No protocol specified</pre>
+<p>appears, when starting window-applications in the terminal, it has 
+something to do with the user not having permission to access the 
+X-server's "display". The error can be fixed, by running the following 
+command as an ordinary user (it's the ordinary user, who is owner of his
+ display): 
+<pre>xhost +local:[hostname or ip]</pre>
+<p>The hostname can be found in "<tt>/etc/hostname</tt>" or by running the command "<tt>hostname</tt>". Just "<tt>xhost +</tt>"
+ would make the display accessible to everyone (on the internet), so 
+it's better to use the more secure command mentioned above.
+<p>Before running the command, it took a very long time to startup Firefox. Afterwards, I didn't get the "<tt>No protocol specified</tt>"-message any more, and Firefox started quickly again.
+<p>
+<hr>
+<h3><a name="14">14. Enabling Video Players</a></h3>
+<p>On OpenSuSE Leap, some video players on websites may not work by 
+default. While Youtube worked in Firefox, I had problems with some other
+ players on websites like "tagesschau.de", "ardmediathek.de" or 
+"tele5.de". The problems occurred only with Firefox, not with Google 
+Chrome. The reason were missing "H.264"-codecs, as explained <a href="https://de.opensuse.org/SDB:Firefox_MP4/H.264_Video_Support">here</a>.
+<br>So I added the Packman repository (which only supports SuSE 
+distributions), and gave it a priority of 90. Then I used YaST2 to 
+install the following packages from Packman: "libavcodec.., 
+libavformat.. and libavdevice..", each followed by several numbers like 
+56 and 60.
+<br>After that, the other video players also worked in Firefox.
+<p>Actually, this time I was lucky like this: I removed OpenSuSE's 
+Firefox-version with YaST. This also removed the codecs that didn't 
+work. Then, I added the Packman-repository (giving it a priority of 90). After that, I installed 
+Firefox from its website.
+<p>
+<hr>
+<h3><a name="15">15. Installing Important Packages</a></h3>
+<p>Some packages, that I consider important, are not installed by default. I installed them lateron:
+<ul>
+<li>Without the package "<tt>alsa-oss...rpm</tt>", the file "<tt>/dev/dsp</tt>" is not available, even if the soundcard is configured correctly. "<tt>modprobe snd_pcm_oss</tt>" is also required.
+<p>
+<li>To get the module "<tt>Hardware Information</tt>" of YaST2, I installed the package "<tt>yast-tune...rpm</tt>".
+<p>
+<li>The package "<tt>imake...rpm</tt>" provides the command "<tt>xmkmf</tt>", that is required, when compiling software for the X-server.
+</ul>
+<p>
+<hr>
+<h3><a name="16">16. Additional Software</a></h3>
+<p>These, I also installed:
+<ul>
+<li><tt>mc</tt> - The fabulous Midnight Commander.
+<p>
+<li><tt>terminus font</tt> - The Terminus font for terminals. Also install the corresponding "ttf"-package.
+<p>
+<li><tt>wget</tt> - Downloads from the terminal.
+<p>
+<p>
+<li><tt>mmv</tt> - Renames multiple files.
+<p>
+<li><tt>recode</tt> - Recodes text files (Unicode and such).
+<p>
+<li><tt>xwininfo</tt> - Get information about a specific window.
+<p>
+<li><tt>xfontsel</tt> - Get information about installed fonts.
+<p>
+<li><tt>wipe</tt> - Delete files, applying increased security
+<p>
+<li><tt>pdftk</tt> - Work with PDFs (console tool)
+</ul>
+<p>
+<p>Some major applications weren't also installed by default and had to be added:
+<ul>
+<li><tt>audacity</tt> - Main sound editor.
+<p>
+<li><tt>okular</tt> - Main PDF viewer
+<p>
+<li><tt>mupdf</tt> - Another PDF viewer
+<p>
+<li><tt>gcc</tt>, <tt>make</tt> and so on - Development tools for compiling software. Also install "<tt>bc</tt>" and "<tt>yasm</tt>".
+<p>
+<li><tt>geeqie</tt> - Capable image viewer
+<p>
+<li><tt>MPlayer</tt> - Powerful music- and video-player. It's 
+probably best to compile it from sources. Make sure, the "-devel"-files 
+for libdvdread, libdvdnav, alsa and pulse (libpulse-devel) are 
+installed. Take a look at the output of the "./configure"-script, with 
+what features MPlayer will be compiled. Continue working on the 
+configuration, if you aren't satisfied. In the end, "<tt>mplayer -ao help</tt>"
+ should show support for alsa and pulse. You may have to go several 
+times through the compilation-process to achieve this. But it's worth 
+it. (In version 1.5 of the MPlayer sources, disabling the network ("<tt>configure --prefix=/usr --disable-networking</tt>") unfortunately leads to compilation failure.)
+<br><small>Special notes on compilation of MPlayer 1.5 on OpenSuSE Leap 15.6:
+<ol>
+<li>The file "<tt>.../MPlayer-1.5/ffmpeg/libavcodec/x86/mathops.h</tt>" has to be patched as described <a href="http://git.videolan.org/?p=ffmpeg.git;a=commitdiff;h=effadce6c756247ea8bae32dc13bb3e6f464f0eb#patch1">here</a>: Make a backup of "<tt>mathops.h</tt>" first, then run "<tt>patch mathops.h &lt; patchfile.txt</tt>".
+<li><tt>"./configure --prefix=/usr --disable-vulkan</tt>" has to be run in the "<tt>ffmpeg</tt>"-subdirectory separately - before running "<tt>./configure --prefix=/usr</tt>" in the main MPlayer source-tree.
+<li>The "<tt>Vulkan</tt>"-part of ffmpeg doesn't seem to compile, so it has to be disabled as shown.
+</ol></small>
+<p>If you don't want to compile MPlayer: It's also possible to compile 
+the three small videolan-libraries first (remove their rpm-counterparts 
+first), and then install MPlayer from Packman.
+</ul>
+<p>
+<hr>
+<h3><a name="17">17. xfce-terminal. lxterminal. wmctrl</a></h3>
+<p>"xfce-terminal" is a very nice terminal program:
+<ul>
+<li>The text font and its size can be selected in the menu. I can have 
+my favourite terminal font called "Terminus", in a size of 32, maybe due
+ to the "terminus-ttf-fonts"-package.
+<li>The size of the terminal can be set with the number of lines and columns of characters.
+<li>The colors can be set. You can have xterm-type colors. Background and character colors can be set separately.
+<li>The behaviour, that a window opens and asks, if text should be pasted into the terminal, can be turned off in the menu.
+<li>The menu keyboard shortcuts (like "F10") can be switched off in
+ the "advanced" settings of the menu, so other keyboard shortcuts can 
+take over, especially Midnight Commander's "F10", which is used for 
+exiting the program.
+<li>The menu can be turned off, so that "xfce-terminal" looks a lot more like "xterm".
+<li>The settings can also be found in the directory
+<pre>/home/user/.config/xfce4/terminal</pre>
+<p>There, you can also restore the menu, if it's turned off.
+</ul>
+<p>So that's all pretty nice and made me leave "xterm" behind after having used it for decades.
+<p>Using "LXDE" again (with a resolution of 1920x1080), there's 
+"lxterminal", which is also quite a nice terminal program. But when I 
+opened it using a keyboard shortcut, it often somehow got opened just in
+ the background, which was rather annoying. The program "wmctrl" is able
+ to change window settings on the command-line. I wrote a Perl-script 
+around it that opens a new instance of lxterminal, waits a second to be 
+able to identify it, and then gives it the window-focus using "wmctrl". 
+The script called "startlxterminal.pl" is on my <a href="https://github.com/hlubenow/miscellaneous_linux_scripts">Github-page</a>. 
+<p>
+<hr>
+<h3><a name="18">18. Configuring Xfce (and LightDM)</a></h3>
+<p>It seems, I went from LXDE to Xfce now (May 2025).
+<p>Xfce's configuration manager is called with
+<pre>xfce4-settings-manager</pre>
+<p>The size of the main-font, the main theme (like for example "Adwaita"), and the icon-theme can be configured there in "Appearance".
+<br>The window-title is configured separately in "Window Manager". The themes "Default-hdpi" and "Default-xhdpi" provide larger window-titles (I'm using "Default-hdpi").
+<br>In "Window Manager", there are also important settings about the window focus. The setting "<tt>New windows get focus automatically</tt>" should be checked.
+There's also a separate section called "Fine-Tuning of the Window Manager".
+<p>Xfce's terminal is called
+<pre>xfce4-terminal</pre>
+<p>It also has a capable configuration manager. The terminal is able to display sufficiently large text fonts. It also opens reasonably fast. It's actually pretty good.
+<br>Some keyboard shortcuts can be defined in "Window Manager" (of Xfce's main settings manager).
+<br>The configuration-files for the keyboard shortcuts are called:
+<pre>/home/[username]/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
+/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml</pre>
+<p>As mentioned, I uploaded the content of my file <a href="https://hlubenow.lima-city.de/mykeyboardshortcuts.txt">here</a> (but please make a backup of your original file first, before you make any changes to it). Today, I'd replace the long "<tt>xterm</tt>"-command just with "<tt>xfce4-terminal</tt>".
+<p>It may be necessary to reboot the computer (not just to log out of the window manager), before keyboard shortcuts redefined in the configuration files take effect.
+<p>The mouse-pointer can be resized in the settings manager in the section "Devices" in "Mouse and Touchpad", in the tab "Mouse theme", on the right side ("Size").
+<p>The properties of the panel and its elements can be set by right-clicking on the panel and opening the corresponding settings-window that shows up in the menu.
+<br>The panel has for example an element called "Window Buttons", in which symbols of applications that are opened at the moment are displayed. To configure the element, right-click on the panel and select "Panel / Panel Settings" from the menu. Go to the tab "Objects", and double-click on "Window Buttons". This opens the configuration window of the panel element. For example "Group windows by application" can be deselected here, so that several terminals are shown as several programs in the "Window Buttons" element.
+<br>When the black panel symbol of the volume control is rather large, it's actually quite ugly. Uncheck "Symbols / Adapt size automatically" in "Appearance" of the panel settings. Then set the symbol-size to around 35. That's at least bearable.
+<br>The images of the volume symbol are in a file format called ".svg" ("scalable vector graphics"). So these images can be scaled. But unfortunately that doesn't mean they're beautiful. Actually, I'd prefer simple ".jpg"s, but it seems, that's not an option in the Xfce-panel.
+<br>Decent fonts for the panel's clock are
+<pre>Noto Sans Display SemiBold
+Noto Sans Display Regular</pre>
+<p>There's a search-field in the clock font selection window, which can also be maximized.
+<p>The desktop (wallpaper or background colour, displayed symbols) is configured in a similar way as the panel. That is by right-clicking on it and following the menu.
+<p>Xfce's graphical file-mananger is called "Thunar" (command "thunar").
+<p>On my installation, "LightDM" is used as the login manager for Xfce. It can be configured by running
+<pre>lightdm-gtk-greeter-settings</pre>
+<p>as "root". To show a string of the time and date in the German format (like for example "<tt>Montag, 19.05.2025, 17:42 Uhr</tt>"), this format string is used in the greeter settings:
+<pre>%A, %d.%m.%Y, %R Uhr</pre>
+<p>
+<hr>
+<h3><a name="19">19. Making Changes to Boot Loader Options</a></h3>
+<p>Some options of the boot-loader GRUB2 (like for example the look and 
+the resolution of the boot menu) can be changed by editing the file
+<pre>/etc/default/grub</pre>
+<p>as 'root'. The changes can then be applied to the system by running the command 
+<pre>update-bootloader</pre>
+<p><font size="-2">(In the past, the command "<tt>grub2-mkconfig -o /boot/grub2/grub.cfg</tt>" had to be executed for this step.)</font>
+<p>The settings are also taken into account by an installation that uses UEFI.
+<p>
+<hr>
+<h3><a name="20">20. Recording Internal Audio with Pulseaudio and Audacity</a></h3>
+<p>Instructions from <a href="http://www.pallier.org/how-to-record-computers-playback-under-linux.html">here</a>.
+<ol>
+<li>alsamixer: Enable soundcard recording. Press F4 to go to the recording settings, then press "Space" until "<font color="dark" red="">L R Recording</font>" is visible. Set a reasonable volume.
+<p>
+<li>audacity: Go to "Edit/Preferences".
+<ul>
+<li>Devices tab: Select "alsa" in "Interface/Host", select 'pulse' in "Playback/Device".
+<li>Recording tab: "Software playthrough of input" must <u>not</u> be selected.
+</ul>
+Start recording in audacity (select "pulse" as source). (Reason: Only, if audacity is recording, it is shown in pavucontrol).
+<p>
+<li>pavucontrol:
+<ul>
+<li>Configuration tab: Set "Built-in audio" to "Analog Stereo Duplex".
+<li>Playback tab: Your playback source should be shown, for example "Firefox".
+<li>Recording tab: At the bottom, select "All streams". Audacity 
+should be shown now. Set "Alsa capture of" to "Monitor of internal audio
+ analog stereo". Now, audacity should be able to record.
+</ul>
+</ol>
+<p>If not, consider creating a <a href="https://unix.stackexchange.com/questions/174379/how-can-i-create-a-virtual-output-in-pulseaudio">pulseaudio loopback device</a>.
+<p>
+<hr>
+<h3><a name="21">21. Make "convert" Convert pdf-Files to jpg-Files</a></h3>
+<p>If "convert" doesn't let you convert pdfs to jpgs, add this line to the file "<tt>/etc/ImageMagick-7/policy.xml</tt>":
+<pre>&lt;policy domain="coder" rights="read | write" pattern="PDF" /&gt;</pre>
+<p>
+<hr>
+<h3><a name="22">22. Pipewire, Pulseaudio and Jack</a></h3>
+<p>"<tt>jack</tt>" provides multiple virtual audio connections on the 
+Linux system, mainly for music production. They connect for example 
+synthesizer plugins with audio effect programs and so on.
+<br>Unfortunately, pulseaudio (used for general audio like listening to 
+music or watching movies) and jack (used for music production) conflict 
+with each other.
+<br>"<tt>pipewire</tt>" is a layer that is supposed to make them work side by side. On my computer that works alright.
+<br>To use pipewire, the packages "<tt>pipewire-alsa...rpm</tt>", "<tt>pipewire-jack...rpm</tt>" and "<tt>pipewire-pulseaudio...rpm</tt>" have to be installed. During installation, the corresponding "pulseaudio"-packages are removed.
+Nevertheless, pulseaudio (including "<tt>pavucontrol</tt>") is still there, just as alsa and jack are still there then, but are used in combination with pipewire.
+<br>The pipewire-tool "<tt>qpwgraph</tt>" can show the virtual audio connections. Regarding jack, this tool replaces the traditional "<tt>qjackctl</tt>".
+<br>The command-line commands "<tt>jack_control start</tt>" and "<tt>jack_control stop</tt>"
+ can be used to start and stop jack now. It seems though, pipewire 
+starts jack automatically, when programs are started that need it.
+<br>After installing pipewire, programs such as "<tt>zynaddsubfx</tt>" and "<tt>hydrogen</tt>" worked again.
+<p>Using pipewire, I noticed audio lag though, for example with Youtube in Firefox.
+<br>Following a suggestion on the internet, I created a directory
+<pre>/home/user/wireplumber/wireplumber.conf.d</pre>
+<p>and inside a file "<tt>51-disable-suspension.conf</tt>", with the following content:
+<pre>monitor.alsa.rules = [
+  {
+    matches = [
+      {
+        # Matches all sources
+        node.name = "~alsa_input.*"
+      },
+      {
+        # Matches all sinks
+        node.name = "~alsa_output.*"
+      }
+    ]
+    actions = {
+      update-props = {
+        session.suspend-timeout-seconds = 0
+      }
+    }
+  }
+]
+# bluetooth devices
+# monitor.bluez.rules = [ { matches = [ { # Matches all sources node.name = "~bluez_input.*" }, { # Matches all sinks node.name = "~bluez_output.*" } ] actions = { update-props = { session.suspend-timeout-seconds = 0 } } } ]</pre>
+<p>That fixed the audio lag, and pipewire works nicely now. The 
+audio-setting applet in the LXDE-bar is missing though, but that's not a
+ problem, as I just can open "<tt>alsamixer</tt>" in the terminal instead.
+<p>
+<hr>
+<h3><a name="23">23. Activating WiFi-USB-Stick "TL-WN823N" - Realtek RTL8192EU</a></h3>
+<p>For some reason, I wanted to use WLAN (WiFi) with my SuSE-PC. So I 
+bought a cheap, modern WLAN-USB-stick called "T-Link TL-WN823N (Realtek 
+RTL8192EU)".
+<br>At first, it seemed it couldn't get a connection to my router though.
+<br>The stick showed up in "<tt>lsusb</tt>", "<tt>iwconfig</tt>".
+<pre>nmcli dev wifi list</pre>
+<p>showed the available networks. But it still wouldn't connect.
+<p>It turned out, the default driver module "rtl8xxxu" isn't sufficient.
+<br>A better driver module for this stick called "8192eu" has been 
+written. The source code is available, but compiling may not be that 
+easy.
+<br>I found precompiled binaries in a repository of a user named <a href="https://download.opensuse.org/repositories/home:/Sauerland:/hardware/15.5/x86_64/">Sauerland</a>.
+ I thought, they wouldn't work, because the file versions didn't seem to
+ correspond directly to the version number of my 15.5 default kernel, 
+and installing new kernel modules is always a delicate process anyway.  
+But to my surprise, it worked with the rpms there, which were called:
+<pre>rtl8192eu-blacklist-rtl8xxxu-5.11.2.1.git20230622-lp154.2.9.x86_64.rpm
+rtl8192eu-kmp-default-5.11.2.1.git20230622_k5.14.21_15.500.24.69-lp154.2.9.x86_64.rpm
+rtl8192eu-ueficert-5.11.2.1.git20230622-lp154.2.9.x86_64.rpm</pre>
+<p>(At some point, I had to use "<tt>rpm -i ... --nodeps</tt>" to make them install.)
+<br>After a reboot, the blacklisting of the "<tt>rtl8xxxu</tt>"-module took effect, so it wasn't loaded. When I did
+<pre>modprobe 8192eu</pre>
+<p>it succeded, and after that, the stick finally connected.
+<p>
+<hr>
+<h3><a name="24">24. Activating WiFi-USB-Stick "TP-Link AC600 (Archer T2U)" - Realtek RTL8821AU</a></h3>
+<p>With the cheap WiFi-stick "TL-W823N" mentioned above, WLAN (WiFI) 
+worked in general, but was rather slow, because it didn't support the 
+newer, faster WiFi-protocols.
+<br>So I bought another stick called "<tt>TP-Link AC600 (Archer T2U)</tt>" (also for less than 20,- EUR).
+<br>It seems, there can be different kind of chips built into this stick. "<tt>lsusb</tt>" showed this ID for my stick:
+<pre>2357:011f</pre>
+<p>It is said, that this ID refers to the Realtek chip "<tt>RTL8821AU</tt>".
+<p>Again, there are precompiled binaries for OpenSuSE Leap 15.5 in <a href="https://download.opensuse.org/repositories/home:/Sauerland:/hardware/15.5/x86_64/">Sauerland's repository</a>. The binaries are compiled from driver-source-code written by "<a href="https://github.com/morrownr?tab=repositories">morrownr</a>". The rpm-files in the repository are called:
+<pre>rtl8821au-kmp-default-20230812_k5.14.21_15.500.22-lp154.9.1.x86_64.rpm
+rtl8821au-ueficert-20230812-lp154.9.1.x86_64.rpm</pre>
+<p>After installing them with "<tt>rpm -i ....rpm</tt>" and doing a "<tt>depmod</tt>" as root, I could install the driver with
+<pre>modprobe 8821au</pre>
+<p>Then, the WiFi-USB-stick worked, and its performance was alright.
+
+<hr width="70%">
+<br>Email: hlubenow2 {at-symbol} gmx.net
+<br><center><a href="https://hlubenow.lima-city.de/index.html">Back</a></center>
+</body></html>
