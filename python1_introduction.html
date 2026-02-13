@@ -1,0 +1,985 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="KeyWords" content="Python,Tips,Tipps,Tricks,Guido,Rossum,script,scripts,sripting,language">
+   <meta name="Author" content="Hauke Lubenow">
+   <title>Python Page #1: An Introduction to Python-Programming</title>
+</head>
+<body>
+<H2>
+<img SRC="icopy.png" height=32 width=32>&nbsp;
+Python Page #1: An Introduction to Python-Programming</H2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.</font></font></b>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<OL>
+<LI><A HREF="#1">About Python</A>
+<LI><A HREF="#2">How to execute a Python Script</A>
+<LI><A HREF="#3">Using Python's interactive mode as a calculator</A>
+<LI><A HREF="#4">Primary Explanations for the Webpage</A>
+<LI><A HREF="#5">Header of a Python Script</A>
+<LI><A HREF="#6">Using the "print" Command and Variables</A>
+<LI><A HREF="#7">Strings</A>
+<LI><A HREF="#8">for- and while-Loops</A>
+<LI><A HREF="#9">if-Statements</A>
+<LI><A HREF="#10">Bool Datatypes and "None"</A>
+<LI><A HREF="#11">Input on the Command Line. Cookie-Monster Script</A>
+<LI><A HREF="#12">Lists and Tuples</A>
+<LI><A HREF="#13">Sorting Lists</A>
+<LI><A HREF="#14">Dictionaries</A>
+<LI><A HREF="#15">Functions</A>
+<LI><A HREF="#16">Classes and Objects: Object-Oriented Programming</A>
+<LI><A HREF="#17">Exception Handling (try, except, finally, raise)</A>
+<LI><A HREF="#18">Using Modules (os, sys, time, math, random)</A>
+<LI><A HREF="#19">Regular Expressions</A>
+<LI><A HREF="#20">File-Operations</A>
+</OL>
+<P>
+<HR>
+<h3><A NAME="1">1. About Python</A></h3>
+<p><u>Preface</u>: On this page, I'll try to explain the basics of programming in Python.
+<br>As there are already several good books, tutorials and Youtube-videos about this topic, I didn't write this page until 2025.
+Then I thought, well, maybe there should also be a page about this on the website (as there are already similar pages about <a href="perl1_introduction.html">Perl</a>, <a href="pascal.html">Pascal</a>, <a href="c_01.html">C</a> and <a href="cpp_01.html">C++</a>).
+<br>This page is relatively new (2025), while some other pages may be older and refer to Python 2.7. The "<a href="python2_tricks.html">second page</a>" has also been updated though.
+<hr width="50%">
+<p>About Python: <a href="http://www.python.org">Python</a> is an interpreted programming language created by Guido van Rossum. It was first released in 1991.
+<p>The name "Python" refers to the name of the 1960's comedy-group "Monty Python", not to the snake, but I use to ignore that, as I don't see such a big connection between the work of Monty Python and programming in general.
+<p>The Python-interpreter is freely available at its webpage. There are versions for Windows, Linux and Apple Mac OS-X.
+<br>If you run Linux or Mac OS-X, Python is probably already installed on your computer. Open a terminal, type "python" (or "python3"), and you should be in its interactive mode (which you can leave with "CTRL+d" again).
+<p>With Python you can write small scripts doing just imperative programming as well as write large applications in a structured or in an object-orientated programming-style.
+<p>Python is designed to make things easy for the programmer. It provides flexible dynamic datatypes like lists and hashes (called "dictionaries") and takes care of memory management. It tries to come with
+<center><pre>"Batteries included".</pre></center>
+<p>That means, a standard Python-distribution already has a lot of modules for many tasks, so there is a good chance, you can do what you want without searching and installing further modules, and if you make your scripts available to other people, they can run them just like that.
+<br>But of course there are many very interesting modules that are not part of the Python-distribution too. A lot of those can be found in the "<a href="https://pypi.org">Python Package Index</a>". 
+<p>Python's syntax is as clear as possible, so its code is easy to read even years after writing.
+<br>This is achieved mainly by two unusual concepts:
+<p>1. In Python, everything is an object. Objects can have attributes and methods, so it is defined what can be done with them.
+<br>Therefore you don't have to declare variables, Python can read the variable-type from the context. For example if you do
+<pre>a = 1</pre>
+<p>"a" becomes an object of type integer. You can verify this by doing:
+<pre>print(type(a))</pre>
+<p>So you don't have to write things like "int a = 1;" (like in C/C++) or even "my $a = 1;" (like in Perl) which makes code less readable.
+<p>2. In Python, code-indentation matters. Python reads the range of code blocks from the indentation-level:
+<pre>for i in range(10):
+    print(i)
+    if i == 5:
+        print("i is 5 now.")</pre>
+<p>It's good coding style to use four space-characters for one indentation-level like in the example above.
+<br>So using Python, you don't need those ugly "{" and "}" like in C/C++, Java or Perl anymore.
+<p>While Perl's motto is "There's more than one way to do it." (TMTOWTDI), Python follows the concept of:
+<pre>"There should be one -- and preferably only one -- obvious way to do it."</pre>
+<p>(Some of these concepts are shown as an easter-egg, if you do "import this" in Python's interactive mode.)
+<p>As the Python-interpreter is available for all three operating-systems mentioned above and most Python-functions can be called in a very general, high-level way, Python is very well suitable for writing platform-independent programs.
+<p>With Python you're not limited to writing text-only-console-programs. You can write GUI (= Window, point and click)-programs too. Bindings for many GUI-toolkits are available.
+<p>In general, Python is a high-level-programming-language (although you can accomplish surprisingly low-level-tasks with it too).
+<br>The code of a Python-program is 2-10 times shorter than the code of a comparable C/C++-program. It is much easier to understand too.
+<br>The price for that is, that C/C++ runs faster than Python.
+<br>Nevertheless, Python's speed is sufficient for a lot of tasks.
+<p>As mentioned, there are already several other books, tutorials and videos about learning Python. There are for example:
+<ul>
+<li>"Python ge-packt" (by Michael Weigend, a good book in German, commercial, 8. Edition, 2020),
+<li>"A Byte of Python" (pdf online available in English and German (free)),
+<li>"Dive into Python" (by Mark Pilgrim. Online available).
+</ul>
+<p><u>The print-bracket-problem of Python 3</u>: Up to Python 2.7, "<tt>print</tt>" was used without brackets, so you just would write:
+<pre>print "Hello"</pre>
+<p>But in Python 3, round brackets have become mandatory - as "<tt>print()</tt>" seems to identify as a function now. So you always have to write:
+<pre>print("Hello")</pre>
+<p>In my opinion this is totally against Python's philosophy, to make the code look clear, and make things as easy for the programmer as possible. It should be a design goal of the language, to only have to write as few brackets as possible.
+I hope, in future versions of Python, the user can decide, if he wants to write the brackets or not. But for now, it's Python 3, it's very unflexible, and it's not possible to avoid all those stupid "print"-brackets.
+<P>
+<HR>
+<h3><A NAME="2">2. How to execute a Python Script</A></h3>
+<p>Executing a Python-script isn't difficult: Copy and paste its code into a text-editor.
+<br>On Windows, "Notepad.exe" will do, but you can also use "PythonWin", which comes with Windows-version of the Python interpreter.
+<br>On Linux, I suggest learning how to use one of the editors "vim" or "emacs", but "kate", "gedit" and such will do, too. There's also an old IDE called <a href="http://eric-ide.python-projects.org">Eric</a>.
+<br>Make sure, that all characters are copied and pasted correctly and that all code-indentation is kept.
+<br>Then save the script as for example "script.py".
+<br>On Windows, you can then run the script by double-clicking it. If it's a GUI-application, you may want to get rid of the Powershell-console that is usually opened. You can achieve this by simply renaming the script from ".py" to ".pyw".
+<br>In the Windows Powershell you can run your script by typing
+<pre>python script.py</pre>
+<p>in its directory. On Linux, you have to make your script executable first. This is done by executing
+<pre>chmod +x script.py</pre>
+<p>After that you can run the script by doing
+<pre>./script.py</pre>
+<p>in its directory.
+<p>The script is compiled into some kind of bytecode first, that's why some files of the type ".pyc" may be automatically created in the directory.
+<P>
+<HR>
+<h3><A NAME="3">3. Using Python's interactive mode as a calculator</A></h3>
+<p>Python has an interactive mode. It appears, if you just execute "<tt>python</tt>" or "<tt>python3</tt>" on the console.
+<p>Although it is not its main-purpose, you can use this interactive mode as a calculator. You can type there for example (leaving out the "<tt>print()</tt>"):
+<pre>42. * (87. - 32.4) / 3.4</pre>
+<p>After doing
+<pre>import math
+</pre>
+you can do even more advanced calculations there, for example:
+<pre>math.sin(math.radians(45))</pre>
+<p>or
+<pre>math.pow(2, 3)
+</pre>
+<p>Please see "pydoc3 math" for details about the "math"-module.
+<P>
+<HR>
+<h3><A NAME="4">4. Primary Explanations for the Webpage</A></h3>
+<p><u>Note</u>: You may skip this chapter to <a href="#6">here</a>, if you want to start without further explanations.
+<hr width="50%">
+<p>In the code examples of the following text, you'll see some constructions, I maybe should explain first. At this point, it's not necessary to understand all the details, it's just to give you a general idea, what these constructions are about, when you see them in the code examples.
+<p><u>Function-calls</u>: Like in many other programming-languages, in Python there are socalled "functions". These are blocks of code that can be called from other parts of the script. This is done by writing the name of the function followed by an opening round bracket, a few values, which are separated by commas, and then a closing bracket. When the function is called it is executed. After that, it returns to the point, from where it was called. It may also return a result of its processing to the calling point. For example, "<tt>str()</tt>" is such a function. It expects an integer or a float as its argument, and returns a string as a result. Like that:
+<pre>a = str(50)</pre>
+<p>The integer 50 is the argument passed to the function, and a string "50" is returned back from the function as a result - and is then used to define the variable <tt>a</tt>.
+<p><u>Method-calls</u>: Functions can also have a connection to certain variables (which are socalled "objects" to tell you the truth). Then, they are called "methods", and the operator "<tt>.</tt>" is used to call them. If you see something like:
+<pre>a = "This is a string"
+b = a.split(" ")</pre>
+<p>then "<tt>split()</tt>" is a method that is called with the "<tt>.</tt>"-operator in relation to variable "<tt>a</tt>": It's "<tt>a.split()</tt>".
+<p><u>Indentations</u>: In Python, the indentations of the code have a meaning. They mark the beginning and the end of a code-block. Other languages like C, C++ or Perl use curly brackets for this purpose. But Python uses the indentation instead, which is very convenient, once you get used to it, as you don't have to write all those curly brackets. An Example:
+<p>C:
+<pre>int i = 0;
+while (i < 10) {
+    printf("%d\n", i);
+    i += 1;
+}</pre>
+<p>Python:
+<pre>i = 0
+while i < 10:
+    print(i)
+    i += 1</pre>
+<p>Usually four space characters are used for one indentation-level (like in the example).
+<br>In C, you don't have to write the indentation, in Python, you do; but can leave out the curly brackets.
+<p><u>Comment-sign</u>: The character "<tt>#</tt>" is the sign for beginning a (one-lined) code comment. The rest of the line is then just ignored by the interpreter.
+<P>
+<HR>
+<h3><A NAME="5">5. Header of a Python Script</A></h3>
+<p>A Python script has to be told, where the Python interpreter can be found. This is done by a special line of code (shown below).
+<br>It's also possible to tell the interpreter, in which character encoding the script is written. That helps making it understand German vowels and such. So a Python script should have this header:
+<pre>#!/usr/bin/python
+# coding: utf-8</pre>
+<P>
+<HR>
+<h3><A NAME="6">6. Using the "print" Command and Variables</A></h3>
+<p>Ok, let's get started with the basics of Python programming: First, let's print something:
+<pre>print("Hello World")</pre>
+<p>The types of variables are recognized by the way, the variables are defined. The function "<tt>type()</tt>" can be used, to find out the type of a variable:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+# An integer:
+a = 5
+
+# A string:
+b = "Hello"
+
+# A floating point number:
+pi = 3.14159
+
+print(a)
+print(type(a))
+print()
+print(b)
+print(type(b))
+print()
+print(pi)
+print(type(pi))
+</pre>
+<p>"int" and "float" are different types of variables.
+Integer-division used to have unexpected results, but it seems, in Python 3 it hasn't any more:
+<pre>print(8 / 3)</pre>
+<p>has the result of 2.6666666 as expected. Integer-division would result in 2. You can still have that, by explicitly using the operator "<tt>//</tt>", that is:
+<pre>print(8 // 3)</pre>
+<p>Sometimes it's necessary to convert between the datatypes. This can be done with the functions "<tt>str()</tt>", "<tt>int()</tt>" and "<tt>float()</tt>". For example
+<pre>a = 55
+a = str(a)</pre>
+<p>converts the integer <tt>a</tt> to a string <tt>"55"</tt>. Of course, a conversion from str to int only works, if the string only contains digits, not something else like letters. In a similar way, strings to be converted to float have to be in the correct format.
+<P>
+<HR>
+<h3><A NAME="7">7. Strings</A></h3>
+<p>In Python, usually strings are written with double quotation marks:
+<pre>a = "Hello World"</pre>
+<p>If you want to use double quotation marks inside double quotation marks, backslashes can be used to declare that they are not supposed to mark the beginning or end of the string:
+<pre>a = "Hello \"World\""</pre>
+<p>Also, single quotation marks can be used instead of the double quotation marks:
+<pre>a = 'Hello World'</pre>
+<p>That makes it easier to combine both types of quotation marks:
+<pre>a = 'Hello "World"'</pre>
+<p>To also make it possible to have large strings containing many different combinations of quotation marks, strings can also be written between three double quotation marks:
+<pre>a = """Hello World"""</pre>
+<p>Here are more things that can be done with strings:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+a = "Hello"
+b = "World"
+
+# Strings can be concatanated using the "+"-operator:
+c = a + " " + b
+print(c)
+
+# You can get the length of a string like this:
+d = len(c)
+print(d)
+
+# Slices of a string can be extracted:
+e = c[0:2]
+print(e)
+
+# Leaving out the second number in the slice-definition makes the slice reach out to the end of the string.
+# So to get the last three characters of a string, this slice can be used:
+e = c[-3:]
+print(e)
+
+# The pattern "rl" is found at this position in a:
+print(c.index("rl"))
+
+# Simple search-operations can be done using "in":
+if "rl" in c:
+    print("'rl' is in c.")
+
+# Simple replace-operations can be done using "replace()":
+c = "Hello World"
+print(c)
+c = c.replace("World", "User")
+print(c)</pre>
+<p>More advanced search- and replace-operations can be done with "regular expressions". They are described in their own chapter <a href="#18">below</a>.
+<p>Some more: 
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+# chr() and ord():
+print("The character with ASCII-code 69 is '" + chr(69) + "'.")
+print("'a' has an ASCII-code of " + str(ord("a")) + ".")
+
+a = "234"
+if a.isdigit():
+    print("'a' is a string that contains just numbers.")
+
+# "rstrip()" removes occurrences of a given character from the end of a string:
+a = "streets"
+a = a.rstrip("s")
+print(a)
+
+# There are also "lstrip()" (removes at the beginning) and "strip()" (removes on both sides).
+
+# The "*"-operator can be used to multiply strings:
+c = 54 * "-"
+print(c)</pre>
+<P>
+<HR>
+<h3><A NAME="8">8. for- and while-Loops</A></h3>
+<p>Here's an example how to create <tt>for</tt>- and <tt>while</tt>-loops in Python:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+# This counts from 0 to 9:
+for i in range(10):
+    print(i)
+
+print()
+
+# This counts from 1 to 10:
+for i in range(1, 11):
+    print(i)
+
+print()
+
+# This counts from 10 to 1:
+for i in range(10, 0, -1):
+    print(i)
+
+print()
+
+
+# while-loops are as well possible:
+
+i = 1
+while i <= 10:
+    print(i)
+    i += 1</pre>
+<p><tt>i += 1</tt> is the same as <tt>i = i + 1</tt>.
+<br><tt>i++</tt> isn't possible in Python.
+<P>
+<HR>
+<h3><A NAME="9">9. if-Statements</A></h3>
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+a = 1
+b = 2
+
+# Equal numbers:
+if a == 1:
+    print("a is 1.")
+
+# Not equal numbers:
+if a != 10:
+    print("a is not 10.")
+
+# Greater than:
+if b > a:
+    print("b is greater than a.")
+
+# Smaller than and logical AND:
+if a < b and b == 2:
+    print("a is less than b, and b is 2.")
+
+# Logical OR:
+if a < b or b == 1:
+    print("a is less than b, or b is 1.")
+
+# if, else:
+if a == 10:
+    print("a is 10.")
+else:
+    print("a is not 10.")
+
+# if, elif, else:
+if a == 5:
+    print("a is 5.")
+elif a == 1:
+    print("a is 1.")
+else:
+    print("a is not 5 and not 1.")
+
+# Strings:
+
+c = "hello"
+
+if c == "hello":
+    print("c is 'hello'.")
+
+if c != "hello":
+    print("c is not 'hello'.")
+
+# If you want, that a code block doesn't do anything, use "pass":
+if c == "hello":
+    pass</pre>
+<P>
+<HR>
+<h3><A NAME="10">10. Bool Datatypes and "None"</A></h3>
+<p>In Python, there are also the "bool"-datatypes "<tt>True</tt>" and "<tt>False</tt>", and there is also "<tt>None</tt>". The function "<tt>bool()</tt>" can be used to evaluate an expression to "<tt>True</tt>" or "<tt>False</tt>".
+<p>The operators "<tt>is</tt>" and "<tt>is not</tt>" can be used in an if-statement. They test, if two objects are identical. That's not the same as two values being equal (operators for testing: "<tt>==</tt>", "<tt>!=</tt>"), but in most cases, it leads to the same result, and the words "<tt>is</tt>" and "<tt>is not</tt>" make the Python syntax almost look like the English language, which is just nice. (Please read this passage again, when you have read about classes and objects.)
+<p>Here's an example, how all of this can be used:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+a = bool(10 > 9)
+x = 1
+
+if a == True:
+    print(str(x) + ". " + "Expression a is true.")
+x += 1
+
+if a is True:
+    print(str(x) + ". " + "Expression a is true.")
+x += 1
+
+a2 = bool(9 > 10)
+
+if a2 == False:
+    print(str(x) + ". " + "Expression a2 is false.")
+x += 1
+
+if a2 is False:
+    print(str(x) + ". " + "Expression a2 is false.")
+x += 1
+
+if a2 != True:
+    print(str(x) + ". " + "Expression a2 is not true.")
+x += 1
+
+if a2 is not True:
+    print(str(x) + ". " + "Expression a2 is not true.")
+x += 1
+
+b = None
+
+if b == None:
+    print(str(x) + ". " + "b is None.")
+x += 1
+
+if b is None:
+    print(str(x) + ". " + "b is None.")
+x += 1
+
+c = "test"
+if c != None:
+    print(str(x) + ". " + "c is not equal none.")
+x += 1
+
+if c is not None:
+    print(str(x) + ". " + "c is not none.")</pre>
+<P>
+<HR>
+<h3><A NAME="11">11. Input on the Command Line. Cookie-Monster Script</A></h3>
+<p>This is a nice example script from a book about Perl by Laura Lemay. Translated to Python, this program becomes actually very simple:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+# Cookie Monster
+
+cookies = ""
+while cookies != "COOKIES":
+    cookies = input("I want COOKIES: ")
+
+print("Mmmm. COOKIES.")</pre>
+<p>As you can see, the line that's used as the input prompt can be passed as an argument to the function "<tt>input()</tt>".
+<br>(In earlier versions of Python this function was called "<tt>raw_input()</tt>".)
+<P>
+<HR>
+<h3><A NAME="12">12. Lists and Tuples</A></h3>
+<p>Lists and tuples contain one or more elements.
+<br>Lists are indicated by square brackets:
+<pre>a = ["apple", "banana"]</pre>
+<p>Their elements can be changed afterwards. The list can be reduced and extended and so on, elements can be redefined.
+<br>Tuples are indicated by round brackets:
+<pre>a = ("apple", "banana")</pre>
+<p>Their elements can't be changed afterwards. It's only possible to redefine the whole tuple.
+<br>Processing tuples may be a little faster than processing lists.
+<br>So tuples should be used, when working with static data, while lists are required, when the elements need to be changed afterwards. 
+<p>Here's an example, how to use lists:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+a = ["apple", "banana", "peach", "strawberry"]
+
+# Add an element at the end of the list:
+a.append("tangerine")
+
+# Create a loop, that iterates through the list:
+for i in a:
+    print(i)
+print()
+
+# Remove the last element of the list and return it:
+l = a.pop()
+print(l)
+
+# Remove the first element of the list and return it:
+f = a[0]
+a.remove(f)
+print(f)
+
+# Create a slice of the list.
+# Slices of lists are used in the same way as slices of strings:
+print(a[1:])
+
+# Add an element at the beginning of the list:
+a.insert(0, "apple")
+print()
+
+# Lists can also just be printed:
+print(a)
+print()
+
+# Get the number of elements of the list:
+n = len(a)
+print(n)
+print()
+
+# Search for an element of the list:
+if "banana" in a:
+    print("'banana' is in the list.")
+print()
+
+# Iterate over the element numbers:
+for i in range(len(a)):
+    print(i)
+print()
+
+# Extract an element in the middle of the list:
+e = a[1]
+a.remove(a[1])
+print(e)
+print()
+
+# Add an element in the middle of the list:
+a.insert(1, "cherry")
+
+print(a)
+print()
+
+# Access an element by element number.
+# Notice that the element numbers are in the range from 0 to the number of elements minus 1,
+# so "$a[1]" is the second element of the list:
+print(a[1])</pre>
+<p>Don't use "<tt>remove()</tt>" while iterating over the list. The list and the loop will get corrupted then. In these cases always create a copy of the list and remove from the copy instead. Such a copy can be created like this (using a slice):
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+a = ["apple", "banana", "peach", "strawberry"]
+b = a[:]
+b.remove("peach")
+print(a)
+print(b)</pre>
+<p><u>split() and join()</u>: A string can be split into a list at a given pattern using the function "<tt>split()</tt>".
+<br>A list can be joined together to a string with a given pattern using the function "<tt>join()</tt>":
+<pre>#!/usr/bin/python
+
+a = "This is a line of text."
+
+# We create a list "b" by splitting "a" at " ":
+b = a.split(" ")
+
+print(b)
+print()
+
+# We join the elements of "b" together to a string "c",
+# using ";" as the connecting string:
+
+c = ";".join(b)
+print(c)</pre>
+<P>
+<HR>
+<h3><A NAME="13">13. Sorting Lists</A></h3>
+<p>Lists can be sorted like this:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+a = [5, 2, 6, 8]
+print(a)
+a.sort()
+print(a)
+# Also backwards:
+a.sort(reverse = True)
+print(a)</pre>
+<p>Sorting by other criteria can become quite a complex subject. This topic has been covered in the official Python documentation <a href="https://docs.python.org/3/howto/sorting.html">here</a>.
+<P>
+<HR>
+<h3><A NAME="14">14. Dictionaries</A></h3>
+<p>A Python dictionary holds pairs of a "key" and a "value". Unlike the elements of a list, the pairs of a dictionary are not in a specific order. Dictionaries are indicated by curly brackets.
+<br>It's possible to iterate over the keys of a dictionary to get all of the pairs of keys and values. There's also a corresponding method "<tt>values()</tt>", but it isn't used that often.
+<br>The keyword "<tt>in</tt>" can be used to check, if a key exists in a dictionary.
+<br>The "<tt>.keys()</tt>"-method returns some list-like object of type "<tt>dict_keys</tt>". It can be converted into an ordinary Python-list by using the "<tt>list()</tt>"-function. This list can then be sorted.
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+# A dictionary can be defined like this:
+d = {"name" : "Steve",
+     "age"  : 29,
+     "job"  : "doctor"}
+
+# Also:
+d["car"] = "BMW"
+
+# Print all keys and values of the dictionary, sorted:
+dkeys = list(d.keys())
+dkeys.sort()
+for i in dkeys:
+    print(i + " \t " + str(d[i]))
+
+print()
+print("This is the value for 'name': " + d["name"])
+
+print("\nSteve changes his job.")
+d["job"] = "architect"
+print("His job is now: " + d["job"] + ".")</pre>
+<p>Programming beginners tend to avoid dictionaries at first.
+But they are especially useful, when you want to count the occurrences of elements in a list. Or when you want to remove multiple occurrences of elements from a list (and you don't care about the order of the elements). Here's an example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+# A list with multiple occurrences of certain elements:
+a = ["apple", "banana", "peach", "apple", "banana", "apple", "banana", "apple", "peach"]
+
+h = {}
+# Build a dictionary to count the numbers of occurrences of the elements:
+for i in a:
+    if i in h:
+        h[i] += 1
+    else:
+        h[i] = 1
+
+hkeys = list(h.keys())
+hkeys.sort()
+for i in hkeys:
+    print(i + " \t " + str(h[i]))
+
+print()
+
+# The keys of h are the single elements of a without multiple occurrences:
+b = list(h.keys())
+b.sort()
+print(b)</pre>
+<P>
+<HR>
+<h3><A NAME="15">15. Functions</A></h3>
+<p>How functions can be called has already been mentioned above.
+<br>Of course, it's possible to write your own functions. They are written with the keyword "<tt>def</tt>", some round brackets, a colon and an indented code block. Here's a simple example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+def myfunction():
+    print("Test")
+
+myfunction()</pre>
+<p>In the function's round brackets, there can be "parameters". These are variables, the function expects to be passed as "arguments". Another example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+def myfunction(a, b):
+    print(a)
+    print(b)
+
+myfunction(3, 5)</pre>
+<p>All Python datatypes (int, float, bool, string, list, tuple, dictionary) can be passed as arguments to functions this way. It's just that easy.
+<p>Arguments are passed "<i>by value</i>", not "<i>by reference</i>". That means, a variable "b" inside a function is a different variable than variable "b" outside the function. Variables inside a function lose their validity, when the function ends.
+<p>As mentioned, functions can return values. In Python, all kinds of datatypes can be returned, for example a tuple:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+def myfunction(a, b):
+    t = (a * 2, b * 3)
+    return t
+
+print(myfunction(3, 5))</pre>
+<p>You can also create a tuple in the function with different values, and assign these values at once to different variables, when returning the tuple:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+def myfunction():
+    t = (7, "Hallo")
+    return t
+
+(a, b) = myfunction()
+print(a)
+print(b)</pre>
+<p>Parameters can have default values, that then can be overwritten by the arguments. Then, not all arguments have to be passed to the function, that is, some arguments can be left out (and their default-values are used):
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+def myfunction(a = 5, b = 3):
+    print(a)
+    print(b)
+
+myfunction(b = 7)</pre>
+<P>
+<HR>
+<h3><A NAME="16">16. Classes and Objects: Object-Oriented Programming</A></h3>
+<p>It's quite common to use object-oriented programming (= OOP) in Python. So let me explain its basics here.
+<br>A class can be seen as a description of a container of variables and functions. In this context, the variables are called "attributes", and the functions are called "methods". Then, socalled "objects" can be "instantiated", that is created. Objects that follow the definitions of that class.
+<br>Here's a minimal example:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+class Container:
+
+    def __init__(self, number):
+        self.number = number
+        print("Container number " + str(self.number) + " was created.")
+
+    def moveContainer(self):
+        print("Container number " + str(self.number) + " was moved.")
+
+c = Container(5)
+c.moveContainer()</pre>
+<p>Run the script for yourself, and realize (maybe with a certain amazement), that it actually works. So these are constructions that are supposed to be used in Python like that.
+<br>The indentation-levels of the two functions indicate, that they are inside the class. Such functions in a class are called "methods".
+<p>The method that is executed, when an object is instantiated, is always called "<tt>__init__()</tt>". That's a language definition, the programmer just has to learn.
+<p>The "<tt>self</tt>" has to be there too. It's a kind of "magic variable" that represents the class.
+<br>"<tt>self</tt>" always has to be the first parameter of any method inside a class (repeat this sentence for yourself a few times).
+So a method in a class that is called without any arguments is defined like that:
+<pre>    def somemethod(self):
+        print("Hello")</pre>
+<p>Just use the "<tt>self</tt>" inside your classes as shown in the "Container"-example above.
+<p>"Attributes" are variables that are known throughout the class. The "<tt>.</tt>"-operator indicates, that the attribute is a member of a certain class. Here, "<tt>self.number</tt>" is an attribute. It's a member of "<tt>self</tt>", that is, a member of the class.
+<br>As you can see, "<tt>self.number</tt>" is not only known in the method "<tt>__init__()</tt>", but also in the method "<tt>moveContainer()</tt>". As mentioned: Being an attribute, it is known throughout the class.
+<p>The line
+<pre>c = Container(5)</pre>
+<p>is the instantiation. An object named "<tt>c</tt>" of the class "<tt>Container</tt>" is created. The argument "5" is passed to the method "<tt>__init__()</tt>" of the class. It is passed as an ordinary variable. Then, inside the class the attribute "<tt>self.number</tt>" is assigned to this ordinary variable:
+<pre>self.number = number</pre>
+<p>The class doesn't only contain attributes, but also methods. These methods are accessible through the object, and can be called with the "<tt>.</tt>"-operator:
+<pre>c.moveContainer()</pre>
+<p>These are already the basics of object-oriented programming. Now, these principles can be used to create virtual depictions of real-life objects. "Container number 5" for example could be imagined as a real heavy steel container in a harbour.
+<p>Here's another, slightly larger example. It depicts two lamps, using a Lamp-class and Lamp-Objects (a similar example can be found in the book "Michael Weigend, Python ge-packt, second edition, 2005, page 294 f."):
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+# Lamp-example
+
+class Lamp:
+
+    def __init__(self, name, lightintensity):
+        self.name           = name
+        self.lightintensity = lightintensity
+        self.state          = "off"
+
+    def switchOn(self):
+        self.state = "on"
+        print("'" + self.name + "' is on at " + str(self.lightintensity) + " Watt.")
+
+    def switchOff(self):
+        self.state = "off"
+        print("'" + self.name + "' is off.")
+
+    def newLightBulb(self, lightintensity):
+        if self.state == "on":
+            print("Light bulb can not be changed. ")
+            print("First, '" + self.name + "' has to be switched off.")
+        else:
+            self.lightintensity = lightintensity
+            print("Light bulb in '" + self.name + "' has been changed. ")
+            print("The new bulb has " + str(lightintensity) + " Watt.")
+            self.switchOn()
+
+lamp1 = Lamp("First Lamp", 50)
+lamp2 = Lamp("Second Lamp", 40)
+lamp1.switchOn()
+lamp2.switchOn()
+lamp2.newLightBulb(100)
+lamp2.switchOff()
+lamp2.newLightBulb(100)</pre>
+<p>Please take some time to understand, what's going on in this example.
+<p>Objects can also be passed as arguments to functions or methods of other classes. They are passed just like all other datatypes.
+<p>Another concept of object-oriented programming is called "inheritance": There can be a base-class (or parent-class). And another class (a child-class) that inherits all attributes and methods from the base class. Then, in the child-class, some attributes and methods can be "overwritten", that is, re-defined in a different way than in the base class. While the other inherited attributes and methods stay intact. Here's an example, how this can be done in Python:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+# parent-class
+class Animal:
+
+    def __init__(self, name):
+        self.name = name
+
+    def startMoving(self):
+        print(self.name +  " is walking.")
+
+    def makeNoise(self):
+        print("Woof! Woof!")
+
+# child-class
+class Cat(Animal):
+
+    def __init__(self, name):
+        Animal.__init__(self, name)
+
+    def showName(self):
+        print(self.name)
+
+    def makeNoise(self):
+        print("Meow!")
+
+cat = Cat("Tibby")
+cat.showName()
+cat.startMoving()
+cat.makeNoise()</pre>
+<p>As you can see, inheritance is done in Python by writing the name of the parent-class in round brackets after the class-name in the "<tt>class</tt>"-line of the child-class, and executing the parent-class' "<tt>__init__()</tt>"-method from the beginning of the child-class' "<tt>__init__()</tt>"-method.
+<p>In object-oriented programming, there is also the concept of "polymorphism", and there are certain principles of how to ideally model your classes and make them interact with each other in larger projects ("MVC" (= "Model-View-Controller") for example). But I'll leave these topics to further reading.
+<p>Oh, and one last thing: Python follows the principle of "<tt>Everything is an object</tt>". If you define
+<pre>a = "Hello World"</pre>
+<p>then "<tt>a</tt>" is a string-object (type "<tt>str</tt>"). That means, it also has methods (which can be viewed with "<tt>dir(a)</tt>", or with general information on the console with "<tt>pydoc3 str</tt>"). And that's the deeper reason, why the line
+<pre>b = a.split(" ")</pre>
+<p>works: "<tt>split()</tt>" is a method of the str-object "<tt>a</tt>".
+<P>
+<HR>
+<h3><A NAME="17">17. Exception Handling (try, except, finally, raise)</A></h3>
+<p>In a Python-script, it is possible to catch errors, without ending the program, using the construction "try ... except":
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+a = "Hello"
+
+try:
+    # This would normally raise a 'ValueError', if there are letters in 'a':
+    a = int(a)
+except:
+    print("Ok, turning 'a' into an 'int' went wrong. But never mind.")
+
+print("Continuing program.")</pre>
+<p>A block "<tt>finally:</tt>" is executed, if the "<tt>try:</tt>"-block was successfull or not.
+<br>You can also raise errors yourself:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+a = 5
+
+if a == 5:
+    raise ValueError("I don't like the value of 'a'.")</pre>
+<P>
+<HR>
+<h3><A NAME="18">18. Using Modules (os, sys, time, math, random)</A></h3>
+<p>Modules are external files with code that can be imported into your script. As Python follows the philosophy "<tt>Batteries included</tt>", the Python interpreter already comes with many modules for all kinds of purposes. More Python modules can be downloaded from the internet.
+<p>The modules "<tt>os</tt>" and "<tt>sys</tt>" are probably the most common Python modules.
+<br>For example with the function "<tt>getcwd()</tt>" in the module "<tt>os</tt>", you can get the pathname of the current working directory. You can get information on modules by executing "<tt>pydoc3</tt>" with the module's name, so you get information on the module "<tt>os</tt>" by running:
+<pre>pydoc3 os</pre>
+<p>To import the modules "<tt>os</tt> and "<tt>sys</tt>" at once, you can write
+<pre>import os, sys</pre>
+<p>After that, the functions, variables and classes provided by the module are available in your script. For example, this is how "<tt>getcwd()</tt>" can be used:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import os
+
+cwd = os.getcwd()
+print(cwd)</pre>
+<p>The module "<tt>sys</tt>" especially provides the list "<tt>sys.argv</tt>", which contains the name of the script and the options that were passed to it on the command-line. And the function "<tt>sys.exit()</tt>", with which the execution of a script can be aborted prematurely.
+<p>Another often used function from a module is "<tt>time.sleep()</tt>" from the "<tt>time</tt>"-module, which stops the execution of the script for the number of seconds passed to the function as an argument.
+<p>This script demonstrates a few functions provided by the "<tt>math</tt>"-module (which has already been mentioned above):
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import math
+
+print("2 to the power of 3 is " + str(math.pow(2, 3)) + ".")
+print()
+print("The square root of 9 is " + str(math.sqrt(9)) + ".")
+print()
+print("The cosinus of 45 degrees is " + str(math.cos(math.radians(45))) + ".")
+print()
+print("PI is " + str(math.pi) + ".")</pre>
+<p>Using the module "<tt>random</tt>", random numbers can be created, in the example they are in a range between 0 and 9:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import random
+
+random.seed()
+
+for i in range(8):
+    print(random.randrange(10))</pre>
+<P>
+<HR>
+<h3><A NAME="19">19. Regular Expressions</A></h3>
+<p>As already mentioned above, simple search- and replace-operations can be done with the "<tt>in</tt>"-operator and the function "<tt>replace()</tt>":
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+mystring = "Hello World"
+
+if "World" in mystring:
+    print('"World" found.')
+
+mystring = mystring.replace("World", "Earth")
+print(mystring)</pre>
+<p>When searching for more complex patterns, regular expressions from the module "<tt>re</tt>" can be used. The following script shows, how this can be done:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import re
+
+# First, we define the text to be used:
+text = "Text to be searched."
+
+# Then, we compile a "pattern-object" from a regular expression:
+patobj = re.compile("s.*")
+
+# Now we can do a search-operation on the text:
+matchobj = patobj.search(text)
+
+if matchobj is not None:
+    print("Regular expression found in the text.")
+
+# We can also extract the substring found in the search-operation:
+
+if matchobj is not None:
+    print(text[matchobj.start() : matchobj.end()])
+
+    # Alternatively, this may work:
+    print(matchobj.group())
+
+# Additionaly, we can do replace-operations on the text:
+print(re.sub(patobj, "replaced.", text))
+
+# Instead of the search- and replace-operations operations above,
+# you could also do:
+
+if re.search("s.*", text):
+    print("Found.")
+
+print(re.sub("s.*", "replaced.", text))
+
+# But "re.compile()" is faster, if the regular expression is used
+# more than once.</pre>
+<P>
+<HR>
+<h3><A NAME="20">20. File-Operations</A></h3>
+<p>This script demonstrates some often-used file-operations. For security-reasons I comment the lines accessing the disk out. If you want to test the script including writing and deleting, you can remove the comment-sign ("#") from the beginning of the two relevant lines in the script:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import os, sys
+
+# Get the current working directory:
+mypath = os.getcwd()
+
+fname = os.path.join(mypath, "myfile.txt")
+
+# Test, if file exists:
+if os.path.exists(fname):
+    print("File '" + fname + "' already exists.")
+    sys.exit(1)
+
+print("Writing to file.")
+print()
+# fh = open(fname, "w")
+
+fh.write("This is a line of text.\n")
+fh.write("This is another line.\n")
+
+fh.close()
+
+print("Reading from file:")
+fh = open(fname, "r")
+
+a = fh.readlines()
+
+fh.close()
+
+for i in a:
+    i = i.rstrip("\n")
+    print(i)
+
+print()
+print("Deleting the file.")
+print()
+
+# os.remove(fname)
+
+print("The directory contains:")
+
+b = os.listdir(mypath)
+for i in b:
+    print(i)</pre>
+<p>If you have paranoia, that something could go wrong during opening a file for reading or writing, you can also use the construction "<tt>with ... as ...:</tt>". It automatically includes a "<tt>try: ... finally:</tt>", and also takes care of closing the file handle for you. Here's an example. Again, you'd have to remove some comment-signs to make the script write to the disk:
+<pre>#!/usr/bin/python
+# coding: utf-8
+
+import os, sys
+
+# Get the current working directory:
+mypath = os.getcwd()
+
+fname = os.path.join(mypath, "myfile.txt")
+
+# Test, if file exists:
+if os.path.exists(fname):
+    print("File '" + fname + "' already exists.")
+    sys.exit()
+
+print("Writing to file.")
+# with open(fname, "w") as fh:
+#    fh.write("This is a line of text.\n")
+#    fh.write("This is another line.\n")
+print()
+
+print("Reading from file:")
+with open(fname, "r") as fh:
+    a = fh.readlines()
+
+for i in a:
+    i = i.rstrip("\n")
+    print(i)
+
+print()
+print("Deleting the file.")
+print()
+# os.remove(fname)</pre>
+<p>Ok, this should do to give an overview over the basics of Python-programming. On the <a href="python2_tricks.html">second page</a>, a few special things are described that can be done with Python.
+<hr width="70%">
+<br><center><a href="index.html">Back</a></center>
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</body>
+</html>
