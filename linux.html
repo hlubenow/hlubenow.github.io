@@ -41,22 +41,23 @@ Using Linux
 <LI><A HREF="#19">dos2unix, unix2dos, recode: Reformatting Text-Files</A>
 <LI><A HREF="#20">ln: Symbolic Links</A>
 <LI><A HREF="#21">date, cal: Showing Date and Time</A>
-<LI><A HREF="#22">mount, umount: Mounting Devices</A>
-<LI><A HREF="#23">rpm: Managing Software Packages on a rpm-Based Distribution</A>
-<LI><A HREF="#24">X-Server. Tools xrandr, xwininfo, xfontsel, xev, xmodmap, xkill, xkbset</A>
-<LI><A HREF="#25">Login-Manager</A>
-<LI><A HREF="#26">Autostarting Programs Together with the Graphical Desktop</A>
-<LI><A HREF="#27">Playing and Editing Videos</A>
-<LI><A HREF="#28">Midnight Commander</A>
-<LI><A HREF="#29">lpq, lprm, xsane: Managing Printers. Scanning</A>
-<LI><A HREF="#30">cron-Daemon: Run Programs at Other Times</A>
-<LI><A HREF="#31">lsmod, modprobe, rmmod: Managing Kernel Modules</A>
-<LI><A HREF="#32">Making Changes to the Configuration of the Bootloader GRUB2</A>
-<LI><A HREF="#33">Customizing the Linux Installation</A>
-<LI><A HREF="#34">bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A>
-<LI><A HREF="#35">Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A>
-<LI><A HREF="#36">Recapitulation</A>
-<LI><A HREF="#37">Notable Files and Directories on a Linux System. Conclusion</A>
+<LI><A HREF="#22">find, locate, updatedb: Finding Files or Directories</A>
+<LI><A HREF="#23">mount, umount: Mounting Devices</A>
+<LI><A HREF="#24">rpm: Managing Software Packages on a rpm-Based Distribution</A>
+<LI><A HREF="#25">X-Server. Tools xrandr, xwininfo, xfontsel, xev, xmodmap, xkill, xkbset</A>
+<LI><A HREF="#26">Login-Manager</A>
+<LI><A HREF="#27">Autostarting Programs Together with the Graphical Desktop</A>
+<LI><A HREF="#28">Playing and Editing Videos</A>
+<LI><A HREF="#29">Midnight Commander</A>
+<LI><A HREF="#30">lpq, lprm, xsane: Managing Printers. Scanning</A>
+<LI><A HREF="#31">cron-Daemon: Run Programs at Other Times</A>
+<LI><A HREF="#32">lsmod, modprobe, rmmod: Managing Kernel Modules</A>
+<LI><A HREF="#33">Making Changes to the Configuration of the Bootloader GRUB2</A>
+<LI><A HREF="#34">Customizing the Linux Installation</A>
+<LI><A HREF="#35">bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A>
+<LI><A HREF="#36">Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A>
+<LI><A HREF="#37">Recapitulation</A>
+<LI><A HREF="#38">Notable Files and Directories on a Linux System. Conclusion</A>
 </OL>
 <p>
 <HR>
@@ -628,7 +629,19 @@ The system clock is updated by services via internet.
 The command can also show the calendar of other years (or this year), then printing the calendar for all 12 months. So be careful not to just write "<tt>cal 3</tt>", as that would be the calendar of the year 3, more than 2.000 years ago.
 <p>
 <HR>
-<h3><A NAME="22">22. mount, umount: Mounting Devices</A></h3>
+<h3><A NAME="22">22. find, locate, updatedb: Finding Files or Directories</A></h3>
+<p>As mentioned above, to find a file in his home-directory, a user would change to "<tt>/home/username</tt>" with the command "<tt>cd ~</tt>". Then he would run the command:
+<pre>find | grep -i partoffilename</pre>
+<p>Where "<tt>partoffilename</tt>" is a part of the name of the file, the user is looking for (the full name of the file is of course also possible).
+<p>There are many options to the "<tt>find</tt>"-command. Called without options, "<tt>find</tt>" prints the names of all files and directories, in and below the current working directory (that is the one, in which "<tt>find</tt>" has been called). Using options, "<tt>find</tt>" can do different things, it can for example only list files that are newer than a given date and so on.
+I'm not going into the details of these options here.
+<p>If "root" searches for a file in the whole directory tree (the file is probably a system-file then), he has another option. All files can be written into a database, which is kept by the system. This can be done by root with the command
+<pre>updatedb</pre>
+<p>After this command has finished writing the data about the files and directories into the database, it is possible to find a file or directory with:
+<pre>locate partoffilename</pre>
+<p>
+<HR>
+<h3><A NAME="23">23. mount, umount: Mounting Devices</A></h3>
 <p>Today, most devices like for example USB-sticks are mounted automatically, when connecting them to the computer. That is, a directory is created for them in the directory tree, and their contents can then be accessed there.
 <br>On my OpenSuSE 15.6-system, these directories are dynamically created and removed by the system below the directory "<tt>/var/run/media/username</tt>".
 <p>In some cases it may be useful to know, how to mount and unmount devices by hand.
@@ -647,7 +660,7 @@ The file still exists on today's Linux-system, and it's also still possible to s
 <br>The lines in the file "<tt>/etc/fstab</tt>" have a certain format, but I don't have to describe it here, because the information can easily be found on the internet elsewhere.
 <p>
 <HR>
-<h3><A NAME="23">23. rpm: Managing Software Packages on a rpm-Based Distribution</A></h3>
+<h3><A NAME="24">24. rpm: Managing Software Packages on a rpm-Based Distribution</A></h3>
 <p>On OpenSuSE Leap (up to version 15.6), software packages can be managed with the distribution's system tool YaST2. There's also the high-level software managing tool called "<tt>zypper</tt>" on the console.
 <p>"<tt>apt</tt>" is the main software installation tool on Ubuntu. It's designed to manage "<tt>dpkg</tt>"-packages. There are also the graphical tools "Synaptic" and "Ubuntu Software Center", but it seems on Ubuntu it's still common to use "<tt>apt</tt>" on the console.
 <p>Unlike Ubuntu, OpenSuSE uses software packages in "rpm"-format. The traditional tool to manage these packages (being root) is called "<tt>rpm</tt>". Here are some useful rpm-commands:
@@ -669,7 +682,7 @@ The following command copies all files of a rpm to the current directory:
 <pre>rpm2cpio package.rpm | cpio -i --make-directories</pre>
 <p>
 <HR>
-<h3><A NAME="24">24. X-Server. Tools xrandr, xwininfo, xfontsel, xev, xmodmap, xkill, xkbset</A></h3>
+<h3><A NAME="25">25. X-Server. Tools xrandr, xwininfo, xfontsel, xev, xmodmap, xkill, xkbset</A></h3>
 <p>On Linux, the window manager of desktop environments is not the only program that creates the graphical desktop. Instead, the window manager is a client to another program called the X-server.
 Most Linux systems use a X-server called "X.Org". And there's a protocol called "X11". Some systems use a newer protocol called "Wayland" instead, but up to now it couldn't fully replace "X11".
 <p>The main configuration-file of the X-Server used to be "<tt>/etc/X11/xorg.conf</tt>". Now, the contents of this file are spread into several files in the directory
@@ -695,18 +708,18 @@ Most Linux systems use a X-server called "X.Org". And there's a protocol called 
 </ul>
 <p>
 <HR>
-<h3><A NAME="25">25. Login-Manager</A></h3>
+<h3><A NAME="26">26. Login-Manager</A></h3>
 <p>Before entering the graphical desktop, there's a login-screen. It is created by a special program called "display manager". The desktop environments usually come with their own program of that type. There are for example "KDM" (KDE), "GDM" (Gnome), "LightDM" (Xfce) and "SDDM" (LXQt).
 <p>The feature to automatically login a user without entering the password (autologin) is often related to the display manager. I don't explain here, how this feature is activated, the information depends on the used display manager. In general, it's better for security reasons not to use autologin, but to always enter user name and password.
 <p>
 <HR>
-<h3><A NAME="26">26. Autostarting Programs Together with the Graphical Desktop</A></h3>
+<h3><A NAME="27">27. Autostarting Programs Together with the Graphical Desktop</A></h3>
 <p>Programs can be started automatically together with the graphical desktop. To do that, a socalled "<tt>.desktop</tt>"-file has to be created in a special directory, which is:
 <pre>/home/username/.config/autostart</pre>
 <p>The content of a "<tt>.desktop</tt>"-file has a certain format. Take a look at other "<tt>.desktop</tt>"-files to find out, how they are written.
 <p>
 <HR>
-<h3><A NAME="27">27. Playing and Editing Videos</A></h3>
+<h3><A NAME="28">28. Playing and Editing Videos</A></h3>
 <p>For playing videos, the large, well-known, commercial internet platforms just use the webbrowser and provide their own video player.
 <p>For playing videos outside the webbrowser, "VLC player" is popular on Linux.
 <br>I'm using a different program called "MPlayer" though. There are a lot of options to the "<tt>mplayer</tt>"-command. Here are just a few:
@@ -730,7 +743,7 @@ Most Linux systems use a X-server called "X.Org". And there's a protocol called 
 <p>"OBS Studio" is a larger graphical application for recording videos and performing live-streams. As far as I know, it can also combine images of the user's desktop with the webcam-recording of the user himself (which would be nice, if someone wanted to create a Youtube-tutorial about how to use Linux for example).
 <p>
 <HR>
-<h3><A NAME="28">28. Midnight Commander</A></h3>
+<h3><A NAME="29">29. Midnight Commander</A></h3>
 <p>The "Midnight Commander" (shell-command "<tt>mc</tt>") is a graphical file-manager, running on the console. It looks similar to the ancient "Norton Commander" for DOS, so by today's standard it may look a bit ugly.
 Nevertheless, it's quite powerful.
 <br>Two directories are shown in two (sub-)windows at once, which makes managing files fast and convenient.
@@ -764,7 +777,7 @@ Nevertheless, it's quite powerful.
 <p>Midnight Commander can be used to browse archive files like ".zip"-files, ".tar.gz"-files and so on. Also ".rpm"-files are supported. If the cursor is on the archive-file (whose file-permissions have to be set to "not executable"), the <tt>Return</tt>-key can be pressed to move inside the archive. There, the usual keys like <tt>F5</tt> and so on can be used, as if the location was just another directory in the directory tree (at least that's the idea).
 <p>
 <HR>
-<h3><A NAME="29">29. lpq, lprm, xsane: Managing Printers. Scanning</A></h3>
+<h3><A NAME="30">30. lpq, lprm, xsane: Managing Printers. Scanning</A></h3>
 <p>Printing on paper and printers themselves have become less relevant in recent years, as communication is moving more and more towards email and web formulars.
 <br>For installing and managing printers, there should be graphical tools in the distribution.
 <br>On the console, there are two traditional tools that can still be useful sometimes:
@@ -777,7 +790,7 @@ Nevertheless, it's quite powerful.
 <p>Printing to paper may have become less relevant, but scanning paper documents still is. On Linux, there's an application called "<tt>xsane</tt>", which basically takes care of every aspect of this process.
 <p>
 <HR>
-<h3><A NAME="30">30. cron-Daemon: Run Programs at Other Times</A></h3>
+<h3><A NAME="31">31. cron-Daemon: Run Programs at Other Times</A></h3>
 <p>On Linux-systems, a service called the "cron daemon" is running in the background that can start programs on its own at predefined times.
 <br>The cron daemon checks the following directories for programs to run in the specified intervals:
 <pre>/etc/cron.hourly/
@@ -790,14 +803,14 @@ Nevertheless, it's quite powerful.
 <p>Another way to run programs at other times, used to be the "at daemon", and the command "<tt>at</tt>". But it seems, on OpenSuSE Leap 15.6 this isn't available any more.
 <p>
 <HR>
-<h3><A NAME="31">31. lsmod, modprobe, rmmod: Managing Kernel Modules</A></h3>
+<h3><A NAME="32">32. lsmod, modprobe, rmmod: Managing Kernel Modules</A></h3>
 <p>There are some special files called "modules" that can add certain functionality to the kernel. These are mostly drivers for hardware devices. The modules can somehow be attached to the kernel or removed from it. They are usually managed being "root".
 <br>The command "<tt>lsmod</tt>" shows the modules that are currently attached to the kernel.
 <br>"<tt>modprobe [modulname]</tt>" probes, if the given module is currently attached to the kernel, and if it is not, it is attached to it.
 <br>"<tt>rmmod [modulname]</tt>" removes the given module from the kernel. As a result, some functionality of the kernel may not work any more.
 <p>
 <HR>
-<h3><A NAME="32">32. Making Changes to the Configuration of the Bootloader GRUB2</A></h3>
+<h3><A NAME="33">33. Making Changes to the Configuration of the Bootloader GRUB2</A></h3>
 <p>Bootloaders (also called "boot managers") are the programs that control the boot-process of the operating system.
 <ul>
 <li>Traditionally, the "BIOS" ("Basic Input/Output System") was responsible for the first stage of the boot process. The BIOS is built into the computer, and is not part of Linux. The BIOS can be started, without Linux ever having been installed or run on the computer. 
@@ -821,7 +834,7 @@ On OpenSuSE Leap 15.6 for example, there's a template-file called
 <p>So the real configuration-file of GRUB2 is "<tt>/boot/grub2/grub.cfg</tt>". But this file shouldn't be edited directly. Instead changes should be made only as described above, that is by editing the template-file "<tt>/etc/default/grub</tt>", and then running the command "<tt>update-bootloader</tt>".
 <p>
 <HR>
-<h3><A NAME="33">33. Customizing the Linux Installation</A></h3>
+<h3><A NAME="34">34. Customizing the Linux Installation</A></h3>
 <p>Linux distributions can be customized to the taste of the user. They come with graphical tools to change settings for example of the look and feel of the windows. In the desktop environment Xfce4, these graphical tools can be found in "<tt>xfce4-settings-manager</tt>".
 <p>There were a number of more complex things, I changed for me in my OpenSuSE-distributions. So I took notes of these changes, that is, I wrote other web-pages about customizing the system to my personal needs.
 There are:
@@ -833,7 +846,7 @@ There are:
 <p>Of course, to make changes to a system, some basic knowledge about how it works in general is required. I hope the page "Using Linux" could provide this information.
 <p>
 <HR>
-<h3><A NAME="34">34. bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A></h3>
+<h3><A NAME="35">35. bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A></h3>
 <p>Above, you've read about bash, the common programming language of the Linux shell. Especially installation scripts have been written in that language for decades.
 <p>But to be honest, I don't like it much: Everywhere you have to write those quotation marks. You have to be careful, when using space characters, and have to know, when you must not. Support for data arrays is only rudimentary. Socalled sub-shells may open surprisingly and lead to unexpected and unwanted results. Overall, creating pipes of shell-commands is rather coarse, when it comes to data processing.
 <p>There are other programming languages that are better suited for that.
@@ -850,7 +863,7 @@ Actually, I wrote other web-pages, how to use them for programming. I'll put lin
 </ul>
 <p>
 <HR>
-<h3><A NAME="35">35. Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A></h3>
+<h3><A NAME="36">36. Legal Topics: The Principles of "Free Software". The GNU General Public License (GPL)</A></h3>
 <p>So what is this Linux anyway, and why can it (usually) be downloaded and used for free?
 <br>Well, Linux, being "free software", takes a rather different approach to the distribution of software than proprietary software.
 And that happened like this:
@@ -924,7 +937,7 @@ While most other operating systems of the time supported just a single task and 
 <p>In Linux the support of multi-tasking means, that tasks run in separated environments. They can crash like in every other operating system, but in Linux, the rest of the system usually isn't affected by this, but stays intact. Therefore, Linux is known to be a rather stable operating system.
 <p>
 <HR>
-<h3><A NAME="36">36. Recapitulation</A></h3>
+<h3><A NAME="37">37. Recapitulation</A></h3>
 <p>So what have we learnt about Linux on this page?
 <ul>
 <li>Strictly speaking, Linux is the Linux kernel. In a wider sense, it's a computer operating system plus tools and applications, combined into a distribution.
@@ -967,7 +980,7 @@ While most other operating systems of the time supported just a single task and 
 </ul>
 <p>
 <HR>
-<h3><A NAME="37">37. Notable Files and Directories on a Linux System. Conclusion</A></h3>
+<h3><A NAME="38">38. Notable Files and Directories on a Linux System. Conclusion</A></h3>
 <p>Here's a list of notable files and directories on a Linux-system. The files and directories have already been mentioned in the previous sections of the website.
 The list is in alphabetical order:
 <p>
