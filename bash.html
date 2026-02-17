@@ -241,21 +241,20 @@ i=1
 while test $i -le 10
 do
     echo $i
-    let "i += 1"
+    let "i+=1"
 done
 </pre>
 <p>The condition for the while-loop is created with the "<tt>test</tt>"-command; please see "<tt>man test</tt>" for details.
 <p>To do "<tt>i = i + 1</tt>", you have to use the line above
-<pre>let "i += 1"
+<pre>let "i+=1"
 </pre>
-<p>Please watch out for the space characters: They have to be placed exactly like shown.
-<br>In order to raise a number by one, you can also use "<tt>let i++</tt>".
+<p>In order to raise a number by one, you can also use "<tt>let "i++"</tt>".
 <br>Alternatively, this command works
 <pre>i=$(expr $i + 1)
 </pre>
 <p>but the "let"-command runs much faster (as it's a "bash builtin").
-<p>If you want to execute the while-loop-script interactively in the shell, all commands have to be separated by ";". But there mustn't be a ";" between "do" and the following command:
-<pre>i=1; while test $i -le 10; do echo $i; let "i += 1"; done
+<p>If you want to execute the while-loop-script interactively in the shell, all commands have to be separated by ";". But there mustn't be a "<tt>;</tt>" between "<tt>do</tt>" and the following command:
+<pre>i=1; while test $i -le 10; do echo $i; let "i+=1"; done
 </pre>
 <p>
 <HR>
