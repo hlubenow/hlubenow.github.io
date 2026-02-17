@@ -50,7 +50,7 @@ Using Linux
 <LI><A HREF="#28">Playing and Editing Videos</A>
 <LI><A HREF="#29">Midnight Commander</A>
 <LI><A HREF="#30">lpq, lprm, xsane: Managing Printers. Scanning</A>
-<LI><A HREF="#31">cron-Daemon: Run Programs at Other Times</A>
+<LI><A HREF="#31">cron-Daemon, at: Run Programs at Other Times</A>
 <LI><A HREF="#32">lsmod, modprobe, rmmod: Managing Kernel Modules</A>
 <LI><A HREF="#33">Making Changes to the Configuration of the Bootloader GRUB2</A>
 <LI><A HREF="#34">Customizing the Linux Installation</A>
@@ -364,12 +364,17 @@ Hello to everybody</pre>
 <br>The command "<tt>wc</tt>" can count words, lines or characters of a string. This command is typically used in a pipe, for example to count the words in a string like this:
 <pre>echo "Hello World" | wc -w</pre>
 <p>The result is "<tt>2</tt>" (as there are two words in that string).
-<p>Some background on creating a pipe (which is still basic bash-knowledge): There's a "stream" called "<tt>stdout</tt>", programs can write to. And a stream called "<tt>stdin</tt>", from which programs can read in data. Creating a pipe uses these two streams: Without additions, the command '<tt>echo "Hello World"</tt>' writes to "<tt>stdout</tt>", which leads to displaying the string on the screen (in the terminal). The command "<tt>wc</tt>" reads data from its "<tt>stdin</tt>". The pipe-symbol "<tt>&vert;</tt>" redirects the output of "<tt>echo</tt>" from its "<tt>stdout</tt>" to the "<tt>stdin</tt> of "<tt>wc</tt>".
+<p>Some background on creating a pipe (which is still basic bash-knowledge): The operating system assings socalled "streams" to a program. A program has a stream "<tt>stdout</tt>", to which it can write. And a stream "<tt>stdin</tt>", from which it can read in data. Creating a pipe uses these two streams: Without additions, the command '<tt>echo "Hello World"</tt>' writes to "<tt>stdout</tt>", which leads to displaying the string on the screen (in the terminal). The command "<tt>wc</tt>" reads data from its "<tt>stdin</tt>". The pipe-symbol "<tt>&vert;</tt>" redirects the output of "<tt>echo</tt>" from its "<tt>stdout</tt>" to the "<tt>stdin</tt> of "<tt>wc</tt>".
 <br>Accordingly, the symbols "<tt>&gt;</tt>" and "<tt>&gt;&gt;</tt>" redirect the output of "<tt>echo</tt>" from its "<tt>stdout</tt>" into a file.
 <p>Another example: The tool "<tt>bc</tt>" can do calculations (its program package, which should be part of the distribution, may have to be installed first).
 Then, the line:
 <pre>echo "25 * 5" | bc</pre>
 <p>produces an output of "<tt>125</tt>".
+<p>Longer output of a command is often piped into a small program called "<tt>less</tt>", which is a text-viewer on the console. For example:
+<pre>echo "Hello World" | less</pre>
+<p>or
+<pre>ls -lisa /home/username | less</pre>
+<p>The cursor keys "<tt>Up</tt>" and "<tt>Down</tt>" can be used to move around in "<tt>less</tt>". And "<tt>q</tt>" to quit.
 <p><b>Quick Introduction to bash-Scripting</b>
 <p>Shell-commands can not only be passed on the command-line, but they can also be written into a text-file, which is then executed as a script.
 So bash is in fact a programming-language. Among other things, bash-scripts are often used as installation-routines. They also play an important role in the Linux boot-process.
@@ -395,6 +400,7 @@ done</pre>
 <li>The "<tt>echo</tt>"-command is already known.
 <li>The rest of the code creates a loop, which uses a variable "<tt>$i</tt>".
 </ul>
+<p>There's a <a href="bash.html">separate page about bash</a>, where these topics are explained in more detail.
 <p>
 <HR>
 <h3><A NAME="9">9. Copying and Pasting Text</A></h3>
@@ -790,7 +796,7 @@ Nevertheless, it's quite powerful.
 <p>Printing to paper may have become less relevant, but scanning paper documents still is. On Linux, there's an application called "<tt>xsane</tt>", which basically takes care of every aspect of this process.
 <p>
 <HR>
-<h3><A NAME="31">31. cron-Daemon: Run Programs at Other Times</A></h3>
+<h3><A NAME="31">31. cron-Daemon, at: Run Programs at Other Times</A></h3>
 <p>On Linux-systems, a service called the "cron daemon" is running in the background that can start programs on its own at predefined times.
 <br>The cron daemon checks the following directories for programs to run in the specified intervals:
 <pre>/etc/cron.hourly/
@@ -800,7 +806,13 @@ Nevertheless, it's quite powerful.
 <p>If the cron daemon should do something at another time or in another interval, there's a file called
 <pre>/etc/crontab</pre>
 <p>in which these tasks can be configured. Lines in that file have to be in a certain format. I don't explain that format here, the information can be found on the internet.
-<p>Another way to run programs at other times, used to be the "at daemon", and the command "<tt>at</tt>". But it seems, on OpenSuSE Leap 15.6 this isn't available any more.
+<hr width="30%">
+<p>Another way to run programs at other times is the command "<tt>at</tt>" in combination with the daemon "<tt>atd</tt>". If the daemon is running, the commands "<tt>atq</tt>" and "<tt>atrm</tt>" can be used to control the task-queue.
+Here are examples, how to declare tasks:
+<pre>at 15:20 -f /home/username/someprogram
+
+at now + 15 min -f /home/username/someprogram</pre>
+<p>There may be problems, when trying to start graphical programs with "<tt>at</tt>", as it may not be able to access the user's graphical desktop. So it may take some effort to setup "<tt>at</tt>" properly.
 <p>
 <HR>
 <h3><A NAME="32">32. lsmod, modprobe, rmmod: Managing Kernel Modules</A></h3>
@@ -847,11 +859,12 @@ There are:
 <p>
 <HR>
 <h3><A NAME="35">35. bash, Perl, Python, C, C++: Finding Your Way into Programming (If you want)</A></h3>
-<p>Above, you've read about bash, the common programming language of the Linux shell. Especially installation scripts have been written in that language for decades.
-<p>But to be honest, I don't like it much: Everywhere you have to write those quotation marks. You have to be careful, when using space characters, and have to know, when you must not. Support for data arrays is only rudimentary. Socalled sub-shells may open surprisingly and lead to unexpected and unwanted results. Overall, creating pipes of shell-commands is rather coarse, when it comes to data processing.
-<p>There are other programming languages that are better suited for that.
-Actually, I wrote other web-pages, how to use them for programming. I'll put links to my pages about these languages, while quickly describing them:
+<p>Here's a quick overview over several programming languages, whose programming tools (interpreters, compilers) can be found on Linux systems.
+I've written other pages about those languages, so I'm also putting down the links to those pages:
 <ul>
+<li><a href="bash.html">bash</a> is the common Linux shell that can be used as a programming language. Especially installation scripts have been written in its language for decades.
+<p>But to be honest, I don't like programming in bash very much: Everywhere you have to write those quotation marks. You have to be careful, when using space characters, and have to know, when you must not. Support for data arrays is only rudimentary. Socalled sub-shells may open surprisingly and lead to unexpected and unwanted behaviour. Overall, creating pipes of shell-commands can be rather coarse. 
+In my opinion, the other programming languages listed below are more suitable for data processing.
 <li><a href="perl1_introduction.html">Perl</a> is another interpreted programming language (with a much larger interpreter than bash). It has some elements of bash, but has full support for lists (arrays) and functions, and data processing works as expected. Perl can do many things, with thousands of modules in the "<a href="https://en.wikipedia.org/wiki/CPAN">CPAN</a>", the "Comprehensive Perl Archive Network".
 <p>
 <li>Then, <a href="python1_introduction.html">Python</a> came around, which is yet another interpreted programming language, and made the same things even easier than in Perl. It left out the variable sigils like "<tt>$</tt>" and all those semicolons at the end of lines, and so the code became very clear and readable. 
