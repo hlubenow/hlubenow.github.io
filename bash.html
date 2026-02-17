@@ -1,0 +1,460 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+    <title>Writing bash-Scripts</title>
+    <meta name="KeyWords" content="bash, bash, Shell, shell, script">
+    <meta name="author" content="Hauke Lubenow">
+    <meta name="generator" content="vim 9.1.330">
+</head>
+<body>
+<h2><img src="konsole.png" height=32 width=32>&nbsp;
+Writing bash-Scripts</h2>
+<p>
+<hr width="70%">
+<p>
+<b><font face="Times New Roman,Times"><font size=-1>There's strictly no warranty for the correctness of this text. You use any of the information provided here at your own risk.
+The terms of usage and/or copying of this text are determined by the GNU Free Documentation License.
+</font></font></b> 
+<p>
+<hr width="70%">
+<P>
+<h3>Contents:</h3>
+<UL>
+<LI><A HREF="#1">1. Introduction</A>
+<LI><A HREF="#2">2. Shell-Basics</A>
+<LI><A HREF="#3">3. Redirection of Command-Output into Files and Pipes</A>
+<LI><A HREF="#4">4. Writing and Executing bash-Scripts</i</A>
+<LI><A HREF="#5">5. Expansion of the Command-Line by the Shell</A>
+<LI><A HREF="#6">6. Variables</h3</A>
+<LI><A HREF="#7">7. Assignment of Command-Output to Variables by Expansion</A>
+<LI><A HREF="#8">8. for-Loops in "C-Style"</A>
+<LI><A HREF="#9">9. for-Loops in "Python-Style"</A>
+<LI><A HREF="#10">10. while-Loops. "a = a + 1"</A>
+<LI><A HREF="#11">11. if-Conditions</A>
+<LI><A HREF="#12">12. Input</A>
+<LI><A HREF="#13">13. Example-Script "Cookie-Monster"</A>
+<LI><A HREF="#14">14. Processing Script-Options - Positional Parameters</A>
+<LI><A HREF="#15">15. String-Manipulation</A>
+<LI><A HREF="#16">16. Arrays</A>
+<LI><A HREF="#17">17. Functions</A>
+<LI><A HREF="#18">18. Redirection of Data-Streams. Suppressing Error-Messages</A>
+<LI><A HREF="#19">19. Processing of Data in Text-Files: awk, grep, sed</A>
+<LI><A HREF="#20">20. Go Beyond bash and Learn Perl</A>
+</UL>
+<p>
+<HR>
+<h3><A NAME="1">1. Introduction</A></h3>
+<p>Shells are command-line-interpreters.
+<p>bash, the "GNU Bourne Again Shell", is an extended open-source-version of the shell "sh".
+<p>"sh" was developed by Stephen Bourne in the 1970's for the operating-system "Unix".
+<br>"bash" was developed by Brian Fox for the "Free Software Foundation" in about 1989.
+<p>On Linux, "bash" is probably the most commonly used shell, although there are other ones like "sh" (mentioned above), "ksh", "csh" und "tcsh" too.
+<p>In shell-programming, data-processing is often done by piping the output of one command into command.
+<br>So you could say, shell-commands are often used like tools of a tool-kit.
+<br>This is a bit different from other programming-languages. But there are also things like control-structures in bash.
+<p>bash-Scripts are mainly used for executing processes of the operating-system automatically or for installing programs.
+Their disadvantages are, they don't run too fast, they are not very portable and their code is quite difficult to read for human beings.
+<p>On this page, I'll explain the basics of bash-programming. But only the basics, because when things become too complex and painful in bash, I switch to <a href="perl1_introduction.html">Perl</a>, which is what I suggest doing.
+<br>But if you want to learn everything about bash, feel free to work through these professional tutorials:
+<ul>
+<li>"<a href="https://tldp.org/LDP/Bash-Beginners-Guide/html/">Bash Guide for Beginners</a>", by Machtelt Garrels,
+<li>"<a href="https://www.gnu.org/software/bash/manual/bash.html">Bash Manual</a>" (the official bash-document of the GNU Project).
+</ul>
+<p>
+<HR>
+<h3><A NAME="2">2. Shell-Basics</A></h3>
+<p>As a command-line-interpreter, the shell looks for a command and its options to evaluate.
+<p>Like in Basic or DOS, the commands are English words, that are shortened so that they are faster to type.
+<br>The Linux-commands are quite different from those of DOS, although they often do the same thing.
+<p>A bash-command would be for example
+
+<pre>echo "Hello World"</pre>
+
+<p>Unlike DOS, bash is always case sensitive.
+<p>Using the cursor-keys, you can browse through previously typed user-input.
+<br>If you type TAB, bash tries to complete user-input automatically.
+<P>
+<HR>
+<h3><A NAME="3">3. Redirection of Command-Output into Files and Pipes</A></h3>
+<p>The operating-system provides three data-streams called <tt>stdin</tt>, <tt>stdout</tt> and <tt>stderr</tt>, that can be used by programs.
+<ul>
+<li><tt>stdin</tt> is the standard input stream. By default it is connected to the keyboard. So when a program tries to read data from this stream, it waits for keyboard-input.
+<p>
+<li><tt>stdout</tt> is the standard output stream. By default it is connected to the screen. When a program writes data to it, the text is usually displayed.
+That's how "echo" works: It sends its argument ("<tt>"Hello World"</tt>" above) to "<tt>stdout</tt>".
+<p>
+<li><tt>stderr</tt> is used for error messages. By default it is connected to the screen too.
+</ul>
+<p>In bash you can send the output of a command, instead of sending it to <tt>stdout</tt>, to a file.
+<br>To do that, you use the characters "<tt>&gt;</tt>" and "<tt>&gt;&gt;</tt>".
+<p>So if you do:
+<pre>echo "Hello World" &gt; hello.txt</pre>
+<p>nothing is printed to the screen. Instead the output can be found in a file called "<tt>hello.txt</tt>" in the current directory.
+<pre>echo "Hello World" &gt;&gt; hello.txt</pre>
+<p>appends "<tt>Hello World</tt>" once more to the file. With
+<pre>cat hello.txt</pre>
+<p>or
+<pre>less hello.txt</pre>
+<p>you can view the contents of the file "<tt>hello.txt</tt>".
+<p>You have to use output-redirection with "<tt>&gt;</tt>" carefully, because if a file with the name of the destination-file already exists, it is overwritten with the redirected command-output without warning.
+<br>"<tt>&gt;&gt;</tt>" is less dangerous, as it just appends something to the file.
+<p>Output of commands can not only be redirected into a file but also into the input stream used by another command.
+<br>This is done by using the character "<tt>&vert;</tt>" (on the keyboard: "<tt>AltGR + &lt;</tt>"). Here's an example:
+<pre>ls</pre>
+<p>shows the contents of the current directory on the screen using <tt>stdout</tt>.
+If there are many files in the directory, "<tt>ls</tt>" scrolls the contents up too fast. With
+<pre>ls | less</pre>
+<p>you can view the output of "<tt>ls</tt>" with the tool "<tt>less</tt>" screen by screen.
+<p>So redirecting a command's output to another command using "&vert;" (which is called creating a "pipe") leads to processing of the handed data by the second command.
+<p>By the way: Output-redirection with "&gt;", "&gt;&gt;" and "&vert;" can be done on DOS too.
+<P>
+<HR>
+<h3><A NAME="4">4. Writing and Executing bash-Scripts</i</A></h3>
+<p>You can write your own bash-scripts in a text-editor (like "vim", "emacs", "kate", "gedit", "joe" etc.). They are plain-text-files containing one or more bash-commands.  
+<br>To be able to execute a script on Linux, you have to make it executable first.
+To do that, you need the required user-rights. If you've got them, you can make a script called "script" executable with
+
+<pre>chmod +x script</pre>
+
+<p>After that you can run the script with
+
+<pre>bash script</pre>
+
+<p>or you can run the script without invocing "bash" once more expressly.
+If the script is in the current directory, you can run it just with "script", if the current directory is mentioned in the system's "<tt>$PATH</tt>"-variable.
+If it is not, you have to tell the shell expressly, that you are referring to the current directory. This directory is symbolized by ".".
+<br>So a bash-script in the current directory can be executed with:
+<pre>./script</pre>
+<p>Then, you can put your scripts into the directory:
+<pre>/usr/local/bin</pre>
+<p>This directory is mentioned in the "<tt>$PATH</tt>"-variable by system's default. Because of that, the scripts that are placed there, can be executed from every directory, just like any other shell-command.
+<p>It is useful to mention in the script, that it contains code that should be executed with bash. To do that, you write as the first line of the script:
+<pre>#!/bin/bash</pre>
+<p>This first line of as script is called "sh'bang": "sh'" means "sharp" ("#"), "bang" refers to the exclamation mark.
+<p>So, if for example you create a script
+<pre>#!/bin/bash
+echo "Hello World"</pre>
+<p>call it "<tt>mine</tt>", set the user-rights to "executable"
+<pre>chmod +x mine</pre>
+<p>and move it to "<tt>/usr/local/bin</tt>"
+<pre>mv ./mine /usr/local/bin</pre>
+<p>as root, you can just enter "<tt>mine</tt>" in a terminal from any directory to execute the script.
+<P>
+<HR>
+<h3><A NAME="5">5. Expansion of the Command-Line by the Shell</A></h3>
+<p>As bash is a command-line-interpreter, it looks for a command and its options.
+<br>But before a command is executed, bash checks the input for certain special characters like "<tt>*</tt>" in
+<pre>cp * /home/user</pre>
+<p>and expands them. This expansion also happens with each line of code in shell-scripts.
+<br>Therefore you sometimes have to watch out, what the line of code will look like right before execution after it has been expanded by the shell.
+<p>The options of the shell-commands are usually separated by space-characters, like in "<tt>ls -l -i -s -a</tt>" for example.
+<br>So if you use expressions, that shall be expanded to command-options by the shell, you have to make sure, the expansion does not lead to unwanted space-characters, that would be interpreted as option-ends.
+<p>If you put strings in single quotation marks like in
+<pre>echo 'Hello *'</pre>
+<p>bash interprets the expression in spite of space-characters as a single string. Besides that, there isn't any expansion of any special characters then (like "<tt>*</tt>" in the example).
+<p>If you put strings in double quotation marks like in
+<pre>echo "Hello *"</pre>
+<p>the expression is again interpreted as a single string.
+Most special characters aren't expanded, but some are, especially "<tt>$</tt>", so that, for example, the value of a variable "<tt>$a</tt>" in
+<pre>a=World; echo "Hello $a"</pre>
+<p>(variables are explained soon) becomes part of the string.
+<p>
+<HR>
+<h3><A NAME="6">6. Variables</h3</A></h3>
+<p>The scalar variables in bash are usually strings. They are defined just by their variable name. To access their values later, a "<tt>$</tt>" has to be written in front of their name. Then the shell expands the variable name to the value of the variable:
+<pre>#!/bin/bash
+
+a="Hello World !"
+echo $a
+</pre>
+<p>This variable-expansion is done in every single line of the script.
+<p>In the line "<tt>a="Hello World!"</tt>"
+there must not be a space character between "<tt>a</tt>", "<tt>=</tt>" and the following word.
+The reason for that is, in bash, space characters separate commands from options (like for example in "<tt>ls -l</tt>"). Only if the equality sign is used in connection with the variable names and -values without any space characters in between, the shell can recognize the expression as a variable assignment.
+<p>
+<HR>
+<h3><A NAME="7">7. Assignment of Command-Output to Variables by Expansion</A></h3>
+<p>Like explained above, with "&vert;" the output of one command can be given to another command for further processing using the data input stream it uses ("pipe").
+<p>But how do you assign the output of a command to a variable, as variables don't use data input streams ? 
+<p>To do that, you have to put the command in socalled "backticks" (`) (on the keyboard: "Shift and the key right of ?") or you put the command into "<tt>$(...)</tt>" like in:
+<pre>$(command)</pre>
+<p>Then the command is executed and its output is expanded to an expression within the command-line. This expression can then be assigned to a variable:
+<pre>#!/bin/bash
+
+a=$(ls -la)
+echo $a
+</pre>
+<p>It is often useful to put the expanded expression in quotation marks once more. To make clear, that it is a single expression, and not single words or numbers, although there may be space characters in the expression.
+<p>
+<HR>
+<h3><A NAME="8">8. for-Loops in "C-Style"</A></h3>
+<p>In BASIC you can do the following:
+<pre>10 FOR i=1 TO 10
+20 PRINT i
+20 NEXT i
+</pre>
+<p>You can do this in bash too:
+<pre>#!/bin/bash
+
+for ((i=1; i&lt;=10; i++))
+do
+    echo $i
+done
+</pre>
+<p>for-loops can be created (nearly like in the programming-language C) by writing three things between two round brackets, separated by ";":
+<ol>
+<li>A value assigned to the loop-variable, which with the loop shall start.</li>
+<li>A condition. The loop runs as long, as the condition is given.
+<li>The way, in which the loop-variable shall change after each loop.
+<br>"i++" is short for "i=i+1" here.
+</li>
+</ol>
+<p>Then, the commands to be executed within the loop are written between the lines "do" and "done".
+<p>The indentation of the commands in command-blocks (for example with four space characters) is in bash (different from <A HREF="python1_introduction.html">Python</A>) not required, but it is recommended, because the code gets a bit more readable with it.
+<p>The command "<tt>break</tt>" inside the command-block makes the script exit the loop prematurely. The execution of the script is then continued right after the loop. "<tt>break 2</tt>" exits two nested loop at once.
+<p>The command "<tt>continue</tt>" inside the command-block starts the next loop prematurely, so the commands after "<tt>continue</tt>" are not executed any more.
+<p>
+<HR>
+<h3><A NAME="9">9. for-Loops in "Python-Style"</A></h3>
+<p>In bash, there are also for-loops, in which the loop-variable represents one of several arguments after the word "in":
+<pre>#!/bin/bash
+
+a="This is a line of text."
+for i in $a 
+do
+    echo $i
+done
+</pre>
+<p>Please think about the following for a moment: In the for-line, "<tt>$a</tt>" is expanded to several single words without the quotation marks. In each loop, "<tt>$i</tt>" represents one of these words.
+If you do instead
+<pre>for i in "This is a line of text."</pre>
+<p>"<tt>$i</tt>" represents the whole string, so the script only goes through the loop once.
+<P>
+<HR>
+<h3><A NAME="10">10. while-Loops. "a = a + 1"</A></h3>
+<p>Besides for-loops, bash also provides while-loops, with which the "1-10"-script could also have been written:
+<pre>#!/bin/bash
+
+i=1
+
+while test $i -le 10
+do
+    echo $i
+    let "i += 1"
+done
+</pre>
+<p>The condition for the while-loop is created with the "<tt>test</tt>"-command; please see "<tt>man test</tt>" for details.
+<p>To do "<tt>i = i + 1</tt>", you have to use the line above
+<pre>let "i += 1"
+</pre>
+<p>Please watch out for the space characters: They have to be placed exactly like shown.
+<br>In order to raise a number by one, you can also use "<tt>let i++</tt>".
+<br>Alternatively, this command works
+<pre>i=$(expr $i + 1)
+</pre>
+<p>but the "let"-command runs much faster (as it's a "bash builtin").
+<p>If you want to execute the while-loop-script interactively in the shell, all commands have to be separated by ";". But there mustn't be a ";" between "do" and the following command:
+<pre>i=1; while test $i -le 10; do echo $i; let "i += 1"; done
+</pre>
+<p>
+<HR>
+<h3><A NAME="11">11. if-Conditions</A></h3>
+<p>BASIC:
+<pre>10 LET a=1
+20 IF a=1 THEN PRINT "a=1"
+30 IF a&lt;&gt;2 THEN PRINT "a is not 2."
+40 IF a=2 THEN PRINT "a=2" ELSE PRINT "a is not 2."
+50 LET b=2
+60 IF a=1 AND b=2 THEN PRINT "a=1, b=2"
+70 IF a=1 OR b=2 THEN PRINT "a=1 oder b=2."
+</pre>
+<p>bash:
+
+<pre>
+#!/bin/bash
+
+a=1
+if [ $a -eq 1 ];
+then
+    echo "a=1"
+fi
+if [ $a -ne 2 ];
+then
+    echo "a is not 2."
+fi
+if [ $a -eq 2 ];
+then
+    echo "a=2."
+else
+    echo "a is not 2."
+fi
+b=2
+if [ $a -eq 1 ] && [ $b -eq 2 ];
+then
+    echo "a=1, b=2."
+fi
+if [ $a -eq 1 ] || [ $b -eq 2 ];
+then
+    echo "a=1 oder b=2."
+fi
+</pre>
+<p>As you can see, if-conditions are written like:
+<pre>if &lt;test-command with expression&gt;; then &lt;commands&gt;; else &lt;other commands&gt;; fi</pre>
+<p>The expression
+<pre>[  ]</pre>
+<p>is short for the "<tt>test</tt>"-command (please see "<tt>man test</tt>"). The space characters left and right inside the brackets are required.
+<p>Besides "<tt>else</tt>" there is also "<tt>elif</tt>" (for "else if").
+<p>
+<HR>
+<h3><A NAME="12">12. Input</A></h3>
+<p>BASIC:
+<pre>10 LET a=0
+20 INPUT a
+30 PRINT a
+</pre>
+<p>bash:
+<pre>
+#!/bin/bash
+
+a=0
+read a
+echo $a
+</pre>
+<p>Like "<tt>echo</tt>" writes a line of data to <tt>stdout</tt>, "<tt>read</tt>" reads a line of data from <tt>stdin</tt>.
+<p>
+<HR>
+<h3><A NAME="13">13. Example-Script "Cookie-Monster"</A></h3>
+<p>After loops, input and conditions have been described, for once these programming-techniques can be combined.
+<p>Please try to find out, what the script does and how it does it:
+<pre>
+#!/bin/bash
+
+cookies=""
+while test -z $cookies || test $cookies != "COOKIES"
+do
+    echo -n "I want COOKIES: "
+    read cookies
+done
+echo "Mmmm. COOKIES."
+</pre>
+<p>The "<tt>&vert;&vert;</tt>" in the while line represents "<tt>logical OR</tt>". The second test in the while-line is only done, when the first test ($cookies is "") is not already positive. 
+<p>The first test is necessary, because if $cookies is "", it would be expanded to nothing, so that the "<tt>test</tt>"-command wouldn't get a suitable argument for other tests than "<tt>-z</tt>" or "<tt>-n</tt>", for example for "<tt>!=</tt>"-tests.
+<p>
+<HR>
+<h3><A NAME="14">14. Processing Script-Options - Positional Parameters</A></h3>
+<p>A script can be called with options like in
+<pre>./script -a</pre>
+<p>Options like "-a" are stored in special variables "<tt>$1</tt>", "<tt>$2</tt>", "<tt>$3</tt>" and so on that then can be processed inside the script.
+<br>The Variable "<tt>$@</tt>" contains all of those options in a string.
+<br>The number of options, separated by a space character, can be found out accessing the variable "<tt>$#</tt>".
+<p>So in the example above, inside the script the variable "<tt>$1</tt>" contains the expression "<tt>-a</tt>".
+<p>
+<HR>
+<h3><A NAME="15">15. String-Manipulation</A></h3>
+<p>Manipulation of strings in bash is less comfortable than in other programming-languages.
+<p>If you have a variable "<tt>$a</tt>", the number of characters of its value can be found out with "<tt>${#a}</tt>".
+<p>"<tt>${a:2:3}</tt>" delivers a substring of 3 characters, starting at position 2 of variable "<tt>$a</tt>".
+<br>"<tt>${a:2}</tt>" delivers all characters from position 2 to the end.
+<pre>a=${a/from/to}</pre>
+<p>replaces the first occurrence of "<tt>from</tt>" in the variable "<tt>$a</tt>" to "<tt>to</tt>".
+<pre>a=${a//from/to}</pre>
+<p>replaces every occurrence of "<tt>from</tt>" in the variable "<tt>$a</tt>" to "<tt>to</tt>".
+<p>
+<HR>
+<h3><A NAME="16">16. Arrays</A></h3>
+<p>Traditionally, arrays (field variables) are rarely used in shell-scripts, although they are supported in newer versions of bash.
+<p>Several array-elements can be assigned at once, but values can be assigned directly to array-positions too.
+<br>The first array-position starts at 0 (like in most other programming languages).
+<br>The number of array-elements can be found out. Iteration over arrays is possible:
+<pre>#!/bin/bash
+
+arr=("apple" "pear" "peach")
+
+arr[3]="banana"
+arr[4]="cherry"
+
+echo
+echo "The array has ${#arr[@]} elements:"
+echo
+ 
+for ((i=0; i&lt;${#arr[@]}; i++))
+do
+    echo ${arr[$i]}
+done
+
+echo
+</pre>
+<p>
+<HR>
+<h3><A NAME="17">17. Functions</A></h3>
+<p>For more complex scripts bash also provides functions.
+<br>Functions are independent code-parts that can receive data as arguments and return results.
+With functions, large tasks can be split into many small subtasks.
+Here's an example:
+<pre>#!/bin/bash
+
+selfdefinedfunction ()
+{
+    echo $1
+}
+
+selfdefinedfunction "Hello" 
+</pre>
+<p>When "<tt>selfdefinedfunction</tt>" is called with the argument "<tt>Hello</tt>", this argument is automatically assigned to the variable "<tt>$1</tt>" inside the function.
+<p>Local variables inside the function can be defined with the "<tt>local</tt>"-command.
+<p>Subprocesses invoked by the shell and functions can return a value, which then can be accessed through the special variable "<tt>$?</tt>".
+Usually this mechanism is used by programs reporting if they completed successfully without errors.
+<br>But this method can be used by bash-functions to return results too:
+<pre>#!/bin/bash
+
+selfdefinedfunction ()
+{
+    echo $1
+    return 5
+}
+
+selfdefinedfunction "Hello" 
+echo $?
+</pre>
+<p>
+<HR>
+<h3><A NAME="18">18. Redirection of Data-Streams. Suppressing Error-Messages</A></h3>
+<p>Sometimes you want to prevent a program for example from printing its error-messages to the screen.
+<br>This can be done by redirecting the data-stream <tt>stderr</tt>:
+<ul>
+<li>The general option "<tt>1&gt;file</tt>" directs <tt>stdout</tt> to "<tt>file</tt>",
+<li>"<tt>2&gt;file</tt>" directs <tt>stderr</tt> to "<tt>file</tt>",
+<li>"<tt>&&gt;file</tt>" directs <tt>stdout</tt> and <tt>stderr</tt> to "<tt>file</tt>",
+</ul>
+<p>Output can also be redirected to "<tt>/dev/null</tt>", that is into nothingness:
+<pre>echo "gone" &&gt;/dev/null</pre>
+<p>
+<HR>
+<h3><A NAME="19">19. Processing of Data in Text-Files: awk, grep, sed. Better Learn Perl</A></h3>
+<p>In general, bash is designed rather for dealing with whole files and directories than for processing data in text-files.
+<p>The command "<tt>grep</tt>" can be used to filter certain lines from text-files or command-output.
+<br>If "<tt>grep</tt>" is called with a search-string and a file-name, the file is searched for the string and the lines found are written to standard output. So
+<pre>grep -i word file.txt
+</pre>
+<p>searches "<tt>file.txt</tt>" for lines containing "<tt>word</tt>" (the search is not case sensitive here, because of the given "<tt>-i</tt>"-option to "<tt>grep</tt>"), and writes them to standard output.
+<br>"<tt>grep</tt>" is also often used in a pipe like in "<tt>cat file.txt | grep word</tt>" or "<tt>find | grep html</tt>".
+<p>After some lines have been found by "<tt>grep</tt>", they often need to be split, because only certain parts of the line are of interest. These kind of "split"-operations can be done with the command "<tt>awk</tt>".
+<br>And the stream-editor "<tt>sed</tt>" can be used to edit the inside of text-files according to defined criteria.
+<p>
+<HR>
+<h3><A NAME="20">20. Go Beyond bash and Learn Perl</A></h3>
+<p>But when you reach the point in bash-programming, that you start messing with commands like "<tt>sed</tt>" and "<tt>awk</tt>" to manipulate data, I suggest to leave bash behind and learn "<a href="perl1_introduction.html">Perl</a>" instead.
+<br>Because in my opinion, the kind of operations these commands do can be controlled much easier and with much more comfort in that language. 
+<br>Perl is for example the better choice, if you try to iterate over output of commands that contains multiple lines. Or over variables with this kind of more complex content.
+Or if you try to read in the contents of a text-file into an array, to be able to continue working with that array.
+Or if you want to write functions that return more than just a single value.
+<br>So when the programming task exceeds basic file management, I'd suggest focusing on Perl.
+<br>&nbsp;
+<hr width="70%">
+<br><center><a href="index.html">Back</a></center>
+<br>Author: hlubenow2 {at-symbol} gmx.net
+</center>
+</body>
+</html>
